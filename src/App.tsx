@@ -96,6 +96,14 @@ function App() {
     setBoard(updated);
   }
 
+  function statusForColumn(colName: string): Status {
+    const idx = board.columns.findIndex((c) => c.name === colName);
+    const total = board.columns.length;
+    if (idx === 0) return "todo";
+    if (idx === total - 1) return "done";
+    return "in_progress";
+  }
+
   // ── Tasks ─────────────────────────────────────────────────────────────────
 
   async function addTask(column: string) {
@@ -106,7 +114,7 @@ function App() {
     const task: Task = {
       id: Date.now().toString(),
       text,
-      status: "todo",
+      status: statusForColumn(column),
       column,
       labels,
       due_date,
@@ -198,7 +206,10 @@ function App() {
     dragTaskId.current = null;
     const task = board.tasks.find((t) => t.id === id);
     if (!task || task.column === targetColumn) return;
-    await updateTask(id, { column: targetColumn });
+    await updateTask(id, {
+      column: targetColumn,
+      status: statusForColumn(targetColumn),
+    });
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
