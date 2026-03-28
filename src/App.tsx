@@ -3,37 +3,17 @@ import { KanbanColumn } from "./components/KanbanColumn";
 import { useBoard } from "./hooks/useBoard";
 
 function App() {
-  const {
-    board,
-    expandedId,
-    setExpandedId,
-    newTaskText,
-    setNewTaskText,
-    editingColumn,
-    editingColumnName,
-    setEditingColumnName,
-    labelInput,
-    setLabelInput,
-    renameInputRef,
-    addTask,
-    updateTask,
-    deleteTask,
-    addLabel,
-    removeLabel,
-    addColumn,
-    startRenameColumn,
-    commitRename,
-    setEditingColumn,
-    deleteColumn,
-    onDragStart,
-    onDrop,
-  } = useBoard();
+  const { board, tasks, columns, dnd } = useBoard();
 
   return (
     <div className={styles.app}>
       <header className={styles.appHeader}>
         <h1>KanbanMD</h1>
-        <button type="button" className={styles.addColBtn} onClick={addColumn}>
+        <button
+          type="button"
+          className={styles.addColBtn}
+          onClick={columns.addColumn}
+        >
           + Add column
         </button>
       </header>
@@ -44,33 +24,31 @@ function App() {
             key={col.name}
             column={col}
             tasks={board.tasks.filter((t) => t.column === col.name)}
-            isEditing={editingColumn === col.name}
-            editingName={editingColumnName}
-            onEditingNameChange={setEditingColumnName}
-            onStartRename={() => startRenameColumn(col.name)}
-            onCommitRename={() => commitRename(col.name)}
-            onCancelRename={() => setEditingColumn(null)}
-            renameInputRef={renameInputRef}
-            onDeleteColumn={() => deleteColumn(col.name)}
-            newTaskText={newTaskText[col.name] ?? ""}
+            isEditing={columns.editingColumn === col.name}
+            editingName={columns.editingName}
+            onEditingNameChange={columns.setEditingName}
+            onStartRename={() => columns.startRename(col.name)}
+            onCommitRename={() => columns.commitRename(col.name)}
+            onCancelRename={columns.cancelRename}
+            renameInputRef={columns.renameInputRef}
+            onDeleteColumn={() => columns.deleteColumn(col.name)}
+            newTaskText={tasks.newTaskText[col.name] ?? ""}
             onNewTaskTextChange={(v) =>
-              setNewTaskText((p) => ({ ...p, [col.name]: v }))
+              tasks.setNewTaskText((p) => ({ ...p, [col.name]: v }))
             }
-            onAddTask={() => addTask(col.name)}
-            expandedId={expandedId}
-            onToggleExpand={(id) =>
-              setExpandedId(expandedId === id ? null : id)
-            }
-            onUpdateTask={updateTask}
-            onDeleteTask={deleteTask}
-            onAddLabel={addLabel}
-            onRemoveLabel={removeLabel}
-            labelInput={labelInput}
+            onAddTask={() => tasks.addTask(col.name)}
+            expandedId={tasks.expandedId}
+            onToggleExpand={tasks.toggleExpand}
+            onUpdateTask={tasks.updateTask}
+            onDeleteTask={tasks.deleteTask}
+            onAddLabel={tasks.addLabel}
+            onRemoveLabel={tasks.removeLabel}
+            labelInput={tasks.labelInput}
             onLabelInputChange={(taskId, v) =>
-              setLabelInput((p) => ({ ...p, [taskId]: v }))
+              tasks.setLabelInput((p) => ({ ...p, [taskId]: v }))
             }
-            onDragStart={onDragStart}
-            onDrop={() => onDrop(col.name)}
+            onDragStart={dnd.onDragStart}
+            onDrop={() => dnd.onDrop(col.name)}
           />
         ))}
       </div>
