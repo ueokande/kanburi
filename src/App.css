@@ -75,8 +75,8 @@ body {
 .column {
   display: flex;
   flex-direction: column;
-  width: 280px;
-  min-width: 280px;
+  width: 300px;
+  min-width: 300px;
   background: #e4e6ea;
   border-radius: 10px;
   padding: 10px;
@@ -154,6 +154,7 @@ body {
   gap: 6px;
   overflow-y: auto;
   flex: 1;
+  list-style: none;
 }
 
 /* ── Card ──────────────────────────────────────────────────────────────── */
@@ -190,9 +191,57 @@ body {
   color: #999;
 }
 
-.due-badge {
-  align-self: flex-start;
+/* ── Status button ─────────────────────────────────────────────────────── */
+
+.status-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0 2px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  transition: opacity 0.15s;
+}
+
+.status-btn:hover {
+  opacity: 0.7;
+}
+
+.status-btn.status-todo {
+  color: #aaa;
+}
+.status-btn.status-in_progress {
+  color: #0078d4;
+}
+.status-btn.status-done {
+  color: #00893a;
+}
+
+/* ── Card meta row (labels + due date) ─────────────────────────────────── */
+
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-left: 2px;
+}
+
+.label-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.due-badge {
+  font-size: 0.72rem;
+  font-weight: 500;
   padding: 2px 7px;
   border-radius: 10px;
   background: #e8f4fd;
@@ -202,8 +251,10 @@ body {
 
 .due-badge.overdue {
   background: #ffeaea;
-  color: #d00;
+  color: #c00000;
 }
+
+/* ── Expand / delete buttons ───────────────────────────────────────────── */
 
 .expand-btn {
   background: none;
@@ -241,8 +292,8 @@ body {
 .card-details {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-top: 6px;
+  gap: 10px;
+  padding-top: 8px;
   border-top: 1px solid #f0f0f0;
 }
 
@@ -252,7 +303,7 @@ body {
   gap: 4px;
   font-size: 0.75rem;
   color: #666;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .card-details input[type="date"],
@@ -264,11 +315,67 @@ body {
   outline: none;
   font-family: inherit;
   resize: vertical;
+  font-weight: 400;
+  color: #222;
 }
 
 .card-details input[type="date"]:focus,
 .card-details textarea:focus {
   border-color: #0078d4;
+}
+
+/* ── Label editor ──────────────────────────────────────────────────────── */
+
+.label-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label-editor-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #666;
+}
+
+.label-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 22px;
+}
+
+.label-input-row {
+  display: flex;
+  gap: 5px;
+}
+
+.label-input-row input {
+  flex: 1;
+  font-size: 0.82rem;
+  padding: 4px 7px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  font-family: inherit;
+}
+
+.label-input-row input:focus {
+  border-color: #0078d4;
+}
+
+.label-input-row button {
+  padding: 4px 10px;
+  background: #0078d4;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.label-input-row button:hover {
+  background: #005fa3;
 }
 
 /* ── Add task ──────────────────────────────────────────────────────────── */
@@ -287,6 +394,7 @@ body {
   font-size: 0.85rem;
   outline: none;
   background: #fff;
+  font-family: inherit;
 }
 
 .add-task input:focus {
@@ -306,4 +414,21 @@ body {
 
 .add-task button:hover {
   background: #005fa3;
+}
+
+/* Higher specificity — must come after lower-specificity button rules */
+
+.label-badge.editable button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.6;
+  color: inherit;
+}
+
+.label-badge.editable button:hover {
+  opacity: 1;
 }

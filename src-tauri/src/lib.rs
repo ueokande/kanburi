@@ -12,10 +12,12 @@ pub struct Column {
 pub struct Task {
     pub id: String,
     pub text: String,
-    pub done: bool,
+    /// "todo" | "in_progress" | "done"
+    pub status: String,
     pub column: String,
-    pub description: Option<String>,
+    pub labels: Vec<String>,
     pub due_date: Option<String>,
+    pub description: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -38,12 +40,32 @@ impl Board {
 }
 
 fn board_file_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
-    let dir = app
-        .path()
-        .app_data_dir()
-        .map_err(|e| e.to_string())?;
+    let dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     Ok(dir.join("tasks.md"))
+}
+
+/// Parse inline tokens: `#Label` → label, `@YYYY-MM-DD` → due_date, rest → text.
+fn parse_task_tokens(rest: &str) -> (String, Vec<String>, Option<String>) {
+    let mut labels: Vec<String> = Vec::new();
+    let mut due_date: Option<String> = None;
+    let mut text_parts: Vec<&str> = Vec::new();
+
+    for token in rest.split_whitespace() {
+        if let Some(label) = token.strip_prefix('#') {
+            if !label.is_empty() {
+                labels.push(label.to_string());
+            }
+        } else if let Some(date) = token.strip_prefix('@') {
+            if !date.is_empty() {
+                due_date = Some(date.to_string());
+            }
+        } else {
+            text_parts.push(token);
+        }
+    }
+
+    (text_parts.join(" "), labels, due_date)
 }
 
 fn parse_board(content: &str) -> Board {
@@ -51,10 +73,14 @@ fn parse_board(content: &str) -> Board {
     let mut tasks: Vec<Task> = Vec::new();
     let mut current_column: Option<String> = None;
     let mut last_task_idx: Option<usize> = None;
+    let mut col_task_counter: std::collections::HashMap<String, usize> = Default::default();
 
-    let mut lines = content.lines().peekable();
+    for line in content.lines() {
+        // Skip top-level heading
+        if line.starts_with("# ") && !line.starts_with("## ") {
+            continue;
+        }
 
-    while let Some(line) = lines.next() {
         if let Some(heading) = line.strip_prefix("## ") {
             let name = heading.trim().to_string();
             if !columns.iter().any(|c| c.name == name) {
@@ -66,20 +92,19 @@ fn parse_board(content: &str) -> Board {
         }
 
         let trimmed = line.trim();
-        let (text_rest, done) = if let Some(r) = trimmed.strip_prefix("- [ ] ") {
-            (r, false)
+        let (rest, status) = if let Some(r) = trimmed.strip_prefix("- [ ] ") {
+            (r, "todo")
+        } else if let Some(r) = trimmed.strip_prefix("- [/] ") {
+            (r, "in_progress")
         } else if let Some(r) = trimmed.strip_prefix("- [x] ") {
-            (r, true)
+            (r, "done")
         } else {
-            // Indented description line for the last task
+            // Indented description lines (2+ spaces, not a task line)
             if line.starts_with("  ") && !trimmed.is_empty() {
                 if let Some(idx) = last_task_idx {
                     let desc_line = line[2..].to_string();
                     match &mut tasks[idx].description {
-                        Some(d) => {
-                            d.push('\n');
-                            d.push_str(&desc_line);
-                        }
+                        Some(d) => { d.push('\n'); d.push_str(&desc_line); }
                         None => tasks[idx].description = Some(desc_line),
                     }
                 }
@@ -87,53 +112,26 @@ fn parse_board(content: &str) -> Board {
             continue;
         };
 
-        let (text, id, due_date) = extract_meta(text_rest);
+        let (text, labels, due_date) = parse_task_tokens(rest);
         let column = current_column.clone().unwrap_or_else(|| "To Do".into());
+        let counter = col_task_counter.entry(column.clone()).or_insert(0);
+        let id = format!("{:x}", hash_str(&format!("{}:{}:{}", column, text, counter)));
+        *counter += 1;
 
         last_task_idx = Some(tasks.len());
-        tasks.push(Task { id, text, done, column, description: None, due_date });
+        tasks.push(Task { id, text, status: status.to_string(), column, labels, due_date, description: None });
     }
 
     if columns.is_empty() {
         return Board::default();
     }
-
     Board { columns, tasks }
-}
-
-fn extract_meta(s: &str) -> (String, String, Option<String>) {
-    const TAG_START: &str = " <!-- ";
-    const TAG_END: &str = " -->";
-    if let (Some(start), Some(_)) = (s.rfind(TAG_START), s.rfind(TAG_END)) {
-        let inner = &s[start + TAG_START.len()..s.len() - TAG_END.len()];
-        let text = s[..start].to_string();
-
-        let id = inner
-            .split_whitespace()
-            .find_map(|kv| kv.strip_prefix("id:"))
-            .unwrap_or("")
-            .to_string();
-        let due_date = inner
-            .split_whitespace()
-            .find_map(|kv| kv.strip_prefix("due:"))
-            .map(str::to_string);
-        let id = if id.is_empty() {
-            format!("{:x}", hash_str(&text))
-        } else {
-            id
-        };
-        return (text, id, due_date);
-    }
-    let id = format!("{:x}", hash_str(s));
-    (s.to_string(), id, None)
 }
 
 fn hash_str(s: &str) -> u64 {
     s.bytes()
         .enumerate()
-        .fold(0u64, |acc, (i, b)| {
-            acc.wrapping_add((b as u64).wrapping_mul(i as u64 + 1))
-        })
+        .fold(0u64, |acc, (i, b)| acc.wrapping_add((b as u64).wrapping_mul(i as u64 + 1)))
 }
 
 fn serialize_board(board: &Board) -> String {
@@ -142,12 +140,20 @@ fn serialize_board(board: &Board) -> String {
     for col in &board.columns {
         out.push_str(&format!("\n## {}\n\n", col.name));
         for task in board.tasks.iter().filter(|t| t.column == col.name) {
-            let mark = if task.done { "x" } else { " " };
-            let mut meta = format!("id:{}", task.id);
-            if let Some(due) = &task.due_date {
-                meta.push_str(&format!(" due:{}", due));
+            let mark = match task.status.as_str() {
+                "in_progress" => "/",
+                "done" => "x",
+                _ => " ",
+            };
+            let mut line = format!("- [{}] {}", mark, task.text);
+            for label in &task.labels {
+                line.push_str(&format!(" #{}", label));
             }
-            out.push_str(&format!("- [{}] {} <!-- {} -->\n", mark, task.text, meta));
+            if let Some(due) = &task.due_date {
+                line.push_str(&format!(" @{}", due));
+            }
+            out.push_str(&line);
+            out.push('\n');
             if let Some(desc) = &task.description {
                 for dl in desc.lines() {
                     out.push_str(&format!("  {}\n", dl));
