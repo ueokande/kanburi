@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { useCallback, useEffect, useState } from "react";
 
 interface Task {
   id: string;
@@ -11,14 +11,14 @@ function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newText, setNewText] = useState("");
 
-  useEffect(() => {
-    loadTasks();
-  }, []);
-
-  async function loadTasks() {
+  const loadTasks = useCallback(async () => {
     const loaded = await invoke<Task[]>("load_tasks");
     setTasks(loaded);
-  }
+  }, []);
+
+  useEffect(() => {
+    loadTasks();
+  }, [loadTasks]);
 
   async function saveTasks(updated: Task[]) {
     await invoke("save_tasks", { tasks: updated });
@@ -35,7 +35,7 @@ function App() {
 
   async function toggleTask(id: string) {
     await saveTasks(
-      tasks.map((t) => (t.id === id ? { ...t, done: !t.done } : t))
+      tasks.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),
     );
   }
 
@@ -54,7 +54,9 @@ function App() {
           onKeyDown={(e) => e.key === "Enter" && addTask()}
           placeholder="Add a task…"
         />
-        <button onClick={addTask}>Add</button>
+        <button type="button" onClick={addTask}>
+          Add
+        </button>
       </div>
 
       <ul className="task-list">
@@ -66,7 +68,11 @@ function App() {
               onChange={() => toggleTask(task.id)}
             />
             <span>{task.text}</span>
-            <button className="delete" onClick={() => deleteTask(task.id)}>
+            <button
+              type="button"
+              className="delete"
+              onClick={() => deleteTask(task.id)}
+            >
               ✕
             </button>
           </li>
