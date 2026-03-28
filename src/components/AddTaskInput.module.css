@@ -1,0 +1,35 @@
+.addTask {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.addTask input {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  outline: none;
+  background: #fff;
+  font-family: inherit;
+}
+
+.addTask input:focus {
+  border-color: #0078d4;
+}
+
+.addTask button {
+  padding: 7px 12px;
+  background: #0078d4;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.addTask button:hover {
+  background: #005fa3;
+}
