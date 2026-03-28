@@ -66,12 +66,17 @@ h1 {
 
 .task-list li {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
   background: white;
-  padding: 10px 14px;
   border-radius: 6px;
   border: 1px solid #e0e0e0;
+}
+
+.task-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
 }
 
 .task-list li span {
@@ -81,6 +86,68 @@ h1 {
 .task-list li.done span {
   text-decoration: line-through;
   color: #999;
+}
+
+.due-badge {
+  font-size: 0.75rem;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: #e8f4fd;
+  color: #0078d4;
+  white-space: nowrap;
+}
+
+.due-badge.overdue {
+  background: #ffeaea;
+  color: #d00;
+}
+
+.task-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 14px 12px 38px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.task-details label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.task-details input[type="date"],
+.task-details textarea {
+  font-size: 0.9rem;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.task-details input[type="date"]:focus,
+.task-details textarea:focus {
+  border-color: #0078d4;
+}
+
+button.expand-btn {
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+button.expand-btn:hover {
+  color: #555;
 }
 
 .task-list li.empty {

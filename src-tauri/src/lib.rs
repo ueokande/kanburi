@@ -8,6 +8,8 @@ pub struct Task {
     pub id: String,
     pub text: String,
     pub done: bool,
+    pub description: Option<String>,
+    pub due_date: Option<String>,
 }
 
 fn tasks_file_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
@@ -20,54 +22,96 @@ fn tasks_file_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
 }
 
 fn parse_tasks(content: &str) -> Vec<Task> {
-    content
-        .lines()
-        .filter_map(|line| {
-            let line = line.trim();
-            if let Some(rest) = line.strip_prefix("- [ ] ") {
-                let (text, id) = extract_id(rest);
-                Some(Task { id, text, done: false })
-            } else if let Some(rest) = line.strip_prefix("- [x] ") {
-                let (text, id) = extract_id(rest);
-                Some(Task { id, text, done: true })
+    let mut tasks: Vec<Task> = Vec::new();
+    let mut lines = content.lines().peekable();
+
+    while let Some(line) = lines.next() {
+        let trimmed = line.trim();
+        let (text_rest, done) = if let Some(r) = trimmed.strip_prefix("- [ ] ") {
+            (r, false)
+        } else if let Some(r) = trimmed.strip_prefix("- [x] ") {
+            (r, true)
+        } else {
+            continue;
+        };
+
+        let (text, id, due_date) = extract_meta(text_rest);
+
+        // Collect following indented lines as the description.
+        let mut desc_lines: Vec<String> = Vec::new();
+        while let Some(&next) = lines.peek() {
+            if next.starts_with("  ") && !next.trim().starts_with("- [") {
+                desc_lines.push(next[2..].to_string());
+                lines.next();
             } else {
-                None
+                break;
             }
-        })
-        .collect()
+        }
+        let description = if desc_lines.is_empty() {
+            None
+        } else {
+            Some(desc_lines.join("\n"))
+        };
+
+        tasks.push(Task { id, text, done, description, due_date });
+    }
+    tasks
 }
 
-/// Extracts an embedded `<!-- id:XYZ -->` comment, falling back to a generated id.
-fn extract_id(s: &str) -> (String, String) {
-    const TAG_START: &str = " <!-- id:";
+/// Parses `<!-- id:XYZ due:YYYY-MM-DD -->` from the end of a task line.
+fn extract_meta(s: &str) -> (String, String, Option<String>) {
+    const TAG_START: &str = " <!-- ";
     const TAG_END: &str = " -->";
-    if let (Some(start), Some(end)) = (s.rfind(TAG_START), s.rfind(TAG_END)) {
-        if start < end {
-            let id = s[start + TAG_START.len()..end].to_string();
-            let text = s[..start].to_string();
-            return (text, id);
-        }
+    if let (Some(start), Some(_)) = (s.rfind(TAG_START), s.rfind(TAG_END)) {
+        let inner = &s[start + TAG_START.len()..s.len() - TAG_END.len()];
+        let text = s[..start].to_string();
+
+        let id = inner
+            .split_whitespace()
+            .find_map(|kv| kv.strip_prefix("id:"))
+            .unwrap_or("")
+            .to_string();
+
+        let due_date = inner
+            .split_whitespace()
+            .find_map(|kv| kv.strip_prefix("due:"))
+            .map(str::to_string);
+
+        let id = if id.is_empty() {
+            format!("{:x}", hash_str(&text))
+        } else {
+            id
+        };
+
+        return (text, id, due_date);
     }
-    // No id embedded — generate one from the text content (stable-ish).
-    let id = format!("{:x}", md5_simple(s));
-    (s.to_string(), id)
+    let id = format!("{:x}", hash_str(s));
+    (s.to_string(), id, None)
 }
 
 /// Minimal deterministic hash used only when no id is present in the file.
-fn md5_simple(s: &str) -> u64 {
+fn hash_str(s: &str) -> u64 {
     s.bytes()
         .enumerate()
-        .fold(0u64, |acc, (i, b)| acc.wrapping_add((b as u64).wrapping_mul(i as u64 + 1)))
+        .fold(0u64, |acc, (i, b)| {
+            acc.wrapping_add((b as u64).wrapping_mul(i as u64 + 1))
+        })
 }
 
 fn serialize_tasks(tasks: &[Task]) -> String {
     let mut lines = vec!["# Tasks".to_string(), String::new()];
     for task in tasks {
         let mark = if task.done { "x" } else { " " };
-        lines.push(format!(
-            "- [{}] {} <!-- id:{} -->",
-            mark, task.text, task.id
-        ));
+        let mut meta = format!("id:{}", task.id);
+        if let Some(due) = &task.due_date {
+            meta.push_str(&format!(" due:{}", due));
+        }
+        lines.push(format!("- [{}] {} <!-- {} -->", mark, task.text, meta));
+        if let Some(desc) = &task.description {
+            for desc_line in desc.lines() {
+                lines.push(format!("  {}", desc_line));
+            }
+        }
     }
     lines.join("\n") + "\n"
 }

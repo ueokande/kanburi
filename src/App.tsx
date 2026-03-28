@@ -5,11 +5,14 @@ interface Task {
   id: string;
   text: string;
   done: boolean;
+  description?: string;
+  due_date?: string;
 }
 
 function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newText, setNewText] = useState("");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const loadTasks = useCallback(async () => {
     const loaded = await invoke<Task[]>("load_tasks");
@@ -39,8 +42,18 @@ function App() {
     );
   }
 
+  async function updateTask(id: string, patch: Partial<Task>) {
+    await saveTasks(tasks.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+  }
+
   async function deleteTask(id: string) {
+    if (expandedId === id) setExpandedId(null);
     await saveTasks(tasks.filter((t) => t.id !== id));
+  }
+
+  function isOverdue(due_date?: string) {
+    if (!due_date) return false;
+    return new Date(due_date) < new Date(new Date().toDateString());
   }
 
   return (
@@ -62,19 +75,68 @@ function App() {
       <ul className="task-list">
         {tasks.map((task) => (
           <li key={task.id} className={task.done ? "done" : ""}>
-            <input
-              type="checkbox"
-              checked={task.done}
-              onChange={() => toggleTask(task.id)}
-            />
-            <span>{task.text}</span>
-            <button
-              type="button"
-              className="delete"
-              onClick={() => deleteTask(task.id)}
-            >
-              ✕
-            </button>
+            <div className="task-row">
+              <input
+                type="checkbox"
+                checked={task.done}
+                onChange={() => toggleTask(task.id)}
+              />
+              <span className="task-text">{task.text}</span>
+              {task.due_date && (
+                <span
+                  className={`due-badge ${isOverdue(task.due_date) ? "overdue" : ""}`}
+                >
+                  {task.due_date}
+                </span>
+              )}
+              <button
+                type="button"
+                className="expand-btn"
+                aria-label={expandedId === task.id ? "Collapse" : "Expand"}
+                onClick={() =>
+                  setExpandedId(expandedId === task.id ? null : task.id)
+                }
+              >
+                {expandedId === task.id ? "▲" : "▼"}
+              </button>
+              <button
+                type="button"
+                className="delete"
+                onClick={() => deleteTask(task.id)}
+              >
+                ✕
+              </button>
+            </div>
+
+            {expandedId === task.id && (
+              <div className="task-details">
+                <label>
+                  Due date
+                  <input
+                    type="date"
+                    value={task.due_date ?? ""}
+                    onChange={(e) =>
+                      updateTask(task.id, {
+                        due_date: e.target.value || undefined,
+                      })
+                    }
+                  />
+                </label>
+                <label>
+                  Description
+                  <textarea
+                    rows={3}
+                    value={task.description ?? ""}
+                    placeholder="Add a description…"
+                    onChange={(e) =>
+                      updateTask(task.id, {
+                        description: e.target.value || undefined,
+                      })
+                    }
+                  />
+                </label>
+              </div>
+            )}
           </li>
         ))}
         {tasks.length === 0 && (
