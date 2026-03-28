@@ -1,0 +1,118 @@
+.column {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  min-width: 300px;
+  background: #e4e6ea;
+  border-radius: 10px;
+  padding: 10px;
+  gap: 8px;
+  max-height: 100%;
+}
+
+.columnHeader {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 0;
+}
+
+.columnNameBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #333;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  text-align: left;
+}
+
+.columnNameBtn:hover {
+  background: #d0d3d8;
+}
+
+.taskCount {
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #c5c8ce;
+  color: #555;
+  border-radius: 10px;
+  padding: 1px 7px;
+}
+
+.columnNameInput {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 4px 6px;
+  border: 2px solid #0078d4;
+  border-radius: 4px;
+  outline: none;
+}
+
+.deleteColBtn {
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 4px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.deleteColBtn:hover {
+  color: #d00;
+  background: #ffeaea;
+}
+
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  flex: 1;
+  list-style: none;
+}
+
+.addTask {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.addTask input {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  outline: none;
+  background: #fff;
+  font-family: inherit;
+}
+
+.addTask input:focus {
+  border-color: #0078d4;
+}
+
+.addTask button {
+  padding: 7px 12px;
+  background: #0078d4;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.addTask button:hover {
+  background: #005fa3;
+}

@@ -1,0 +1,235 @@
+.card {
+  background: #fff;
+  border-radius: 7px;
+  padding: 10px 10px 8px;
+  border: 1px solid #ddd;
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.card:active {
+  cursor: grabbing;
+}
+
+.cardRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cardText {
+  flex: 1;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.card.done .cardText {
+  text-decoration: line-through;
+  color: #999;
+}
+
+/* ── Status button ───────────────────────────────────────────────────────── */
+
+.statusBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0 2px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  transition: opacity 0.15s;
+}
+
+.statusBtn:hover {
+  opacity: 0.7;
+}
+
+.statusTodo {
+  color: #aaa;
+}
+.statusInProgress {
+  color: #0078d4;
+}
+.statusDone {
+  color: #00893a;
+}
+
+/* ── Card meta ───────────────────────────────────────────────────────────── */
+
+.cardMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-left: 2px;
+}
+
+.labelBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.labelBadgeEditable button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.6;
+  color: inherit;
+}
+
+.dueBadge {
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: #e8f4fd;
+  color: #0078d4;
+  white-space: nowrap;
+}
+
+.dueBadgeOverdue {
+  background: #ffeaea;
+  color: #c00000;
+}
+
+/* ── Action buttons ──────────────────────────────────────────────────────── */
+
+.expandBtn {
+  background: none;
+  border: none;
+  color: #bbb;
+  cursor: pointer;
+  font-size: 0.65rem;
+  padding: 2px 4px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.expandBtn:hover {
+  color: #555;
+}
+
+.deleteBtn {
+  background: none;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 2px 5px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.deleteBtn:hover {
+  color: #d00;
+  background: #ffeaea;
+}
+
+/* ── Expanded details ────────────────────────────────────────────────────── */
+
+.cardDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.cardDetails label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #666;
+  font-weight: 600;
+}
+
+.cardDetails input[type="date"],
+.cardDetails textarea {
+  font-size: 0.85rem;
+  padding: 5px 7px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  font-family: inherit;
+  resize: vertical;
+  font-weight: 400;
+  color: #222;
+}
+
+.cardDetails input[type="date"]:focus,
+.cardDetails textarea:focus {
+  border-color: #0078d4;
+}
+
+/* ── Label editor ────────────────────────────────────────────────────────── */
+
+.labelEditor {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.labelEditorTitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #666;
+}
+
+.labelList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 22px;
+}
+
+.labelInputRow {
+  display: flex;
+  gap: 5px;
+}
+
+.labelInputRow input {
+  flex: 1;
+  font-size: 0.82rem;
+  padding: 4px 7px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  font-family: inherit;
+}
+
+.labelInputRow input:focus {
+  border-color: #0078d4;
+}
+
+/* Higher specificity — after lower-specificity button rules */
+
+.labelBadgeEditable button:hover {
+  opacity: 1;
+}
+
+.labelInputRow button {
+  padding: 4px 10px;
+  background: #0078d4;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.labelInputRow button:hover {
+  background: #005fa3;
+}
