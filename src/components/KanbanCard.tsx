@@ -164,6 +164,5 @@ function statusClass(
   s: Record<string, string>,
 ): string {
   if (status === "todo") return s.statusTodo;
-  if (status === "in_progress") return s.statusInProgress;
   return s.statusDone;
 }

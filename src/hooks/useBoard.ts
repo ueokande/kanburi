@@ -9,7 +9,7 @@ function statusForColumn(colNames: string[], colName: string): Status {
   const total = colNames.length;
   if (idx === 0) return "todo";
   if (idx === total - 1) return "done";
-  return "in_progress";
+  return "todo";
 }
 
 export function useBoard() {

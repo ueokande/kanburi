@@ -29,7 +29,8 @@ pub fn parse_board(content: &str) -> Board {
         let (rest, status) = if let Some(r) = trimmed.strip_prefix("- [ ] ") {
             (r, "todo")
         } else if let Some(r) = trimmed.strip_prefix("- [/] ") {
-            (r, "in_progress")
+            // Legacy in-progress marker: treat as todo on read.
+            (r, "todo")
         } else if let Some(r) = trimmed.strip_prefix("- [x] ") {
             (r, "done")
         } else {
@@ -79,7 +80,6 @@ pub fn serialize_board(board: &Board) -> String {
         out.push_str(&format!("\n## {}\n\n", col.name));
         for task in board.tasks.iter().filter(|t| t.column == col.name) {
             let mark = match task.status.as_str() {
-                "in_progress" => "/",
                 "done" => "x",
                 _ => " ",
             };

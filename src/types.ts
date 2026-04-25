@@ -1,4 +1,4 @@
-export type Status = "todo" | "in_progress" | "done";
+export type Status = "todo" | "done";
 
 export interface Task {
   id: string;
@@ -19,11 +19,10 @@ export interface Board {
   tasks: Task[];
 }
 
-export const STATUS_CYCLE: Status[] = ["todo", "in_progress", "done"];
+export const STATUS_CYCLE: Status[] = ["todo", "done"];
 
 export const STATUS_ICON: Record<Status, string> = {
   todo: "☐",
-  in_progress: "◑",
   done: "☑",
 };
 

@@ -9,7 +9,7 @@ pub struct Column {
 pub struct Task {
     pub id: String,
     pub text: String,
-    /// "todo" | "in_progress" | "done"
+    /// "todo" | "done"
     pub status: String,
     pub column: String,
     pub labels: Vec<String>,
