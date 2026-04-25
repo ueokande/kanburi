@@ -1,21 +1,39 @@
+import { useRef, useState } from "react";
 import { labelStyle } from "../utils";
 import styles from "./LabelEditor.module.css";
 
 interface Props {
   labels: string[];
-  inputValue: string;
-  onAdd: () => void;
+  onAdd: (label: string) => void;
   onRemove: (label: string) => void;
-  onInputChange: (value: string) => void;
 }
 
-export function LabelEditor({
-  labels,
-  inputValue,
-  onAdd,
-  onRemove,
-  onInputChange,
-}: Props) {
+export function LabelEditor({ labels, onAdd, onRemove }: Props) {
+  const [inputVisible, setInputVisible] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function showInput() {
+    setInputVisible(true);
+    // Focus after render
+    setTimeout(() => inputRef.current?.focus(), 0);
+  }
+
+  function commit() {
+    const raw = inputValue.trim().replace(/^#/, "");
+    if (raw) onAdd(raw);
+    setInputValue("");
+    setInputVisible(false);
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") commit();
+    if (e.key === "Escape") {
+      setInputValue("");
+      setInputVisible(false);
+    }
+  }
+
   return (
     <div className={styles.labelEditor}>
       <span className={styles.labelEditorTitle}>Labels</span>
@@ -39,17 +57,26 @@ export function LabelEditor({
             </span>
           );
         })}
-      </div>
-      <div className={styles.labelInputRow}>
-        <input
-          value={inputValue}
-          placeholder="#NewLabel"
-          onChange={(e) => onInputChange(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && onAdd()}
-        />
-        <button type="button" onClick={onAdd}>
-          Add
-        </button>
+        {inputVisible ? (
+          <input
+            ref={inputRef}
+            className={styles.labelInput}
+            value={inputValue}
+            placeholder="#NewLabel"
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onBlur={commit}
+          />
+        ) : (
+          <button
+            type="button"
+            className={styles.addBtn}
+            aria-label="Add label"
+            onClick={showInput}
+          >
+            +
+          </button>
+        )}
       </div>
     </div>
   );

@@ -103,9 +103,6 @@ function App() {
               onDelete: tasks.deleteTask,
               onAddLabel: tasks.addLabel,
               onRemoveLabel: tasks.removeLabel,
-              labelInput: tasks.labelInput,
-              onLabelInputChange: (taskId, v) =>
-                tasks.setLabelInput((p) => ({ ...p, [taskId]: v })),
               onDragStart: dnd.onDragStart,
               onDragEnd: dnd.onDragEnd,
             }}

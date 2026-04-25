@@ -9,7 +9,6 @@ export function useTasks(
 ) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [newTaskText, setNewTaskText] = useState<Record<string, string>>({});
-  const [labelInput, setLabelInput] = useState<Record<string, string>>({});
 
   function toggleExpand(id: string) {
     setExpandedId((prev) => (prev === id ? null : id));
@@ -80,13 +79,12 @@ export function useTasks(
     });
   }
 
-  async function addLabel(taskId: string) {
-    const raw = (labelInput[taskId] ?? "").trim().replace(/^#/, "");
+  async function addLabel(taskId: string, label: string) {
+    const raw = label.trim().replace(/^#/, "");
     if (!raw) return;
     const task = board.tasks.find((t) => t.id === taskId);
     if (!task || task.labels.includes(raw)) return;
     await updateTask(taskId, { labels: [...task.labels, raw] });
-    setLabelInput((p) => ({ ...p, [taskId]: "" }));
   }
 
   async function removeLabel(taskId: string, label: string) {
@@ -102,8 +100,6 @@ export function useTasks(
     toggleExpand,
     newTaskText,
     setNewTaskText,
-    labelInput,
-    setLabelInput,
     addTask,
     updateTask,
     moveTask,

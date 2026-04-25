@@ -10,10 +10,8 @@ export interface CardListProps {
   onToggleExpand: (id: string) => void;
   onUpdate: (id: string, patch: Partial<Task>) => void;
   onDelete: (id: string) => void;
-  onAddLabel: (taskId: string) => void;
+  onAddLabel: (taskId: string, label: string) => void;
   onRemoveLabel: (taskId: string, label: string) => void;
-  labelInput: Record<string, string>;
-  onLabelInputChange: (taskId: string, value: string) => void;
   onDragStart: (taskId: string, event: React.DragEvent<HTMLLIElement>) => void;
   onDragEnd: (event: React.DragEvent<HTMLLIElement>) => void;
 }
@@ -51,10 +49,8 @@ export function KanbanColumn({ tasks, header, addTask, cards, dnd }: Props) {
             onToggleExpand={() => cards.onToggleExpand(task.id)}
             onUpdate={(patch) => cards.onUpdate(task.id, patch)}
             onDelete={() => cards.onDelete(task.id)}
-            onAddLabel={() => cards.onAddLabel(task.id)}
+            onAddLabel={(label) => cards.onAddLabel(task.id, label)}
             onRemoveLabel={(label) => cards.onRemoveLabel(task.id, label)}
-            labelInputValue={cards.labelInput[task.id] ?? ""}
-            onLabelInputChange={(v) => cards.onLabelInputChange(task.id, v)}
             onDragStart={(e) => cards.onDragStart(task.id, e)}
             onDragEnd={cards.onDragEnd}
           />
