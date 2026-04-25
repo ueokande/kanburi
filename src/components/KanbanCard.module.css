@@ -42,3 +42,29 @@
   gap: 4px;
   padding-left: 2px;
 }
+
+/* ── Status checkbox visibility ──────────────────────────────────────────── */
+
+.statusWrap {
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-width 200ms ease, opacity 200ms ease;
+}
+
+.card:hover .statusWrap,
+.card.done .statusWrap,
+.card.expanded .statusWrap {
+  max-width: 2rem;
+  opacity: 1;
+}
+
+.menuWrap {
+  opacity: 0;
+  transition: opacity 200ms ease;
+  flex-shrink: 0;
+}
+
+.card:hover .menuWrap {
+  opacity: 1;
+}

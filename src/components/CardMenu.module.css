@@ -1,0 +1,62 @@
+.wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.trigger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.7rem;
+  color: #bbb;
+  padding: 4px 6px;
+  border-radius: 5px;
+  line-height: 1;
+  letter-spacing: 1px;
+  font-family: inherit;
+  transition: color 150ms ease, background 150ms ease;
+}
+
+.trigger:hover {
+  color: #555;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 130px;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.item {
+  display: block;
+  width: 100%;
+  padding: 8px 14px;
+  text-align: left;
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: inherit;
+  color: #333;
+  transition: background 100ms ease;
+}
+
+.item:hover {
+  background: #f5f5f5;
+}
+
+.danger {
+  color: #c00;
+}
+
+.danger:hover {
+  background: #fff0f0;
+}

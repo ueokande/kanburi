@@ -1,7 +1,6 @@
 .expandArea {
   display: flex;
   flex-direction: column;
-  gap: 6px;
 }
 
 /* ── Header ──────────────────────────────────────────────────────────────── */
@@ -30,14 +29,35 @@
   padding: 2px 4px;
   flex-shrink: 0;
   user-select: none;
+  transition: transform 250ms ease, color 150ms ease;
+}
+
+.toggleExpanded {
+  transform: rotate(-180deg);
 }
 
 /* ── Detail ──────────────────────────────────────────────────────────────── */
+
+.detailContainer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 250ms ease;
+  overflow: hidden;
+}
+
+.detailContainer.open {
+  grid-template-rows: 1fr;
+}
+
+.detailInner {
+  overflow: hidden;
+}
 
 .detail {
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding-top: 8px;
+  margin-top: 6px;
   border-top: 1px solid #f0f0f0;
 }

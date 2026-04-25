@@ -1,9 +1,9 @@
 import React from "react";
 import type { Task } from "../types";
 import { nextStatus } from "../utils";
+import { CardMenu } from "./CardMenu";
 import { DateBadge } from "./DateBadge";
 import { DatePicker } from "./DatePicker";
-import { DeleteButton } from "./DeleteButton";
 import { DescriptionInput } from "./DescriptionInput";
 import { ExpandArea, ExpandDetail, ExpandHeader } from "./ExpandArea";
 import styles from "./KanbanCard.module.css";
@@ -36,7 +36,7 @@ export function KanbanCard({
 }: Props) {
   return (
     <li
-      className={`${styles.card} ${task.status === "done" ? styles.done : ""}`}
+      className={`${styles.card} ${task.status === "done" ? styles.done : ""} ${isExpanded ? styles.expanded : ""}`}
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
@@ -46,13 +46,16 @@ export function KanbanCard({
           {/* Main row */}
           <div className={styles.cardRow}>
             {/* stopPropagation prevents status click from toggling expand */}
-            <span onClick={(e) => e.stopPropagation()}>
+            <span className={styles.statusWrap} onClick={(e) => e.stopPropagation()}>
               <StatusButton
                 status={task.status}
                 onClick={() => onUpdate({ status: nextStatus(task.status) })}
               />
             </span>
             <span className={styles.cardText}>{task.text}</span>
+            <span className={styles.menuWrap}>
+              <CardMenu onDelete={onDelete} />
+            </span>
           </div>
 
           {/* Labels + due date — hidden when expanded (shown in detail instead) */}
@@ -80,7 +83,6 @@ export function KanbanCard({
             value={task.description}
             onChange={(value) => onUpdate({ description: value })}
           />
-          <DeleteButton onClick={onDelete} />
         </ExpandDetail>
       </ExpandArea>
     </li>

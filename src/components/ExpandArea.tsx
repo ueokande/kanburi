@@ -34,8 +34,11 @@ export function ExpandHeader({ children }: ExpandHeaderProps) {
   return (
     <div className={styles.header} onClick={onToggle}>
       <div className={styles.headerContent}>{children}</div>
-      <span className={styles.toggle} aria-hidden>
-        {expanded ? "▲" : "▼"}
+      <span
+        className={`${styles.toggle} ${expanded ? styles.toggleExpanded : ""}`}
+        aria-hidden
+      >
+        ▼
       </span>
     </div>
   );
@@ -47,6 +50,11 @@ interface ExpandDetailProps {
 
 export function ExpandDetail({ children }: ExpandDetailProps) {
   const { expanded } = useContext(ExpandContext);
-  if (!expanded) return null;
-  return <div className={styles.detail}>{children}</div>;
+  return (
+    <div className={`${styles.detailContainer} ${expanded ? styles.open : ""}`}>
+      <div className={styles.detailInner}>
+        <div className={styles.detail}>{children}</div>
+      </div>
+    </div>
+  );
 }
