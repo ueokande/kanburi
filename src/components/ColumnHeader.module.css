@@ -44,18 +44,11 @@
   outline: none;
 }
 
-.deleteColBtn {
-  background: none;
-  border: none;
-  color: #aaa;
-  cursor: pointer;
-  font-size: 0.8rem;
-  padding: 4px 6px;
-  border-radius: 4px;
-  flex-shrink: 0;
+.menuTrigger {
+  color: #888;
 }
 
-.deleteColBtn:hover {
-  color: #d00;
-  background: #ffeaea;
+.menuTrigger:hover {
+  background: #d0d3d8;
+  color: #333;
 }

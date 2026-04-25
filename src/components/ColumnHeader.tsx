@@ -1,4 +1,6 @@
+import { confirm } from "@tauri-apps/plugin-dialog";
 import type { RefObject } from "react";
+import { PopupMenu, PopupMenuItem } from "./PopupMenu";
 import styles from "./ColumnHeader.module.css";
 
 export interface ColumnHeaderProps {
@@ -26,6 +28,15 @@ export function ColumnHeader({
   renameInputRef,
   onDelete,
 }: ColumnHeaderProps) {
+  async function handleDelete() {
+    const msg =
+      taskCount === 0
+        ? `Delete the "${name}" column?`
+        : `Delete the "${name}" column? This will remove ${taskCount} task${taskCount === 1 ? "" : "s"}.`;
+    const ok = await confirm(msg, { title: "Delete column", kind: "warning" });
+    if (ok) onDelete();
+  }
+
   return (
     <div className={styles.columnHeader}>
       {isEditing ? (
@@ -51,14 +62,9 @@ export function ColumnHeader({
           <span className={styles.taskCount}>{taskCount}</span>
         </button>
       )}
-      <button
-        type="button"
-        className={styles.deleteColBtn}
-        onClick={onDelete}
-        aria-label={`Delete ${name} column`}
-      >
-        ✕
-      </button>
+      <PopupMenu label="Column actions" triggerClassName={styles.menuTrigger}>
+        <PopupMenuItem danger onClick={handleDelete}>Delete column</PopupMenuItem>
+      </PopupMenu>
     </div>
   );
 }

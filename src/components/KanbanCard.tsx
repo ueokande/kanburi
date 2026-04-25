@@ -1,7 +1,7 @@
 import React from "react";
+import { confirm } from "@tauri-apps/plugin-dialog";
 import type { Task } from "../types";
 import { nextStatus } from "../utils";
-import { CardMenu } from "./CardMenu";
 import { DateBadge } from "./DateBadge";
 import { DatePicker } from "./DatePicker";
 import { DescriptionInput } from "./DescriptionInput";
@@ -9,6 +9,7 @@ import { ExpandArea, ExpandDetail, ExpandHeader } from "./ExpandArea";
 import styles from "./KanbanCard.module.css";
 import { LabelBadge } from "./LabelBadge";
 import { LabelEditor } from "./LabelEditor";
+import { PopupMenu, PopupMenuItem } from "./PopupMenu";
 import { StatusButton } from "./StatusButton";
 
 interface Props {
@@ -34,6 +35,14 @@ export function KanbanCard({
   onDragStart,
   onDragEnd,
 }: Props) {
+  async function handleDelete() {
+    const ok = await confirm("Delete this task?", {
+      title: "Delete task",
+      kind: "warning",
+    });
+    if (ok) onDelete();
+  }
+
   return (
     <li
       className={`${styles.card} ${task.status === "done" ? styles.done : ""} ${isExpanded ? styles.expanded : ""}`}
@@ -53,9 +62,9 @@ export function KanbanCard({
               />
             </span>
             <span className={styles.cardText}>{task.text}</span>
-            <span className={styles.menuWrap}>
-              <CardMenu onDelete={onDelete} />
-            </span>
+            <PopupMenu label="Card actions" className={styles.menuWrap}>
+              <PopupMenuItem danger onClick={handleDelete}>Delete task</PopupMenuItem>
+            </PopupMenu>
           </div>
 
           {/* Labels + due date — hidden when expanded (shown in detail instead) */}

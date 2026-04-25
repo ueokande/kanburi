@@ -9,11 +9,16 @@
   cursor: pointer;
   font-size: 0.7rem;
   color: #bbb;
-  padding: 4px 6px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
   border-radius: 5px;
   line-height: 1;
   letter-spacing: 1px;
   font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: color 150ms ease, background 150ms ease;
 }
 
@@ -30,7 +35,7 @@
   border: 1px solid #ddd;
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  min-width: 130px;
+  min-width: 150px;
   z-index: 100;
   overflow: hidden;
 }
