@@ -72,6 +72,26 @@ src-tauri/            Rust backend
 
 ---
 
+## CI/CD
+
+Two GitHub Actions workflows run automatically:
+
+| Workflow | Trigger | Jobs |
+|---|---|---|
+| `ci.yml` | Push / PR to `master` | Frontend lint + build; Rust check + clippy |
+| `release.yml` | Tag push `v*.*.*` | Native bundles on macOS, Linux, Windows → draft GitHub Release |
+
+### Publishing a release
+
+```sh
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+The workflow creates a **draft** release with platform bundles attached. Review and publish it manually on GitHub.
+
+---
+
 ## Architecture notes
 
 ### `dragDropEnabled: false` in `tauri.conf.json`

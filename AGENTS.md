@@ -118,7 +118,25 @@ Use `PopupMenu` + `PopupMenuItem` for any context menu. Callers inline their own
 pnpm tauri dev      # dev mode with hot-reload
 pnpm run build      # frontend build only (tsc + vite)
 pnpm tauri build    # production native app bundle
+pnpm lint           # Biome lint
+pnpm check          # Biome check + auto-fix
 ```
+
+## CI/CD
+
+Two GitHub Actions workflows in `.github/workflows/`:
+
+| Workflow | Trigger | What it does |
+|---|---|---|
+| `ci.yml` | Push / PR to `master` | Frontend: lint + build; Rust: check + clippy |
+| `release.yml` | Tag push `v*.*.*` | Builds native bundles on macOS/Linux/Windows; creates a draft GitHub Release |
+
+To publish a release:
+```sh
+git tag v0.1.0
+git push origin v0.1.0
+```
+The release is created as a **draft** — review and publish it manually on GitHub.
 
 ## Key configuration notes
 
