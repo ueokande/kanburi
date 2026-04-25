@@ -12,8 +12,6 @@ A native desktop Kanban board that saves everything in a single, human-readable 
 - Labels, due dates, and descriptions per card
 - All data persisted in a plain `.md` file you own
 
----
-
 ## Getting started
 
 1. Launch **Kanburi**.
@@ -21,8 +19,6 @@ A native desktop Kanban board that saves everything in a single, human-readable 
 3. Your board loads from that file. Changes are saved automatically.
 
 > **Tip:** Keep your board file in a cloud-synced folder (iCloud Drive, Dropbox, etc.) to access it from multiple machines.
-
----
 
 ## Markdown file format
 
@@ -56,8 +52,6 @@ A native desktop Kanban board that saves everything in a single, human-readable 
 - `#Label` adds a label to the task (multiple allowed).
 - `@YYYY-MM-DD` sets the due date.
 - Lines indented with 2 spaces below a task are its description (multi-line supported).
-
----
 
 ## Contributing
 
