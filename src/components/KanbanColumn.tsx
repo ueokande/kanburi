@@ -38,11 +38,7 @@ export function KanbanColumn({ tasks, header, addTask, cards, dnd }: Props) {
       aria-label={header.name}
       data-column={header.name}
       onDragOver={dnd.onDragOver}
-      // onDrop={dnd.onDrop}
-      onDrop={(e) => {
-        console.log("Column onDrop", header.name);
-        dnd.onDrop(e);
-      }}
+      onDrop={dnd.onDrop}
     >
       <ColumnHeader {...header} />
 
