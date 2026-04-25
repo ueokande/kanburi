@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import type { Task } from "../types";
 import { AddTaskInput, type AddTaskInputProps } from "./AddTaskInput";
 import { ColumnHeader, type ColumnHeaderProps } from "./ColumnHeader";

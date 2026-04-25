@@ -35,7 +35,7 @@ export function useDragDrop(
     console.log('[DnD] onDragEnd', { column: event.currentTarget, clientX: event.clientX, clientY: event.clientY });
 
     event.currentTarget.removeAttribute("data-dragging");
-    document.querySelectorAll(".drag-placeholder").forEach((el) => el.remove());
+    document.querySelectorAll(".drag-placeholder").forEach((el) => { el.remove(); });
     activeColumnRef.current = null;
     dragTaskIdRef.current = null;
   }

@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { confirm } from "@tauri-apps/plugin-dialog";
 import type { Task } from "../types";
 import { nextStatus } from "../utils";

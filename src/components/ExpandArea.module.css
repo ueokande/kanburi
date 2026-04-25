@@ -12,10 +12,6 @@
   cursor: pointer;
 }
 
-.header:hover .toggle {
-  color: #555;
-}
-
 .headerContent {
   flex: 1;
   display: flex;
@@ -34,6 +30,10 @@
 
 .toggleExpanded {
   transform: rotate(-180deg);
+}
+
+.header:hover .toggle {
+  color: #555;
 }
 
 /* ── Detail ──────────────────────────────────────────────────────────────── */
