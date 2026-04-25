@@ -1,23 +1,100 @@
-.label {
+.row {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.title {
   font-size: 0.75rem;
-  color: #666;
   font-weight: 600;
+  color: #666;
+  flex-shrink: 0;
 }
 
-.input {
-  font-size: 0.85rem;
-  padding: 5px 7px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  outline: none;
-  font-family: inherit;
+/* Date badge (matches DateBadge.module.css geometry) */
+.badge {
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: #e8f4fd;
+  color: #0078d4;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.badge:hover {
+  background: #d0eaf8;
+}
+
+.overdue {
+  background: #ffeaea;
+  color: #c00000;
+}
+
+.overdue:hover {
+  background: #ffd5d5;
+}
+
+/* "Set due date" plain text button */
+.addBtn {
+  font-size: 0.75rem;
   font-weight: 400;
-  color: #222;
+  color: #999;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
 }
 
-.input:focus {
-  border-color: #0078d4;
+.addBtn:hover {
+  color: #555;
+}
+
+/* "×" clear button */
+.clearBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.5;
+  color: #555;
+}
+
+.clearBtn:hover {
+  opacity: 1;
+  color: #c00;
+}
+
+/* Floating calendar popover */
+.popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  font-size: 0.75rem;
+}
+
+/* CSS variables must be on .rdp-root per react-day-picker docs */
+:global(.rdp-root) {
+  --rdp-day-width: 26px;
+  --rdp-day-height: 26px;
+  --rdp-day_button-width: 24px;
+  --rdp-day_button-height: 24px;
+  --rdp-day_button-border-radius: 4px;
+  --rdp-nav_button-width: 1.4rem;
+  --rdp-nav_button-height: 1.4rem;
+  --rdp-nav-height: 2rem;
+  --rdp-weekday-padding: 0.2rem 0;
+  --rdp-accent-color: #0078d4;
+  --rdp-accent-background-color: #e8f4fd;
 }

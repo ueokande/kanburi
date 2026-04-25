@@ -1,3 +1,7 @@
+import { useEffect, useRef, useState } from "react";
+import { DayPicker } from "react-day-picker";
+import "react-day-picker/style.css";
+import { isOverdue } from "../utils";
 import styles from "./DatePicker.module.css";
 
 interface Props {
@@ -5,16 +9,100 @@ interface Props {
   onChange: (value: string | undefined) => void;
 }
 
+function toDate(iso: string | undefined): Date | undefined {
+  if (!iso) return undefined;
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function toIso(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 export function DatePicker({ date, onChange }: Props) {
+  const [open, setOpen] = useState(false);
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement | HTMLSpanElement>(null);
+  const overdue = date ? isOverdue(date) : false;
+  const selected = toDate(date);
+
+  useEffect(() => {
+    if (!open) return;
+    function handleMouseDown(e: MouseEvent) {
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(e.target as Node) &&
+        !(triggerRef.current?.contains(e.target as Node))
+      ) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleMouseDown);
+    return () => document.removeEventListener("mousedown", handleMouseDown);
+  }, [open]);
+
+  function toggle(e: React.MouseEvent) {
+    e.stopPropagation();
+    setOpen((v) => !v);
+  }
+
+  function clear(e: React.MouseEvent) {
+    e.stopPropagation();
+    onChange(undefined);
+    setOpen(false);
+  }
+
+  function handleSelect(day: Date | undefined) {
+    onChange(day ? toIso(day) : undefined);
+    setOpen(false);
+  }
+
   return (
-    <label className={styles.label}>
-      Due date
-      <input
-        className={styles.input}
-        type="date"
-        value={date ?? ""}
-        onChange={(e) => onChange(e.target.value || undefined)}
-      />
-    </label>
+    <div className={styles.row} onClick={(e) => e.stopPropagation()}>
+      <span className={styles.title}>Due date</span>
+
+      {date ? (
+        <>
+          <span
+            ref={triggerRef as React.RefObject<HTMLSpanElement>}
+            className={`${styles.badge} ${overdue ? styles.overdue : ""}`}
+            onClick={toggle}
+          >
+            📅 {date}
+          </span>
+          <button
+            type="button"
+            className={styles.clearBtn}
+            aria-label="Clear due date"
+            onClick={clear}
+          >
+            ×
+          </button>
+        </>
+      ) : (
+        <button
+          ref={triggerRef as React.RefObject<HTMLButtonElement>}
+          type="button"
+          className={styles.addBtn}
+          onClick={toggle}
+        >
+          Set due date
+        </button>
+      )}
+
+      {open && (
+        <div ref={popoverRef} className={styles.popover}>
+          <DayPicker
+            mode="single"
+            selected={selected}
+            onSelect={handleSelect}
+            defaultMonth={selected ?? new Date()}
+          />
+        </div>
+      )}
+    </div>
   );
 }
