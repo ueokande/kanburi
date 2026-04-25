@@ -13,7 +13,8 @@ function statusForColumn(colNames: string[], colName: string): Status {
 }
 
 export function useBoard() {
-  const { board, saveBoard } = useBoardStore();
+  const { board, filePath, isLoading, openFile, loadFromPath, saveBoard } =
+    useBoardStore();
 
   const colNames = board.columns.map((c) => c.name);
   const getStatus = (colName: string) => statusForColumn(colNames, colName);
@@ -22,5 +23,14 @@ export function useBoard() {
   const columns = useColumns(board, saveBoard);
   const dnd = useDragDrop(board, tasks.updateTask, getStatus);
 
-  return { board, tasks, columns, dnd };
+  return {
+    board,
+    filePath,
+    isLoading,
+    openFile,
+    loadFromPath,
+    tasks,
+    columns,
+    dnd,
+  };
 }

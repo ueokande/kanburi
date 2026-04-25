@@ -41,6 +41,34 @@ body {
   color: #1a1a1a;
 }
 
+.fileName {
+  font-size: 0.85rem;
+  color: #555;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.openFileBtn {
+  padding: 6px 14px;
+  background: transparent;
+  color: #0078d4;
+  border: 1px solid #0078d4;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.openFileBtn:hover:not(:disabled) {
+  background: #e8f4fd;
+}
+
+.openFileBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .addColBtn {
   margin-left: auto;
   padding: 6px 14px;

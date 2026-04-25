@@ -2,12 +2,15 @@ pub mod commands;
 pub mod markdown;
 pub mod models;
 
-use commands::{load_board, save_board};
+use commands::{load_file, save_current_board, CurrentFile};
+use std::sync::Mutex;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![load_board, save_board])
+        .plugin(tauri_plugin_dialog::init())
+        .manage(CurrentFile(Mutex::new(None)))
+        .invoke_handler(tauri::generate_handler![load_file, save_current_board])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

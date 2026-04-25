@@ -1,14 +1,68 @@
+import { useState } from "react";
 import styles from "./App.module.css";
 import { KanbanColumn } from "./components/KanbanColumn";
+import { WelcomeScreen } from "./components/WelcomeScreen";
 import { useBoard } from "./hooks/useBoard";
 
 function App() {
-  const { board, tasks, columns, dnd } = useBoard();
+  const {
+    board,
+    filePath,
+    isLoading,
+    openFile,
+    loadFromPath,
+    tasks,
+    columns,
+    dnd,
+  } = useBoard();
+  const [loadError, setLoadError] = useState<string | undefined>();
+
+  const handleOpenFile = async () => {
+    setLoadError(undefined);
+    try {
+      await openFile();
+    } catch (e) {
+      setLoadError(String(e));
+    }
+  };
+
+  const handleLoadFromPath = async (path: string) => {
+    setLoadError(undefined);
+    try {
+      await loadFromPath(path);
+    } catch (e) {
+      setLoadError(String(e));
+    }
+  };
+
+  if (!filePath) {
+    return (
+      <WelcomeScreen
+        onOpenFile={handleOpenFile}
+        onLoadFromPath={handleLoadFromPath}
+        isLoading={isLoading}
+        error={loadError}
+      />
+    );
+  }
+
+  const fileName = filePath.split(/[\\/]/).pop() ?? filePath;
 
   return (
     <div className={styles.app}>
       <header className={styles.appHeader}>
         <h1>KanbanMD</h1>
+        <span className={styles.fileName} title={filePath}>
+          {fileName}
+        </span>
+        <button
+          type="button"
+          className={styles.openFileBtn}
+          onClick={handleOpenFile}
+          disabled={isLoading}
+        >
+          Open…
+        </button>
         <button
           type="button"
           className={styles.addColBtn}
