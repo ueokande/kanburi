@@ -56,7 +56,7 @@ export function WelcomeScreen({
   return (
     <div className={`${styles.root} ${isDraggingOver ? styles.dragging : ""}`}>
       <div className={styles.card}>
-        <h1 className={styles.title}>KanbanMD</h1>
+        <h1 className={styles.title}>Kanburi</h1>
         <p className={styles.subtitle}>Open a Markdown file to get started.</p>
 
         <button

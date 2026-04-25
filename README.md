@@ -1,73 +1,62 @@
-# KanbanMD
+# Kanburi
 
-A native desktop task management app backed by a single Markdown file — no database, no sync service.
+A native desktop Kanban board that saves everything in a single, human-readable Markdown file — no database, no account, no sync service required.
+
+---
 
 ## Features
 
-- Simple flat task list with add, complete, and delete
-- All data persisted in a human-readable Markdown file
-- Native desktop app via Tauri
+- Drag cards between columns
+- Labels, due dates, and descriptions per card
+- All data persisted in a plain `.md` file you own
 
-## Tech stack
-
-| Layer | Technology |
-|---|---|
-| Desktop shell | Tauri 2 |
-| UI | React 18 + TypeScript |
-| Build tool | Vite |
-| Package manager | pnpm |
+---
 
 ## Getting started
 
-### Prerequisites
+1. Launch **Kanburi**.
+2. Click **Open file** and choose (or create) a `.md` file.
+3. Your board loads from that file. Changes are saved automatically.
 
-Install tools via [mise](https://mise.jdx.dev):
+> **Tip:** Keep your board file in a cloud-synced folder (iCloud Drive, Dropbox, etc.) to access it from multiple machines.
 
-```sh
-mise install   # installs Node LTS, pnpm, Rust stable
-```
+---
 
-### Dev mode
-
-```sh
-pnpm tauri dev
-```
-
-### Production build
-
-```sh
-pnpm tauri build
-```
-
-## Configuration notes
-
-### `dragDropEnabled: false` in `tauri.conf.json`
-
-The window option `"dragDropEnabled": false` is intentionally set. Tauri's native drag-drop handler intercepts **all** OS-level drag events before they reach the WebView, which prevents the HTML5 Drag and Drop API (`dragover` / `drop` events) from firing inside the app. Disabling it lets the WebView handle drag events normally, which is required for card drag-and-drop on the Kanban board.
-
-With this setting, OS file drops (e.g. dragging a `.md` file from Finder) still reach the WebView as standard browser `drop` events via `event.dataTransfer.files`. The only thing disabled is Tauri's own `tauri://drag-drop` event API, which is not used by this app.
-
-Upstream tracking issue: [tauri-apps/tauri#14373](https://github.com/tauri-apps/tauri/issues/14373)
-
-
-
-Tasks are stored in:
-
-| Platform | Path |
-|---|---|
-| macOS | `~/Library/Application Support/com.kanbanmd.app/tasks.md` |
-| Linux | `~/.local/share/com.kanbanmd.app/tasks.md` |
-| Windows | `%APPDATA%\com.kanbanmd.app\tasks.md` |
-
-The file path is configurable — update `tasks_file_path()` in `src-tauri/src/lib.rs`.
-
-### Markdown schema
+## Markdown file format
 
 ```markdown
 # Tasks
 
-- [ ] Buy groceries <!-- id:1234567890 -->
-- [x] Write README <!-- id:9876543210 -->
+## To Do
+
+- [ ] Add unit tests for auth module #backend #testing @2025-05-12
+- [ ] Write API documentation #docs
+- [ ] Investigate memory leak in worker pool #backend
+  Observed in production since v1.4. Check thread cleanup on timeout.
+
+## In Progress
+
+- [ ] Refactor database connection pooling #backend #refactor
+  Migrate from raw connections to a pooled client.
+  Benchmark before and after with k6.
+- [ ] Set up staging environment #devops @2025-05-10
+
+## Done
+
+- [x] Fix login redirect bug #frontend
+- [x] Add CI pipeline #devops
+  Runs lint, test, and build on every pull request.
+- [x] Upgrade to Node 22 #maintenance
 ```
 
-Each task line uses the standard GFM checkbox syntax. A `<!-- id:… -->` comment embeds a stable ID to survive reordering.
+- Each `##` heading is a column.
+- Each `- [ ]` / `- [x]` line is a task (`[x]` = done).
+- `#Label` adds a label to the task (multiple allowed).
+- `@YYYY-MM-DD` sets the due date.
+- Lines indented with 2 spaces below a task are its description (multi-line supported).
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup, build instructions, and architecture notes.

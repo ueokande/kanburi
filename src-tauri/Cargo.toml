@@ -1,5 +1,5 @@
 [package]
-name = "kanban-md"
+name = "kanburi"
 version = "0.1.0"
 edition = "2021"
 

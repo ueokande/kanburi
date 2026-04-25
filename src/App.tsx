@@ -51,7 +51,7 @@ function App() {
   return (
     <div className={styles.app}>
       <header className={styles.appHeader}>
-        <h1>KanbanMD</h1>
+        <h1>Kanburi</h1>
         <span className={styles.fileName} title={filePath}>
           {fileName}
         </span>
