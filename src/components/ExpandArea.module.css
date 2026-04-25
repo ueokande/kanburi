@@ -10,6 +10,11 @@
   display: flex;
   align-items: flex-start;
   gap: 4px;
+  cursor: pointer;
+}
+
+.header:hover .toggle {
+  color: #555;
 }
 
 .headerContent {
@@ -20,18 +25,11 @@
 }
 
 .toggle {
-  background: none;
-  border: none;
   color: #bbb;
-  cursor: pointer;
   font-size: 0.65rem;
   padding: 2px 4px;
-  border-radius: 4px;
   flex-shrink: 0;
-}
-
-.toggle:hover {
-  color: #555;
+  user-select: none;
 }
 
 /* ── Detail ──────────────────────────────────────────────────────────────── */

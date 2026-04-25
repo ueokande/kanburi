@@ -45,15 +45,18 @@ export function KanbanCard({
         <ExpandHeader>
           {/* Main row */}
           <div className={styles.cardRow}>
-            <StatusButton
-              status={task.status}
-              onClick={() => onUpdate({ status: nextStatus(task.status) })}
-            />
+            {/* stopPropagation prevents status click from toggling expand */}
+            <span onClick={(e) => e.stopPropagation()}>
+              <StatusButton
+                status={task.status}
+                onClick={() => onUpdate({ status: nextStatus(task.status) })}
+              />
+            </span>
             <span className={styles.cardText}>{task.text}</span>
           </div>
 
-          {/* Labels + due date */}
-          {(task.labels.length > 0 || task.due_date) && (
+          {/* Labels + due date — hidden when expanded (shown in detail instead) */}
+          {!isExpanded && (task.labels.length > 0 || task.due_date) && (
             <div className={styles.cardMeta}>
               {task.labels.map((label) => (
                 <LabelBadge key={label} label={label} />

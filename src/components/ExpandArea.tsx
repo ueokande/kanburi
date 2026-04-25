@@ -32,16 +32,11 @@ interface ExpandHeaderProps {
 export function ExpandHeader({ children }: ExpandHeaderProps) {
   const { expanded, onToggle } = useContext(ExpandContext);
   return (
-    <div className={styles.header}>
+    <div className={styles.header} onClick={onToggle}>
       <div className={styles.headerContent}>{children}</div>
-      <button
-        type="button"
-        className={styles.toggle}
-        aria-label={expanded ? "Collapse" : "Expand"}
-        onClick={onToggle}
-      >
+      <span className={styles.toggle} aria-hidden>
         {expanded ? "▲" : "▼"}
-      </button>
+      </span>
     </div>
   );
 }
