@@ -1,0 +1,77 @@
+.labelEditor {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.labelEditorTitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #666;
+}
+
+.labelList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 22px;
+}
+
+.labelBadgeEditable {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.labelBadgeEditable button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.6;
+  color: inherit;
+}
+
+.labelBadgeEditable button:hover {
+  opacity: 1;
+}
+
+.labelInputRow {
+  display: flex;
+  gap: 5px;
+}
+
+.labelInputRow input {
+  flex: 1;
+  font-size: 0.82rem;
+  padding: 4px 7px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  font-family: inherit;
+}
+
+.labelInputRow input:focus {
+  border-color: #0078d4;
+}
+
+.labelInputRow button {
+  padding: 4px 10px;
+  background: #0078d4;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.labelInputRow button:hover {
+  background: #005fa3;
+}

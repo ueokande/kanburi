@@ -19,13 +19,6 @@ export interface Board {
   tasks: Task[];
 }
 
-export const STATUS_CYCLE: Status[] = ["todo", "done"];
-
-export const STATUS_ICON: Record<Status, string> = {
-  todo: "☐",
-  done: "☑",
-};
-
 export const LABEL_PALETTE = [
   { bg: "#e8f4fd", text: "#0078d4" },
   { bg: "#fef3e8", text: "#c47a00" },

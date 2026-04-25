@@ -1,0 +1,23 @@
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #666;
+  font-weight: 600;
+}
+
+.input {
+  font-size: 0.85rem;
+  padding: 5px 7px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  font-family: inherit;
+  font-weight: 400;
+  color: #222;
+}
+
+.input:focus {
+  border-color: #0078d4;
+}

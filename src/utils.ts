@@ -1,5 +1,5 @@
 import type { Status } from "./types";
-import { LABEL_PALETTE, STATUS_CYCLE } from "./types";
+import { LABEL_PALETTE } from "./types";
 
 export function labelStyle(label: string) {
   const hash = [...label].reduce((a, c) => a + c.charCodeAt(0), 0);
@@ -29,7 +29,7 @@ export function parseTaskInput(raw: string): {
 }
 
 export function nextStatus(s: Status): Status {
-  return STATUS_CYCLE[(STATUS_CYCLE.indexOf(s) + 1) % STATUS_CYCLE.length];
+  return s === "done" ? "todo" : "done";
 }
 
 export function isOverdue(due_date?: string): boolean {
