@@ -18,3 +18,10 @@
   flex: 1;
   list-style: none;
 }
+
+:global(.drag-placeholder) {
+  border: 2px dashed #bbb;
+  border-radius: 7px;
+  background: transparent;
+  flex-shrink: 0;
+}

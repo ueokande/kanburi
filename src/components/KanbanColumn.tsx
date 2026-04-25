@@ -1,3 +1,4 @@
+import React from "react";
 import type { Task } from "../types";
 import { AddTaskInput, type AddTaskInputProps } from "./AddTaskInput";
 import { ColumnHeader, type ColumnHeaderProps } from "./ColumnHeader";
@@ -13,7 +14,13 @@ export interface CardListProps {
   onRemoveLabel: (taskId: string, label: string) => void;
   labelInput: Record<string, string>;
   onLabelInputChange: (taskId: string, value: string) => void;
-  onDragStart: (taskId: string) => void;
+  onDragStart: (taskId: string, event: React.DragEvent<HTMLLIElement>) => void;
+  onDragEnd: (event: React.DragEvent<HTMLLIElement>) => void;
+}
+
+export interface ColumnDndProps {
+  onDragOver: (event: React.DragEvent<HTMLElement>) => void;
+  onDrop: (event: React.DragEvent<HTMLElement>) => void;
 }
 
 interface Props {
@@ -21,20 +28,25 @@ interface Props {
   header: ColumnHeaderProps;
   addTask: AddTaskInputProps;
   cards: CardListProps;
-  onDrop: () => void;
+  dnd: ColumnDndProps;
 }
 
-export function KanbanColumn({ tasks, header, addTask, cards, onDrop }: Props) {
+export function KanbanColumn({ tasks, header, addTask, cards, dnd }: Props) {
   return (
     <section
       className={styles.column}
       aria-label={header.name}
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={onDrop}
+      data-column={header.name}
+      onDragOver={dnd.onDragOver}
+      // onDrop={dnd.onDrop}
+      onDrop={(e) => {
+        console.log("Column onDrop", header.name);
+        dnd.onDrop(e);
+      }}
     >
       <ColumnHeader {...header} />
 
-      <ul className={styles.cardList}>
+      <ul className={styles.cardList} data-card-list>
         {tasks.map((task) => (
           <KanbanCard
             key={task.id}
@@ -47,7 +59,8 @@ export function KanbanColumn({ tasks, header, addTask, cards, onDrop }: Props) {
             onRemoveLabel={(label) => cards.onRemoveLabel(task.id, label)}
             labelInputValue={cards.labelInput[task.id] ?? ""}
             onLabelInputChange={(v) => cards.onLabelInputChange(task.id, v)}
-            onDragStart={() => cards.onDragStart(task.id)}
+            onDragStart={(e) => cards.onDragStart(task.id, e)}
+            onDragEnd={cards.onDragEnd}
           />
         ))}
       </ul>

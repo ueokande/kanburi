@@ -39,7 +39,17 @@ pnpm tauri dev
 pnpm tauri build
 ```
 
-## Data storage
+## Configuration notes
+
+### `dragDropEnabled: false` in `tauri.conf.json`
+
+The window option `"dragDropEnabled": false` is intentionally set. Tauri's native drag-drop handler intercepts **all** OS-level drag events before they reach the WebView, which prevents the HTML5 Drag and Drop API (`dragover` / `drop` events) from firing inside the app. Disabling it lets the WebView handle drag events normally, which is required for card drag-and-drop on the Kanban board.
+
+With this setting, OS file drops (e.g. dragging a `.md` file from Finder) still reach the WebView as standard browser `drop` events via `event.dataTransfer.files`. The only thing disabled is Tauri's own `tauri://drag-drop` event API, which is not used by this app.
+
+Upstream tracking issue: [tauri-apps/tauri#14373](https://github.com/tauri-apps/tauri/issues/14373)
+
+
 
 Tasks are stored in:
 

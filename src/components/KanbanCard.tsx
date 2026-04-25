@@ -1,3 +1,4 @@
+import React from "react";
 import type { Task } from "../types";
 import { STATUS_ICON } from "../types";
 import { isOverdue, labelStyle, nextStatus } from "../utils";
@@ -13,7 +14,8 @@ interface Props {
   onRemoveLabel: (label: string) => void;
   labelInputValue: string;
   onLabelInputChange: (value: string) => void;
-  onDragStart: () => void;
+  onDragStart: (event: React.DragEvent<HTMLLIElement>) => void;
+  onDragEnd: (event: React.DragEvent<HTMLLIElement>) => void;
 }
 
 export function KanbanCard({
@@ -27,12 +29,14 @@ export function KanbanCard({
   labelInputValue,
   onLabelInputChange,
   onDragStart,
+  onDragEnd,
 }: Props) {
   return (
     <li
       className={`${styles.card} ${task.status === "done" ? styles.done : ""}`}
       draggable
       onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
     >
       {/* Main row */}
       <div className={styles.cardRow}>

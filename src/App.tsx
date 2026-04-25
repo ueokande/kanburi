@@ -107,8 +107,12 @@ function App() {
               onLabelInputChange: (taskId, v) =>
                 tasks.setLabelInput((p) => ({ ...p, [taskId]: v })),
               onDragStart: dnd.onDragStart,
+              onDragEnd: dnd.onDragEnd,
             }}
-            onDrop={() => dnd.onDrop(col.name)}
+            dnd={{
+              onDragOver: dnd.onDragOver,
+              onDrop: (e) => dnd.onDrop(e, col.name),
+            }}
           />
         ))}
       </div>

@@ -21,7 +21,7 @@ export function useBoard() {
 
   const tasks = useTasks(board, saveBoard, getStatus);
   const columns = useColumns(board, saveBoard);
-  const dnd = useDragDrop(board, tasks.updateTask, getStatus);
+  const dnd = useDragDrop(board, tasks.moveTask, getStatus);
 
   return {
     board,

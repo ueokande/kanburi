@@ -39,6 +39,39 @@ export function useTasks(
     });
   }
 
+  async function moveTask(
+    id: string,
+    targetColumn: string,
+    insertIndex: number,
+  ) {
+    const task = board.tasks.find((t) => t.id === id);
+    if (!task) return;
+
+    const otherTasks = board.tasks.filter((t) => t.id !== id);
+    const columnTasks = otherTasks.filter((t) => t.column === targetColumn);
+    const clampedIdx = Math.max(0, Math.min(insertIndex, columnTasks.length));
+    const insertBefore = columnTasks[clampedIdx] ?? null;
+
+    // Only update status when the task actually moves to a different column.
+    const updatedTask: Task =
+      targetColumn === task.column
+        ? { ...task }
+        : { ...task, column: targetColumn, status: statusForColumn(targetColumn) };
+
+    const newTasks: Task[] = [];
+    let inserted = false;
+    for (const t of otherTasks) {
+      if (!inserted && insertBefore !== null && t.id === insertBefore.id) {
+        newTasks.push(updatedTask);
+        inserted = true;
+      }
+      newTasks.push(t);
+    }
+    if (!inserted) newTasks.push(updatedTask);
+
+    await saveBoard({ ...board, tasks: newTasks });
+  }
+
   async function deleteTask(id: string) {
     if (expandedId === id) setExpandedId(null);
     await saveBoard({
@@ -73,6 +106,7 @@ export function useTasks(
     setLabelInput,
     addTask,
     updateTask,
+    moveTask,
     deleteTask,
     addLabel,
     removeLabel,
