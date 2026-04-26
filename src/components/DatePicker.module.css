@@ -2,7 +2,6 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  position: relative;
 }
 
 .title {
@@ -12,29 +11,17 @@
   flex-shrink: 0;
 }
 
-/* Date badge (matches DateBadge.module.css geometry) */
-.badge {
+/* Date label — plain text, no badge */
+.dateLabel {
   font-size: 0.72rem;
   font-weight: 500;
-  padding: 2px 7px;
-  border-radius: 10px;
-  background: #e8f4fd;
-  color: #0078d4;
+  color: #202020;
   white-space: nowrap;
   cursor: pointer;
 }
 
-.badge:hover {
-  background: #d0eaf8;
-}
-
 .overdue {
-  background: #ffeaea;
   color: #c00000;
-}
-
-.overdue:hover {
-  background: #ffd5d5;
 }
 
 /* "Set due date" plain text button */
@@ -70,12 +57,10 @@
   color: #c00;
 }
 
-/* Floating calendar popover */
+/* Floating calendar popover — portalled to body */
 .popover {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  z-index: 100;
+  position: fixed;
+  z-index: 1000;
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;

@@ -2,7 +2,7 @@ import type React from "react";
 import { confirm } from "@tauri-apps/plugin-dialog";
 import type { Task } from "../types";
 import { nextStatus } from "../utils";
-import { DateBadge } from "./DateBadge";
+import { DateLabel } from "./DateLabel";
 import { DatePicker } from "./DatePicker";
 import { DescriptionInput } from "./DescriptionInput";
 import { ExpandArea, ExpandDetail, ExpandHeader } from "./ExpandArea";
@@ -67,13 +67,17 @@ export function KanbanCard({
             </PopupMenu>
           </div>
 
-          {/* Labels + due date — hidden when expanded (shown in detail instead) */}
+          {/* Labels + date — hidden when expanded (shown in detail instead) */}
           {!isExpanded && (task.labels.length > 0 || task.due_date) && (
             <div className={styles.cardMeta}>
-              {task.labels.map((label) => (
-                <LabelBadge key={label} label={label} />
-              ))}
-              {task.due_date && <DateBadge date={task.due_date} />}
+              {task.labels.length > 0 && (
+                <div className={styles.cardLabels}>
+                  {task.labels.map((label) => (
+                    <LabelBadge key={label} label={label} />
+                  ))}
+                </div>
+              )}
+              {task.due_date && <DateLabel date={task.due_date} />}
             </div>
           )}
         </ExpandHeader>

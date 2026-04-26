@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
-import { isOverdue } from "../utils";
+import { formatDueDate, isOverdue } from "../utils";
 import styles from "./DatePicker.module.css";
 
 interface Props {
@@ -24,6 +25,7 @@ function toIso(date: Date): string {
 
 export function DatePicker({ date, onChange }: Props) {
   const [open, setOpen] = useState(false);
+  const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0 });
   const popoverRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement | HTMLSpanElement>(null);
   const overdue = date ? isOverdue(date) : false;
@@ -46,6 +48,10 @@ export function DatePicker({ date, onChange }: Props) {
 
   function toggle(e: React.MouseEvent) {
     e.stopPropagation();
+    if (!open && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setPopoverPos({ top: rect.bottom + 6, left: rect.left });
+    }
     setOpen((v) => !v);
   }
 
@@ -68,10 +74,10 @@ export function DatePicker({ date, onChange }: Props) {
         <>
           <span
             ref={triggerRef as React.RefObject<HTMLSpanElement>}
-            className={`${styles.badge} ${overdue ? styles.overdue : ""}`}
+            className={`${styles.dateLabel} ${overdue ? styles.overdue : ""}`}
             onClick={toggle}
           >
-            📅 {date}
+            {formatDueDate(date)}
           </span>
           <button
             type="button"
@@ -93,15 +99,20 @@ export function DatePicker({ date, onChange }: Props) {
         </button>
       )}
 
-      {open && (
-        <div ref={popoverRef} className={styles.popover}>
+      {open && createPortal(
+        <div
+          ref={popoverRef}
+          className={styles.popover}
+          style={{ top: popoverPos.top, left: popoverPos.left }}
+        >
           <DayPicker
             mode="single"
             selected={selected}
             onSelect={handleSelect}
             defaultMonth={selected ?? new Date()}
           />
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

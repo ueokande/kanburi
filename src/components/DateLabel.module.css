@@ -1,14 +1,11 @@
 .badge {
   font-size: 0.72rem;
-  font-weight: 500;
   padding: 2px 7px;
-  border-radius: 10px;
-  background: #e8f4fd;
-  color: #0078d4;
+  color: #202020;
   white-space: nowrap;
 }
 
 .overdue {
-  background: #ffeaea;
   color: #c00000;
+  font-weight: bold;
 }

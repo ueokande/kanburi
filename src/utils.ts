@@ -32,6 +32,15 @@ export function nextStatus(s: Status): Status {
   return s === "done" ? "todo" : "done";
 }
 
+export function formatDueDate(due_date: string): string {
+  const d = new Date(due_date);
+  const sameYear = d.getFullYear() === new Date().getFullYear();
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    ...(sameYear ? {} : { year: "numeric" }),
+  });
+}
 export function isOverdue(due_date?: string): boolean {
   if (!due_date) return false;
   return new Date(due_date) < new Date(new Date().toDateString());

@@ -38,9 +38,15 @@
 
 .cardMeta {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 4px;
   padding-left: 2px;
+}
+
+.cardLabels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 /* ── Status checkbox visibility ──────────────────────────────────────────── */
