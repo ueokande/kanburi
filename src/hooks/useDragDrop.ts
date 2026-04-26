@@ -18,8 +18,6 @@ export function useDragDrop(
   }
 
   function onDragStart(taskId: string, event: React.DragEvent<HTMLLIElement>) {
-    console.log('[DnD] onDragStart', { column: event.currentTarget, clientX: event.clientX, clientY: event.clientY });
-
     const target = event.target as HTMLElement;
     if (target.closest("button, input, textarea, select, a")) {
       event.preventDefault();
@@ -32,7 +30,6 @@ export function useDragDrop(
   }
 
   function onDragEnd(event: React.DragEvent<HTMLLIElement>) {
-    console.log('[DnD] onDragEnd', { column: event.currentTarget, clientX: event.clientX, clientY: event.clientY });
 
     event.currentTarget.removeAttribute("data-dragging");
     document.querySelectorAll(".drag-placeholder").forEach((el) => { el.remove(); });
@@ -41,7 +38,6 @@ export function useDragDrop(
   }
 
   function onDragOver(event: React.DragEvent<HTMLElement>) {
-    console.log('[DnD] onDragOver', { column: event.currentTarget, clientX: event.clientX, clientY: event.clientY });
     if (!dragTaskIdRef.current) return;
     event.preventDefault();
 
@@ -86,7 +82,6 @@ export function useDragDrop(
   }
 
   function onDrop(event: React.DragEvent<HTMLElement>, columnName: string) {
-    console.log('[DnD] onDrop', { column: event.currentTarget, clientX: event.clientX, clientY: event.clientY });
     event.preventDefault();
     const taskId = dragTaskIdRef.current;
     if (!taskId) return;
