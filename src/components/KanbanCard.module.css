@@ -31,6 +31,19 @@
   line-height: 1.4;
 }
 
+.cardTitleInput {
+  flex: 1;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  font-family: inherit;
+  border: none;
+  border-bottom: 1px solid #0078d4;
+  outline: none;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
 .card.done .cardText {
   text-decoration: line-through;
   color: #999;

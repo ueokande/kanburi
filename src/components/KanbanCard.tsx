@@ -1,4 +1,5 @@
 import type React from "react";
+import { useState } from "react";
 import { confirm } from "@tauri-apps/plugin-dialog";
 import type { Task } from "../types";
 import { nextStatus } from "../utils";
@@ -43,6 +44,26 @@ export function KanbanCard({
     if (ok) onDelete();
   }
 
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState("");
+
+  function startEditTitle(e: React.MouseEvent) {
+    e.stopPropagation();
+    setTitleDraft(task.text);
+    setEditingTitle(true);
+  }
+
+  function commitTitle() {
+    const trimmed = titleDraft.trim();
+    if (trimmed && trimmed !== task.text) onUpdate({ text: trimmed });
+    setEditingTitle(false);
+  }
+
+  function handleTitleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") { e.preventDefault(); commitTitle(); }
+    if (e.key === "Escape") setEditingTitle(false);
+  }
+
   return (
     <li
       className={`${styles.card} ${task.status === "done" ? styles.done : ""} ${isExpanded ? styles.expanded : ""}`}
@@ -61,7 +82,26 @@ export function KanbanCard({
                 onClick={() => onUpdate({ status: nextStatus(task.status) })}
               />
             </span>
-            <span className={styles.cardText}>{task.text}</span>
+            {editingTitle ? (
+              <input
+                // biome-ignore lint/a11y/noAutofocus: intentional — user just clicked to edit
+                autoFocus
+                className={styles.cardTitleInput}
+                value={titleDraft}
+                onChange={(e) => setTitleDraft(e.target.value)}
+                onBlur={commitTitle}
+                onKeyDown={handleTitleKeyDown}
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <span
+                className={styles.cardText}
+                onClick={isExpanded ? startEditTitle : undefined}
+                title={isExpanded ? "Click to rename" : undefined}
+              >
+                {task.text}
+              </span>
+            )}
             <PopupMenu label="Card actions" className={styles.menuWrap}>
               <PopupMenuItem danger onClick={handleDelete}>Delete task</PopupMenuItem>
             </PopupMenu>
