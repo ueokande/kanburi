@@ -1,5 +1,6 @@
 import { confirm } from "@tauri-apps/plugin-dialog";
 import type { RefObject } from "react";
+import { useComposing } from "../hooks/useComposing";
 import { PopupMenu, PopupMenuItem } from "./PopupMenu";
 import styles from "./ColumnHeader.module.css";
 
@@ -28,6 +29,8 @@ export function ColumnHeader({
   renameInputRef,
   onDelete,
 }: ColumnHeaderProps) {
+  const composing = useComposing();
+
   async function handleDelete() {
     const msg =
       taskCount === 0
@@ -45,9 +48,10 @@ export function ColumnHeader({
           className={styles.columnNameInput}
           value={editingName}
           onChange={(e) => onEditingNameChange(e.target.value)}
+          {...composing.props}
           onBlur={onCommitRename}
           onKeyDown={(e) => {
-            if (e.key === "Enter") onCommitRename();
+            if (e.key === "Enter" && !composing.isComposing(e)) onCommitRename();
             if (e.key === "Escape") onCancelRename();
           }}
         />

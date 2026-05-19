@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useComposing } from "../hooks/useComposing";
 import styles from "./AddTaskInput.module.css";
 
 export interface AddTaskInputProps {
@@ -10,6 +11,7 @@ export interface AddTaskInputProps {
 export function AddTaskInput({ value, onChange, onAdd }: AddTaskInputProps) {
   const [active, setActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const composing = useComposing();
 
   useEffect(() => {
     if (active) {
@@ -23,7 +25,7 @@ export function AddTaskInput({ value, onChange, onAdd }: AddTaskInputProps) {
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === "Enter") handleAdd();
+    if (e.key === "Enter" && !composing.isComposing(e)) handleAdd();
     if (e.key === "Escape") {
       onChange("");
       setActive(false);
@@ -53,6 +55,7 @@ export function AddTaskInput({ value, onChange, onAdd }: AddTaskInputProps) {
         ref={inputRef}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        {...composing.props}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
         placeholder="Task title… #Label @date"

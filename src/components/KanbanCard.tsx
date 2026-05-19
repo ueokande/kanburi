@@ -1,5 +1,6 @@
 import type React from "react";
 import { useState } from "react";
+import { useComposing } from "../hooks/useComposing";
 import { confirm } from "@tauri-apps/plugin-dialog";
 import type { Task } from "../types";
 import { nextStatus } from "../utils";
@@ -46,6 +47,7 @@ export function KanbanCard({
 
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
+  const composing = useComposing();
 
   function startEditTitle(e: React.MouseEvent) {
     e.stopPropagation();
@@ -60,7 +62,7 @@ export function KanbanCard({
   }
 
   function handleTitleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter") { e.preventDefault(); commitTitle(); }
+    if (e.key === "Enter" && !composing.isComposing(e)) { e.preventDefault(); commitTitle(); }
     if (e.key === "Escape") setEditingTitle(false);
   }
 
@@ -89,6 +91,7 @@ export function KanbanCard({
                 className={styles.cardTitleInput}
                 value={titleDraft}
                 onChange={(e) => setTitleDraft(e.target.value)}
+                {...composing.props}
                 onBlur={commitTitle}
                 onKeyDown={handleTitleKeyDown}
                 onClick={(e) => e.stopPropagation()}

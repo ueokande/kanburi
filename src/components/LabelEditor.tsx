@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useComposing } from "../hooks/useComposing";
 import { labelStyle } from "../utils";
 import styles from "./LabelEditor.module.css";
 
@@ -12,6 +13,7 @@ export function LabelEditor({ labels, onAdd, onRemove }: Props) {
   const [inputVisible, setInputVisible] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const composing = useComposing();
 
   function showInput() {
     setInputVisible(true);
@@ -27,7 +29,7 @@ export function LabelEditor({ labels, onAdd, onRemove }: Props) {
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter") commit();
+    if (e.key === "Enter" && !composing.isComposing(e)) commit();
     if (e.key === "Escape") {
       setInputValue("");
       setInputVisible(false);
@@ -64,6 +66,7 @@ export function LabelEditor({ labels, onAdd, onRemove }: Props) {
             value={inputValue}
             placeholder="#NewLabel"
             onChange={(e) => setInputValue(e.target.value)}
+            {...composing.props}
             onKeyDown={handleKeyDown}
             onBlur={commit}
           />
