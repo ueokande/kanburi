@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { open } from "@tauri-apps/plugin-shell";
@@ -11,6 +11,18 @@ interface Props {
 
 export function DescriptionInput({ value, onChange }: Props) {
   const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value ?? "");
+
+  // Sync draft when the card switches (different task expanded)
+  useEffect(() => {
+    if (!editing) setDraft(value ?? "");
+  }, [value, editing]);
+
+  function handleBlur() {
+    setEditing(false);
+    const trimmed = draft || undefined;
+    if (trimmed !== value) onChange(trimmed);
+  }
 
   return (
     <div className={styles.wrapper}>
@@ -21,10 +33,10 @@ export function DescriptionInput({ value, onChange }: Props) {
           autoFocus
           className={styles.textarea}
           rows={4}
-          value={value ?? ""}
+          value={draft}
           placeholder="Add a description…"
-          onChange={(e) => onChange(e.target.value || undefined)}
-          onBlur={() => setEditing(false)}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={handleBlur}
         />
       ) : (
         <div
