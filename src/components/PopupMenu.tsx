@@ -1,5 +1,6 @@
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import styles from "./PopupMenu.module.css";
 
 interface PopupMenuProps {
@@ -11,12 +12,14 @@ interface PopupMenuProps {
 
 export function PopupMenu({ label, className, triggerClassName, children }: PopupMenuProps) {
   const [open, setOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!open) return;
     function handleMouseDown(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     }
@@ -24,22 +27,36 @@ export function PopupMenu({ label, className, triggerClassName, children }: Popu
     return () => document.removeEventListener("mousedown", handleMouseDown);
   }, [open]);
 
+  function handleTriggerClick() {
+    if (!open && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setDropdownStyle({
+        position: "fixed",
+        top: rect.bottom + 4,
+        right: window.innerWidth - rect.right,
+      });
+    }
+    setOpen((v) => !v);
+  }
+
   return (
     <div
-      ref={menuRef}
+      ref={wrapRef}
       className={`${styles.wrap} ${className ?? ""}`}
       onClick={(e) => e.stopPropagation()}
     >
       <button
+        ref={triggerRef}
         type="button"
         className={`${styles.trigger} ${triggerClassName ?? ""}`}
         aria-label={label}
-        onClick={() => setOpen((v) => !v)}
+        onClick={handleTriggerClick}
       >
         •••
       </button>
-      {open && (
-        <div className={styles.dropdown}>{children}</div>
+      {open && createPortal(
+        <div className={styles.dropdown} style={dropdownStyle}>{children}</div>,
+        document.body,
       )}
     </div>
   );

@@ -28,15 +28,12 @@
 }
 
 .dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   min-width: 150px;
-  z-index: 100;
+  z-index: 9999;
   overflow: hidden;
 }
 
