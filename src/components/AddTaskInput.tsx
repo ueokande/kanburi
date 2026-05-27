@@ -26,7 +26,7 @@ export function AddTaskInput({ value, onChange, onAdd }: AddTaskInputProps) {
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter" && !composing.isComposing(e)) handleAdd();
-    if (e.key === "Escape") {
+    if (e.key === "Escape" && !composing.isComposing(e)) {
       onChange("");
       setActive(false);
     }

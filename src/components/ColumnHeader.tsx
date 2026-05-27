@@ -52,7 +52,7 @@ export function ColumnHeader({
           onBlur={onCommitRename}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !composing.isComposing(e)) onCommitRename();
-            if (e.key === "Escape") onCancelRename();
+            if (e.key === "Escape" && !composing.isComposing(e)) onCancelRename();
           }}
         />
       ) : (

@@ -63,7 +63,7 @@ export function KanbanCard({
 
   function handleTitleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter" && !composing.isComposing(e)) { e.preventDefault(); commitTitle(); }
-    if (e.key === "Escape") setEditingTitle(false);
+    if (e.key === "Escape" && !composing.isComposing(e)) setEditingTitle(false);
   }
 
   return (

@@ -30,7 +30,7 @@ export function LabelEditor({ labels, onAdd, onRemove }: Props) {
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter" && !composing.isComposing(e)) commit();
-    if (e.key === "Escape") {
+    if (e.key === "Escape" && !composing.isComposing(e)) {
       setInputValue("");
       setInputVisible(false);
     }
