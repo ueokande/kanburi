@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useComposing } from "../hooks/useComposing";
 import { confirm } from "@tauri-apps/plugin-dialog";
 import type { Task } from "../types";
-import { nextStatus } from "../utils";
 import { DateLabel } from "./DateLabel";
 import { DatePicker } from "./DatePicker";
 import { DescriptionInput } from "./DescriptionInput";
@@ -12,7 +11,6 @@ import styles from "./KanbanCard.module.css";
 import { LabelBadge } from "./LabelBadge";
 import { LabelEditor } from "./LabelEditor";
 import { PopupMenu, PopupMenuItem } from "./PopupMenu";
-import { StatusButton } from "./StatusButton";
 
 interface Props {
   task: Task;
@@ -77,13 +75,6 @@ export function KanbanCard({
         <ExpandHeader>
           {/* Main row */}
           <div className={styles.cardRow}>
-            {/* stopPropagation prevents status click from toggling expand */}
-            <span className={styles.statusWrap} onClick={(e) => e.stopPropagation()}>
-              <StatusButton
-                status={task.status}
-                onClick={() => onUpdate({ status: nextStatus(task.status) })}
-              />
-            </span>
             {editingTitle ? (
               <input
                 // biome-ignore lint/a11y/noAutofocus: intentional — user just clicked to edit
