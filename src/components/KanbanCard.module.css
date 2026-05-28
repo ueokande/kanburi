@@ -25,30 +25,6 @@
   gap: 8px;
 }
 
-.cardText {
-  flex: 1;
-  font-size: 0.9rem;
-  line-height: 1.4;
-}
-
-.cardTitleInput {
-  flex: 1;
-  font-size: 0.9rem;
-  line-height: 1.4;
-  font-family: inherit;
-  border: none;
-  border-bottom: 1px solid #0078d4;
-  outline: none;
-  background: transparent;
-  padding: 0;
-  color: inherit;
-}
-
-.card.done .cardText {
-  text-decoration: line-through;
-  color: #999;
-}
-
 .cardMeta {
   display: flex;
   flex-direction: column;
@@ -60,22 +36,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-}
-
-/* ── Status checkbox visibility ──────────────────────────────────────────── */
-
-.statusWrap {
-  max-width: 0;
-  overflow: hidden;
-  opacity: 0;
-  transition: max-width 200ms ease, opacity 200ms ease;
-}
-
-.card:hover .statusWrap,
-.card.done .statusWrap,
-.card.expanded .statusWrap {
-  max-width: 2rem;
-  opacity: 1;
 }
 
 .menuWrap {
