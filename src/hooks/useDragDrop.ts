@@ -17,6 +17,38 @@ export function useDragDrop(
     return el;
   }
 
+  // FLIP animation: snapshot positions → mutate DOM → animate cards that moved.
+  function animateCards(taskList: HTMLElement, action: () => void) {
+    const cards = Array.from(taskList.children).filter(
+      (el) =>
+        !(el as HTMLElement).classList.contains("drag-placeholder") &&
+        !(el as HTMLElement).hasAttribute("data-dragging"),
+    ) as HTMLElement[];
+
+    // Clear any in-progress animation so we snapshot clean layout positions.
+    for (const el of cards) {
+      el.style.transition = "none";
+      el.style.transform = "";
+    }
+    taskList.getBoundingClientRect(); // flush styles
+
+    const before = new Map(cards.map((el) => [el, el.getBoundingClientRect().top]));
+
+    action();
+
+    for (const el of cards) {
+      const oldTop = before.get(el);
+      if (oldTop === undefined) continue;
+      const delta = oldTop - el.getBoundingClientRect().top;
+      if (Math.abs(delta) < 1) continue;
+      // Snap to old position, then animate to new.
+      el.style.transform = `translateY(${delta}px)`;
+      el.getBoundingClientRect(); // force reflow
+      el.style.transition = "transform 150ms ease";
+      el.style.transform = "";
+    }
+  }
+
   function onDragStart(taskId: string, event: React.DragEvent<HTMLLIElement>) {
     const target = event.target as HTMLElement;
     if (target.closest("button, input, textarea, select, a")) {
@@ -30,9 +62,13 @@ export function useDragDrop(
   }
 
   function onDragEnd(event: React.DragEvent<HTMLLIElement>) {
-
     event.currentTarget.removeAttribute("data-dragging");
     document.querySelectorAll(".drag-placeholder").forEach((el) => { el.remove(); });
+    // Clean up any leftover animation transforms.
+    document.querySelectorAll("[data-card-list] li").forEach((el) => {
+      (el as HTMLElement).style.transition = "";
+      (el as HTMLElement).style.transform = "";
+    });
     activeColumnRef.current = null;
     dragTaskIdRef.current = null;
   }
@@ -62,23 +98,47 @@ export function useDragDrop(
       if (rect.top <= event.clientY && rect.bottom >= event.clientY) return;
     }
 
+    // Returns true when inserting before `el` (null = append) is the card's original position.
+    // Skips placeholder siblings so the check is accurate regardless of where the placeholder is.
+    function isSamePosition(el: HTMLElement | null): boolean {
+      if (el === draggedEl) return true;
+      let next: Element | null = draggedEl!.nextElementSibling;
+      while (next?.classList.contains("drag-placeholder")) next = next.nextElementSibling;
+      return (el as Element | null) === next;
+    }
+
+    // Determine where to insert the placeholder.
+    let insertBefore: HTMLElement | null = null;
     for (const child of Array.from(taskList.children)) {
       const childEl = child as HTMLElement;
       if (childEl.getBoundingClientRect().bottom >= event.clientY) {
         if (childEl === existingPlaceholder) return;
-        existingPlaceholder?.remove();
-        if (childEl === draggedEl || childEl.previousElementSibling === draggedEl) return;
-        taskList.insertBefore(
-          existingPlaceholder ?? makePlaceholder(draggedEl.offsetHeight),
-          childEl,
-        );
-        return;
+        if (isSamePosition(childEl)) {
+          // Back at original position — remove any existing placeholder.
+          if (existingPlaceholder) animateCards(taskList, () => existingPlaceholder.remove());
+          return;
+        }
+        insertBefore = childEl;
+        break;
       }
     }
 
-    existingPlaceholder?.remove();
-    if (taskList.lastElementChild === draggedEl) return;
-    taskList.append(existingPlaceholder ?? makePlaceholder(draggedEl.offsetHeight));
+    // Append-to-end: remove placeholder if card is already at the end.
+    if (!insertBefore && isSamePosition(null)) {
+      if (existingPlaceholder) animateCards(taskList, () => existingPlaceholder.remove());
+      return;
+    }
+
+    const placeholder = existingPlaceholder ?? makePlaceholder(draggedEl.offsetHeight);
+
+    animateCards(taskList, () => {
+      existingPlaceholder?.remove();
+      if (insertBefore) {
+        taskList.insertBefore(placeholder, insertBefore);
+      } else {
+        taskList.append(placeholder);
+      }
+    });
   }
 
   function onDrop(event: React.DragEvent<HTMLElement>, columnName: string) {
@@ -92,20 +152,17 @@ export function useDragDrop(
 
     const placeholder = taskList.querySelector(".drag-placeholder");
 
-    let insertIndex: number;
-    if (placeholder) {
-      const children = Array.from(taskList.children);
-      const placeholderIndex = children.indexOf(placeholder as HTMLElement);
-      // Account for the dragged element still being in the same column's DOM.
-      const draggingBefore = children
-        .slice(0, placeholderIndex)
-        .filter((el) => (el as HTMLElement).hasAttribute("data-dragging")).length;
-      insertIndex = placeholderIndex - draggingBefore;
-      placeholder.remove();
-    } else {
-      // No placeholder (e.g. dragover didn't fire) — append to end.
-      insertIndex = Number.MAX_SAFE_INTEGER;
-    }
+    // No placeholder means the card is at its original position — no move needed.
+    if (!placeholder) return;
+
+    const children = Array.from(taskList.children);
+    const placeholderIndex = children.indexOf(placeholder as HTMLElement);
+    // Account for the dragged element still being in the same column's DOM.
+    const draggingBefore = children
+      .slice(0, placeholderIndex)
+      .filter((el) => (el as HTMLElement).hasAttribute("data-dragging")).length;
+    const insertIndex = placeholderIndex - draggingBefore;
+    placeholder.remove();
 
     void moveTask(taskId, columnName, insertIndex);
   }
