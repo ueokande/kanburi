@@ -89,6 +89,7 @@ function App() {
               onCancelRename: columns.cancelRename,
               renameInputRef: columns.renameInputRef,
               onDelete: () => columns.deleteColumn(col.name),
+              onSortByDueDate: () => tasks.sortColumnByDueDate(col.name),
             }}
             addTask={{
               value: tasks.newTaskText[col.name] ?? "",

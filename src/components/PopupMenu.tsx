@@ -15,11 +15,16 @@ export function PopupMenu({ label, className, triggerClassName, children }: Popu
   const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
   const wrapRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
     function handleMouseDown(e: MouseEvent) {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (
+        wrapRef.current && !wrapRef.current.contains(target) &&
+        dropdownRef.current && !dropdownRef.current.contains(target)
+      ) {
         setOpen(false);
       }
     }
@@ -55,7 +60,7 @@ export function PopupMenu({ label, className, triggerClassName, children }: Popu
         •••
       </button>
       {open && createPortal(
-        <div className={styles.dropdown} style={dropdownStyle}>{children}</div>,
+        <div ref={dropdownRef} className={styles.dropdown} style={dropdownStyle} onClick={() => setOpen(false)}>{children}</div>,
         document.body,
       )}
     </div>

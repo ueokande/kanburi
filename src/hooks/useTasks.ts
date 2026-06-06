@@ -95,6 +95,18 @@ export function useTasks(
     });
   }
 
+  async function sortColumnByDueDate(column: string) {
+    const others = board.tasks.filter((t) => t.column !== column);
+    const columnTasks = board.tasks.filter((t) => t.column === column);
+    const sorted = [...columnTasks].sort((a, b) => {
+      if (a.due_date && b.due_date) return a.due_date.localeCompare(b.due_date);
+      if (a.due_date) return -1;
+      if (b.due_date) return 1;
+      return 0;
+    });
+    await saveBoard({ ...board, tasks: [...others, ...sorted] });
+  }
+
   return {
     expandedId,
     toggleExpand,
@@ -106,5 +118,6 @@ export function useTasks(
     deleteTask,
     addLabel,
     removeLabel,
+    sortColumnByDueDate,
   };
 }
