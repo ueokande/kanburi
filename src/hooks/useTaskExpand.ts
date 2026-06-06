@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useUIDispatch, useUIState } from "../context/BoardContext";
 
 export function useTaskExpand() {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const { expandedId } = useUIState();
+  const dispatch = useUIDispatch();
 
   function toggleExpand(id: string) {
-    setExpandedId((prev) => (prev === id ? null : id));
+    dispatch({ type: "TOGGLE_EXPAND", id });
   }
 
   function clearIfMatch(id: string) {
-    setExpandedId((prev) => (prev === id ? null : prev));
+    dispatch({ type: "CLEAR_EXPAND_IF_MATCH", id });
   }
 
   return { expandedId, toggleExpand, clearIfMatch };

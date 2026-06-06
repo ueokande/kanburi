@@ -1,63 +1,77 @@
-import type React from "react";
-import type { Task } from "../types";
-import { AddTaskInput, type AddTaskInputProps } from "./AddTaskInput";
-import { ColumnHeader, type ColumnHeaderProps } from "./ColumnHeader";
+import { useKanbanState } from "../context/BoardContext";
+import { useAddTask } from "../hooks/useAddTask";
+import { useColumns } from "../hooks/useColumns";
+import { useDragDrop } from "../hooks/useDragDrop";
+import { useTaskExpand } from "../hooks/useTaskExpand";
+import { useTaskMutations } from "../hooks/useTaskMutations";
+import { AddTaskInput } from "./AddTaskInput";
+import { ColumnHeader } from "./ColumnHeader";
 import { KanbanCard } from "./KanbanCard";
 import styles from "./KanbanColumn.module.css";
 
-export interface CardListProps {
-  expandedId: string | null;
-  onToggleExpand: (id: string) => void;
-  onUpdate: (id: string, patch: Partial<Task>) => void;
-  onDelete: (id: string) => void;
-  onAddLabel: (taskId: string, label: string) => void;
-  onRemoveLabel: (taskId: string, label: string) => void;
-  onDragStart: (taskId: string, event: React.DragEvent<HTMLLIElement>) => void;
-  onDragEnd: (event: React.DragEvent<HTMLLIElement>) => void;
-}
-
-export interface ColumnDndProps {
-  onDragOver: (event: React.DragEvent<HTMLElement>) => void;
-  onDrop: (event: React.DragEvent<HTMLElement>) => void;
-}
-
 interface Props {
-  tasks: Task[];
-  header: ColumnHeaderProps;
-  addTask: AddTaskInputProps;
-  cards: CardListProps;
-  dnd: ColumnDndProps;
+  columnName: string;
 }
 
-export function KanbanColumn({ tasks, header, addTask, cards, dnd }: Props) {
+export function KanbanColumn({ columnName }: Props) {
+  const { board } = useKanbanState();
+  const columns = useColumns();
+  const add = useAddTask();
+  const mutations = useTaskMutations();
+  const expand = useTaskExpand();
+  const dnd = useDragDrop();
+
+  const tasks = board.tasks.filter((t) => t.column === columnName);
+
+  async function handleDeleteTask(id: string) {
+    expand.clearIfMatch(id);
+    await mutations.deleteTask(id);
+  }
+
   return (
     <section
       className={styles.column}
-      aria-label={header.name}
-      data-column={header.name}
+      aria-label={columnName}
+      data-column={columnName}
       onDragOver={dnd.onDragOver}
-      onDrop={dnd.onDrop}
+      onDrop={(e) => dnd.onDrop(e, columnName)}
     >
-      <ColumnHeader {...header} />
+      <ColumnHeader
+        name={columnName}
+        taskCount={tasks.length}
+        isEditing={columns.editingColumn === columnName}
+        editingName={columns.editingName}
+        onEditingNameChange={columns.setEditingName}
+        onStartRename={() => columns.startRename(columnName)}
+        onCommitRename={() => columns.commitRename(columnName)}
+        onCancelRename={columns.cancelRename}
+        renameInputRef={columns.renameInputRef}
+        onDelete={() => columns.deleteColumn(columnName)}
+        onSortByDueDate={() => mutations.sortColumnByDueDate(columnName)}
+      />
 
       <ul className={styles.cardList} data-card-list>
         {tasks.map((task) => (
           <KanbanCard
             key={task.id}
             task={task}
-            isExpanded={cards.expandedId === task.id}
-            onToggleExpand={() => cards.onToggleExpand(task.id)}
-            onUpdate={(patch) => cards.onUpdate(task.id, patch)}
-            onDelete={() => cards.onDelete(task.id)}
-            onAddLabel={(label) => cards.onAddLabel(task.id, label)}
-            onRemoveLabel={(label) => cards.onRemoveLabel(task.id, label)}
-            onDragStart={(e) => cards.onDragStart(task.id, e)}
-            onDragEnd={cards.onDragEnd}
+            isExpanded={expand.expandedId === task.id}
+            onToggleExpand={() => expand.toggleExpand(task.id)}
+            onUpdate={(patch) => mutations.updateTask(task.id, patch)}
+            onDelete={() => handleDeleteTask(task.id)}
+            onAddLabel={(label) => mutations.addLabel(task.id, label)}
+            onRemoveLabel={(label) => mutations.removeLabel(task.id, label)}
+            onDragStart={(e) => dnd.onDragStart(task.id, e)}
+            onDragEnd={dnd.onDragEnd}
           />
         ))}
       </ul>
 
-      <AddTaskInput {...addTask} />
+      <AddTaskInput
+        value={add.newTaskText[columnName] ?? ""}
+        onChange={(v) => add.setNewTaskText((p) => ({ ...p, [columnName]: v }))}
+        onAdd={() => add.addTask(columnName)}
+      />
     </section>
   );
 }
