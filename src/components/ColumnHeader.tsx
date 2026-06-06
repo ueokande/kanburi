@@ -15,6 +15,7 @@ export interface ColumnHeaderProps {
   onCancelRename: () => void;
   renameInputRef: RefObject<HTMLInputElement>;
   onDelete: () => void;
+  onSortByDueDate: () => void;
 }
 
 export function ColumnHeader({
@@ -28,6 +29,7 @@ export function ColumnHeader({
   onCancelRename,
   renameInputRef,
   onDelete,
+  onSortByDueDate,
 }: ColumnHeaderProps) {
   const composing = useComposing();
 
@@ -67,6 +69,7 @@ export function ColumnHeader({
         </button>
       )}
       <PopupMenu label="Column actions" triggerClassName={styles.menuTrigger}>
+        <PopupMenuItem onClick={onSortByDueDate}>Sort by due date</PopupMenuItem>
         <PopupMenuItem danger onClick={handleDelete}>Delete column</PopupMenuItem>
       </PopupMenu>
     </div>

@@ -32,6 +32,31 @@ export function nextStatus(s: Status): Status {
   return s === "done" ? "todo" : "done";
 }
 
+/** Reorder tasks by moving `movedTask` into `targetColumn` at `insertIndex`. */
+export function buildMovedTaskList(
+  allTasks: import("./types").Task[],
+  movedTask: import("./types").Task,
+  targetColumn: string,
+  insertIndex: number,
+): import("./types").Task[] {
+  const otherTasks = allTasks.filter((t) => t.id !== movedTask.id);
+  const columnTasks = otherTasks.filter((t) => t.column === targetColumn);
+  const clampedIdx = Math.max(0, Math.min(insertIndex, columnTasks.length));
+  const insertBefore = columnTasks[clampedIdx] ?? null;
+
+  const result: import("./types").Task[] = [];
+  let inserted = false;
+  for (const t of otherTasks) {
+    if (!inserted && insertBefore !== null && t.id === insertBefore.id) {
+      result.push(movedTask);
+      inserted = true;
+    }
+    result.push(t);
+  }
+  if (!inserted) result.push(movedTask);
+  return result;
+}
+
 export function formatDueDate(due_date: string): string {
   const d = new Date(due_date);
   const sameYear = d.getFullYear() === new Date().getFullYear();
