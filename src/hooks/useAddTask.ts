@@ -5,9 +5,9 @@ import {
   useUIDispatch,
   useUIState,
 } from "../context/BoardContext";
-import { statusForColumn } from "./useBoard";
 import type { Board, Task } from "../types";
 import { parseTaskInput } from "../utils";
+import { statusForColumn } from "./useBoard";
 
 export function useAddTask() {
   const { board } = useKanbanState();

@@ -1,5 +1,5 @@
-import { useRef } from "react";
 import type React from "react";
+import { useRef } from "react";
 
 /**
  * Returns spreadable input props and a keydown guard for IME composition.

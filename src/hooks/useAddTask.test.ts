@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { flushSeed, makeWrapper, makeSeedBoard } from "./testUtils";
+import { flushSeed, makeSeedBoard, makeWrapper } from "./testUtils";
 import { useAddTask } from "./useAddTask";
 
 const mockInvoke = vi.hoisted(() => vi.fn());
@@ -143,7 +143,7 @@ describe("useAddTask", () => {
       await result.current.addTask("Todo");
     });
 
-    expect(result.current.newTaskText["Todo"]).toBe("");
+    expect(result.current.newTaskText.Todo).toBe("");
   });
 
   it("setNewTaskText updates text for the given column", () => {
@@ -155,7 +155,7 @@ describe("useAddTask", () => {
       result.current.setNewTaskText((prev) => ({ ...prev, Todo: "hello" }));
     });
 
-    expect(result.current.newTaskText["Todo"]).toBe("hello");
+    expect(result.current.newTaskText.Todo).toBe("hello");
   });
 
   it("setNewTaskText preserves text for other columns", () => {
@@ -174,6 +174,6 @@ describe("useAddTask", () => {
       result.current.setNewTaskText((prev) => ({ ...prev, Todo: "updated" }));
     });
 
-    expect(result.current.newTaskText["Done"]).toBe("bye");
+    expect(result.current.newTaskText.Done).toBe("bye");
   });
 });

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Board, Task } from "../types";
-import { initialKanbanState, kanbanReducer } from "./kanbanReducer";
 import type { KanbanState } from "./kanbanReducer";
+import { initialKanbanState, kanbanReducer } from "./kanbanReducer";
 
 function task(id: string, column: string, overrides: Partial<Task> = {}): Task {
   return { id, text: id, status: "todo", column, labels: [], ...overrides };

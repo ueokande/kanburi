@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { initialUIState, uiReducer } from "./uiReducer";
 import type { UIState } from "./uiReducer";
+import { initialUIState, uiReducer } from "./uiReducer";
 
 function state(overrides: Partial<UIState> = {}): UIState {
   return { ...initialUIState, ...overrides };
@@ -107,7 +107,7 @@ describe("SET_NEW_TASK_TEXT", () => {
       column: "Todo",
       text: "New task",
     });
-    expect(next.newTaskText["Todo"]).toBe("New task");
+    expect(next.newTaskText.Todo).toBe("New task");
   });
 
   it("updates an existing entry for the same column", () => {
@@ -117,7 +117,7 @@ describe("SET_NEW_TASK_TEXT", () => {
       column: "Todo",
       text: "new text",
     });
-    expect(next.newTaskText["Todo"]).toBe("new text");
+    expect(next.newTaskText.Todo).toBe("new text");
   });
 
   it("preserves entries for other columns", () => {
@@ -127,6 +127,6 @@ describe("SET_NEW_TASK_TEXT", () => {
       column: "Todo",
       text: "hi",
     });
-    expect(next.newTaskText["Done"]).toBe("keep me");
+    expect(next.newTaskText.Done).toBe("keep me");
   });
 });

@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { flushSeed, makeWrapper, makeSeedBoard } from "./testUtils";
+import { flushSeed, makeSeedBoard, makeWrapper } from "./testUtils";
 import { useColumns } from "./useColumns";
 
 const mockInvoke = vi.hoisted(() => vi.fn());

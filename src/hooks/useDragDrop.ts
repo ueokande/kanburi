@@ -1,8 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useKanbanDispatch, useKanbanState } from "../context/BoardContext";
-import { statusForColumn } from "./useBoard";
-import { buildMovedTaskList } from "../utils";
 import type { Task } from "../types";
+import { buildMovedTaskList } from "../utils";
+import { statusForColumn } from "./useBoard";
 
 // Module-level refs so all column instances share the same drag state.
 let dragTaskId: string | null = null;
@@ -36,7 +36,9 @@ export function useDragDrop() {
     }
     taskList.getBoundingClientRect(); // flush styles
 
-    const before = new Map(cards.map((el) => [el, el.getBoundingClientRect().top]));
+    const before = new Map(
+      cards.map((el) => [el, el.getBoundingClientRect().top]),
+    );
 
     action();
 
@@ -67,7 +69,9 @@ export function useDragDrop() {
 
   function onDragEnd(event: React.DragEvent<HTMLLIElement>) {
     event.currentTarget.removeAttribute("data-dragging");
-    document.querySelectorAll(".drag-placeholder").forEach((el) => { el.remove(); });
+    document.querySelectorAll(".drag-placeholder").forEach((el) => {
+      el.remove();
+    });
     // Clean up any leftover animation transforms.
     document.querySelectorAll("[data-card-list] li").forEach((el) => {
       (el as HTMLElement).style.transition = "";
@@ -110,8 +114,9 @@ export function useDragDrop() {
     // Skips placeholder siblings so the check is accurate regardless of where the placeholder is.
     function isSamePosition(el: HTMLElement | null): boolean {
       if (el === draggedEl) return true;
-      let next: Element | null = draggedEl!.nextElementSibling;
-      while (next?.classList.contains("drag-placeholder")) next = next.nextElementSibling;
+      let next: Element | null = draggedEl?.nextElementSibling;
+      while (next?.classList.contains("drag-placeholder"))
+        next = next.nextElementSibling;
       return (el as Element | null) === next;
     }
 
@@ -123,7 +128,8 @@ export function useDragDrop() {
         if (childEl === existingPlaceholder) return;
         if (isSamePosition(childEl)) {
           // Back at original position — remove any existing placeholder.
-          if (existingPlaceholder) animateCards(taskList, () => existingPlaceholder.remove());
+          if (existingPlaceholder)
+            animateCards(taskList, () => existingPlaceholder.remove());
           return;
         }
         insertBefore = childEl;
@@ -133,11 +139,13 @@ export function useDragDrop() {
 
     // Append-to-end: remove placeholder if card is already at the end.
     if (!insertBefore && isSamePosition(null)) {
-      if (existingPlaceholder) animateCards(taskList, () => existingPlaceholder.remove());
+      if (existingPlaceholder)
+        animateCards(taskList, () => existingPlaceholder.remove());
       return;
     }
 
-    const placeholder = existingPlaceholder ?? makePlaceholder(draggedEl.offsetHeight);
+    const placeholder =
+      existingPlaceholder ?? makePlaceholder(draggedEl.offsetHeight);
 
     animateCards(taskList, () => {
       existingPlaceholder?.remove();

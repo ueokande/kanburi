@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import { DayPicker } from "react-day-picker";
+import { createPortal } from "react-dom";
 import "react-day-picker/style.css";
 import { formatDueDate, isOverdue } from "../utils";
 import styles from "./DatePicker.module.css";

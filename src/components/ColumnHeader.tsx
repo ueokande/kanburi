@@ -1,8 +1,8 @@
 import { confirm } from "@tauri-apps/plugin-dialog";
 import type { RefObject } from "react";
 import { useComposing } from "../hooks/useComposing";
-import { PopupMenu, PopupMenuItem } from "./PopupMenu";
 import styles from "./ColumnHeader.module.css";
+import { PopupMenu, PopupMenuItem } from "./PopupMenu";
 
 export interface ColumnHeaderProps {
   name: string;

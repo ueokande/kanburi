@@ -1,9 +1,9 @@
-import { createContext, useContext, useReducer } from "react";
 import type { Dispatch, ReactNode } from "react";
-import { kanbanReducer, initialKanbanState } from "./kanbanReducer";
-import { uiReducer, initialUIState } from "./uiReducer";
+import { createContext, useContext, useReducer } from "react";
 import type { KanbanAction, KanbanState } from "./kanbanReducer";
+import { initialKanbanState, kanbanReducer } from "./kanbanReducer";
 import type { UIAction, UIState } from "./uiReducer";
+import { initialUIState, uiReducer } from "./uiReducer";
 
 const KanbanStateContext = createContext<KanbanState | null>(null);
 const UIStateContext = createContext<UIState | null>(null);

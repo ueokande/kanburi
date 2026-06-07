@@ -1,8 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useKanbanDispatch, useKanbanState } from "../context/BoardContext";
-import { statusForColumn } from "./useBoard";
 import type { Board, Task } from "../types";
 import { buildMovedTaskList } from "../utils";
+import { statusForColumn } from "./useBoard";
 
 export function useTaskMutations() {
   const { board } = useKanbanState();
