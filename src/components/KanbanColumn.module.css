@@ -19,9 +19,22 @@
   list-style: none;
 }
 
+@keyframes drag-placeholder-in {
+  from {
+    opacity: 0;
+    transform: scaleY(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
 :global(.drag-placeholder) {
   border: 2px dashed #bbb;
   border-radius: 7px;
-  background: transparent;
+  background: rgba(99, 130, 255, 0.07);
   flex-shrink: 0;
+  transform-origin: top;
+  animation: drag-placeholder-in 150ms ease;
 }
