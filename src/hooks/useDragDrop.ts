@@ -114,7 +114,7 @@ export function useDragDrop() {
     // Skips placeholder siblings so the check is accurate regardless of where the placeholder is.
     function isSamePosition(el: HTMLElement | null): boolean {
       if (el === draggedEl) return true;
-      let next: Element | null = draggedEl?.nextElementSibling;
+      let next: Element | null = draggedEl ? draggedEl.nextElementSibling : null;
       while (next?.classList.contains("drag-placeholder"))
         next = next.nextElementSibling;
       return (el as Element | null) === next;
