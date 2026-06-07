@@ -1,20 +1,21 @@
-import { invoke } from "@tauri-apps/api/core";
 import { useKanbanDispatch, useKanbanState } from "../context/BoardContext";
 import type { Board, Task } from "../types";
 import { buildMovedTaskList } from "../utils";
 import { statusForColumn } from "./useBoard";
+import { useSaveBoard } from "./useSaveBoard";
 
 export function useTaskMutations() {
   const { board } = useKanbanState();
   const dispatch = useKanbanDispatch();
   const colNames = board.columns.map((c) => c.name);
   const getStatus = (colName: string) => statusForColumn(colNames, colName);
+  const { saveBoard } = useSaveBoard();
 
   async function saveAndDispatch(
     updated: Board,
     action: Parameters<typeof dispatch>[0],
   ) {
-    await invoke("save_current_board", { board: updated });
+    await saveBoard(updated);
     dispatch(action);
   }
 

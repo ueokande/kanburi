@@ -6,6 +6,7 @@ import { useTaskMutations } from "./useTaskMutations";
 
 const mockInvoke = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: mockInvoke }));
+vi.mock("@tauri-apps/plugin-dialog", () => ({ confirm: vi.fn() }));
 
 describe("useTaskMutations", () => {
   const seedBoard = makeSeedBoard();
@@ -31,6 +32,7 @@ describe("useTaskMutations", () => {
           expect.objectContaining({ id: "t1", text: "Updated text" }),
         ]),
       }),
+      force: false,
     });
   });
 
@@ -48,6 +50,7 @@ describe("useTaskMutations", () => {
       board: expect.objectContaining({
         tasks: [expect.objectContaining({ id: "t2" })],
       }),
+      force: false,
     });
   });
 
@@ -80,6 +83,7 @@ describe("useTaskMutations", () => {
           expect.objectContaining({ id: "t1", labels: ["Feature"] }),
         ]),
       }),
+      force: false,
     });
   });
 
@@ -113,6 +117,7 @@ describe("useTaskMutations", () => {
           expect.objectContaining({ id: "t2", labels: ["Bug", "Feature"] }),
         ]),
       }),
+      force: false,
     });
   });
 
@@ -132,6 +137,7 @@ describe("useTaskMutations", () => {
           expect.objectContaining({ id: "t2", labels: [] }),
         ]),
       }),
+      force: false,
     });
   });
 
@@ -151,6 +157,7 @@ describe("useTaskMutations", () => {
           expect.objectContaining({ id: "t1", column: "Done", status: "done" }),
         ]),
       }),
+      force: false,
     });
   });
 
@@ -190,6 +197,7 @@ describe("useTaskMutations", () => {
           expect.objectContaining({ id: "t1", status: "todo" }),
         ]),
       }),
+      force: false,
     });
   });
 

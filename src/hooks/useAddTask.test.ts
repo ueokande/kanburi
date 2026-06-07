@@ -6,6 +6,7 @@ import { useAddTask } from "./useAddTask";
 
 const mockInvoke = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: mockInvoke }));
+vi.mock("@tauri-apps/plugin-dialog", () => ({ confirm: vi.fn() }));
 
 describe("useAddTask", () => {
   const seedBoard = makeSeedBoard();
@@ -73,6 +74,7 @@ describe("useAddTask", () => {
           }),
         ]),
       }),
+      force: false,
     });
   });
 
@@ -102,6 +104,7 @@ describe("useAddTask", () => {
           }),
         ]),
       }),
+      force: false,
     });
   });
 
@@ -127,6 +130,7 @@ describe("useAddTask", () => {
           expect.objectContaining({ column: "Done", status: "done" }),
         ]),
       }),
+      force: false,
     });
   });
 

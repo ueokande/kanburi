@@ -1,8 +1,8 @@
-import { invoke } from "@tauri-apps/api/core";
 import { useKanbanDispatch, useKanbanState } from "../context/BoardContext";
 import type { Task } from "../types";
 import { buildMovedTaskList } from "../utils";
 import { statusForColumn } from "./useBoard";
+import { useSaveBoard } from "./useSaveBoard";
 
 // Module-level refs so all column instances share the same drag state.
 let dragTaskId: string | null = null;
@@ -20,6 +20,7 @@ export function useDragDrop() {
   const dispatch = useKanbanDispatch();
   const colNames = board.columns.map((c) => c.name);
   const getStatus = (colName: string) => statusForColumn(colNames, colName);
+  const { saveBoard } = useSaveBoard();
 
   // FLIP animation: snapshot positions → mutate DOM → animate cards that moved.
   function animateCards(taskList: HTMLElement, action: () => void) {
@@ -197,7 +198,7 @@ export function useDragDrop() {
         insertIndex,
       ),
     };
-    void invoke("save_current_board", { board: updated }).then(() => {
+    void saveBoard(updated).then(() => {
       dispatch({
         type: "MOVE_TASK",
         id: taskId,
