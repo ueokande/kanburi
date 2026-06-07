@@ -8,7 +8,9 @@ interface Props {
 export function DateLabel({ date }: Props) {
   if (!date) return null;
   return (
-    <span className={`${styles.badge} ${isOverdue(date) ? styles.overdue : ""}`}>
+    <span
+      className={`${styles.badge} ${isOverdue(date) ? styles.overdue : ""}`}
+    >
       {formatDueDate(date)}
     </span>
   );

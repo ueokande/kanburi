@@ -4,7 +4,9 @@ import type React from "react";
 import { describe, expect, it } from "vitest";
 import { useComposing } from "./useComposing";
 
-function fakeKeyEvent(overrides: { isComposing?: boolean; keyCode?: number } = {}): React.KeyboardEvent {
+function fakeKeyEvent(
+  overrides: { isComposing?: boolean; keyCode?: number } = {},
+): React.KeyboardEvent {
   return {
     nativeEvent: {
       isComposing: overrides.isComposing ?? false,
@@ -40,12 +42,16 @@ describe("useComposing", () => {
 
   it("isComposing returns true when nativeEvent.isComposing is true", () => {
     const { result } = renderHook(() => useComposing());
-    expect(result.current.isComposing(fakeKeyEvent({ isComposing: true }))).toBe(true);
+    expect(
+      result.current.isComposing(fakeKeyEvent({ isComposing: true })),
+    ).toBe(true);
   });
 
   it("isComposing returns true when keyCode is 229 (WKWebView IME sentinel)", () => {
     const { result } = renderHook(() => useComposing());
     // Covers the case where compositionend fired before keydown (WKWebView behaviour)
-    expect(result.current.isComposing(fakeKeyEvent({ keyCode: 229 }))).toBe(true);
+    expect(result.current.isComposing(fakeKeyEvent({ keyCode: 229 }))).toBe(
+      true,
+    );
   });
 });

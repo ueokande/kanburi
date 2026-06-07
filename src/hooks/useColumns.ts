@@ -1,6 +1,11 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useRef } from "react";
-import { useKanbanDispatch, useKanbanState, useUIDispatch, useUIState } from "../context/BoardContext";
+import {
+  useKanbanDispatch,
+  useKanbanState,
+  useUIDispatch,
+  useUIState,
+} from "../context/BoardContext";
 import type { Board } from "../types";
 
 export function useColumns() {
@@ -10,7 +15,10 @@ export function useColumns() {
   const uiDispatch = useUIDispatch();
   const renameInputRef = useRef<HTMLInputElement>(null);
 
-  async function saveAndDispatch(updated: Board, action: Parameters<typeof kanbanDispatch>[0]) {
+  async function saveAndDispatch(
+    updated: Board,
+    action: Parameters<typeof kanbanDispatch>[0],
+  ) {
     await invoke("save_current_board", { board: updated });
     kanbanDispatch(action);
   }
@@ -26,10 +34,18 @@ export function useColumns() {
     if (!trimmed || trimmed === oldName) return;
     if (board.columns.some((c) => c.name === trimmed)) return;
     const updated: Board = {
-      columns: board.columns.map((c) => (c.name === oldName ? { name: trimmed } : c)),
-      tasks: board.tasks.map((t) => (t.column === oldName ? { ...t, column: trimmed } : t)),
+      columns: board.columns.map((c) =>
+        c.name === oldName ? { name: trimmed } : c,
+      ),
+      tasks: board.tasks.map((t) =>
+        t.column === oldName ? { ...t, column: trimmed } : t,
+      ),
     };
-    await saveAndDispatch(updated, { type: "RENAME_COLUMN", oldName, newName: trimmed });
+    await saveAndDispatch(updated, {
+      type: "RENAME_COLUMN",
+      oldName,
+      newName: trimmed,
+    });
   }
 
   async function deleteColumn(name: string) {
@@ -57,7 +73,8 @@ export function useColumns() {
   return {
     editingColumn,
     editingName,
-    setEditingName: (name: string) => uiDispatch({ type: "SET_EDITING_NAME", name }),
+    setEditingName: (name: string) =>
+      uiDispatch({ type: "SET_EDITING_NAME", name }),
     renameInputRef,
     addColumn,
     startRename,

@@ -17,7 +17,9 @@ describe("useAddTask", () => {
   });
 
   it("addTask is a no-op when text is empty", async () => {
-    const { result } = renderHook(() => useAddTask(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useAddTask(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     await act(async () => {
@@ -28,11 +30,16 @@ describe("useAddTask", () => {
   });
 
   it("addTask is a no-op when text contains only tokens (no plain text)", async () => {
-    const { result } = renderHook(() => useAddTask(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useAddTask(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     act(() => {
-      result.current.setNewTaskText((prev) => ({ ...prev, Todo: "#label @2025-01-01" }));
+      result.current.setNewTaskText((prev) => ({
+        ...prev,
+        Todo: "#label @2025-01-01",
+      }));
     });
     await act(async () => {
       await result.current.addTask("Todo");
@@ -42,7 +49,9 @@ describe("useAddTask", () => {
   });
 
   it("addTask calls invoke with the new task appended to the board", async () => {
-    const { result } = renderHook(() => useAddTask(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useAddTask(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     act(() => {
@@ -68,7 +77,9 @@ describe("useAddTask", () => {
   });
 
   it("addTask parses labels and due_date from the input", async () => {
-    const { result } = renderHook(() => useAddTask(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useAddTask(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     act(() => {
@@ -95,11 +106,16 @@ describe("useAddTask", () => {
   });
 
   it("addTask assigns done status for the last column", async () => {
-    const { result } = renderHook(() => useAddTask(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useAddTask(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     act(() => {
-      result.current.setNewTaskText((prev) => ({ ...prev, Done: "Finished item" }));
+      result.current.setNewTaskText((prev) => ({
+        ...prev,
+        Done: "Finished item",
+      }));
     });
     await act(async () => {
       await result.current.addTask("Done");
@@ -115,7 +131,9 @@ describe("useAddTask", () => {
   });
 
   it("addTask clears newTaskText for the column after adding", async () => {
-    const { result } = renderHook(() => useAddTask(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useAddTask(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     act(() => {
@@ -129,7 +147,9 @@ describe("useAddTask", () => {
   });
 
   it("setNewTaskText updates text for the given column", () => {
-    const { result } = renderHook(() => useAddTask(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useAddTask(), {
+      wrapper: makeWrapper(seedBoard),
+    });
 
     act(() => {
       result.current.setNewTaskText((prev) => ({ ...prev, Todo: "hello" }));
@@ -139,10 +159,16 @@ describe("useAddTask", () => {
   });
 
   it("setNewTaskText preserves text for other columns", () => {
-    const { result } = renderHook(() => useAddTask(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useAddTask(), {
+      wrapper: makeWrapper(seedBoard),
+    });
 
     act(() => {
-      result.current.setNewTaskText((prev) => ({ ...prev, Todo: "hello", Done: "bye" }));
+      result.current.setNewTaskText((prev) => ({
+        ...prev,
+        Todo: "hello",
+        Done: "bye",
+      }));
     });
     act(() => {
       result.current.setNewTaskText((prev) => ({ ...prev, Todo: "updated" }));

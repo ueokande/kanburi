@@ -7,7 +7,10 @@ function task(id: string, column: string, overrides: Partial<Task> = {}): Task {
   return { id, text: id, status: "todo", column, labels: [], ...overrides };
 }
 
-function stateWith(board: Partial<Board>, overrides: Partial<KanbanState> = {}): KanbanState {
+function stateWith(
+  board: Partial<Board>,
+  overrides: Partial<KanbanState> = {},
+): KanbanState {
   return {
     ...initialKanbanState,
     board: { columns: [], tasks: [], ...board },
@@ -64,7 +67,11 @@ describe("LOAD_SUCCESS", () => {
 
   it("replaces stale board data on reload", () => {
     const old = stateWith({ columns: [{ name: "Old" }] });
-    const next = kanbanReducer(old, { type: "LOAD_SUCCESS", board, filePath: "/f.md" });
+    const next = kanbanReducer(old, {
+      type: "LOAD_SUCCESS",
+      board,
+      filePath: "/f.md",
+    });
     expect(next.board.columns.map((c) => c.name)).not.toContain("Old");
   });
 });
@@ -97,7 +104,9 @@ describe("UPDATE_TASK", () => {
   });
 
   it("does not touch other tasks", () => {
-    const state = stateWith({ tasks: [task("t1", "Todo"), task("t2", "Done")] });
+    const state = stateWith({
+      tasks: [task("t1", "Todo"), task("t2", "Done")],
+    });
     const next = kanbanReducer(state, {
       type: "UPDATE_TASK",
       id: "t1",
@@ -122,7 +131,9 @@ describe("UPDATE_TASK", () => {
 
 describe("DELETE_TASK", () => {
   it("removes the task with the given id", () => {
-    const state = stateWith({ tasks: [task("t1", "Todo"), task("t2", "Todo")] });
+    const state = stateWith({
+      tasks: [task("t1", "Todo"), task("t2", "Todo")],
+    });
     const next = kanbanReducer(state, { type: "DELETE_TASK", id: "t1" });
     expect(next.board.tasks.map((t) => t.id)).toEqual(["t2"]);
   });
@@ -267,7 +278,10 @@ describe("SORT_COLUMN_BY_DUE_DATE", () => {
         task("t3", "Todo", { due_date: "2025-06-01" }),
       ],
     });
-    const next = kanbanReducer(state, { type: "SORT_COLUMN_BY_DUE_DATE", column: "Todo" });
+    const next = kanbanReducer(state, {
+      type: "SORT_COLUMN_BY_DUE_DATE",
+      column: "Todo",
+    });
     const ids = next.board.tasks.map((t) => t.id);
     expect(ids).toEqual(["t2", "t1", "t3"]);
   });
@@ -279,7 +293,10 @@ describe("SORT_COLUMN_BY_DUE_DATE", () => {
         task("t2", "Todo", { due_date: "2025-01-01" }),
       ],
     });
-    const next = kanbanReducer(state, { type: "SORT_COLUMN_BY_DUE_DATE", column: "Todo" });
+    const next = kanbanReducer(state, {
+      type: "SORT_COLUMN_BY_DUE_DATE",
+      column: "Todo",
+    });
     const ids = next.board.tasks.map((t) => t.id);
     expect(ids).toEqual(["t2", "t1"]);
   });
@@ -291,7 +308,10 @@ describe("SORT_COLUMN_BY_DUE_DATE", () => {
         task("t2", "Done", { due_date: "2025-01-01" }),
       ],
     });
-    const next = kanbanReducer(state, { type: "SORT_COLUMN_BY_DUE_DATE", column: "Todo" });
+    const next = kanbanReducer(state, {
+      type: "SORT_COLUMN_BY_DUE_DATE",
+      column: "Todo",
+    });
     const doneTask = next.board.tasks.find((t) => t.id === "t2");
     expect(doneTask?.column).toBe("Done");
   });
@@ -300,32 +320,54 @@ describe("SORT_COLUMN_BY_DUE_DATE", () => {
 describe("ADD_LABEL", () => {
   it("adds a label to the task", () => {
     const state = stateWith({ tasks: [task("t1", "Todo")] });
-    const next = kanbanReducer(state, { type: "ADD_LABEL", taskId: "t1", label: "Bug" });
+    const next = kanbanReducer(state, {
+      type: "ADD_LABEL",
+      taskId: "t1",
+      label: "Bug",
+    });
     expect(next.board.tasks[0].labels).toContain("Bug");
   });
 
   it("does not add a duplicate label", () => {
-    const state = stateWith({ tasks: [task("t1", "Todo", { labels: ["Bug"] })] });
-    const next = kanbanReducer(state, { type: "ADD_LABEL", taskId: "t1", label: "Bug" });
+    const state = stateWith({
+      tasks: [task("t1", "Todo", { labels: ["Bug"] })],
+    });
+    const next = kanbanReducer(state, {
+      type: "ADD_LABEL",
+      taskId: "t1",
+      label: "Bug",
+    });
     expect(next.board.tasks[0].labels).toHaveLength(1);
   });
 
   it("is a no-op for an unknown task id", () => {
     const state = stateWith({ tasks: [task("t1", "Todo")] });
-    const next = kanbanReducer(state, { type: "ADD_LABEL", taskId: "ghost", label: "Bug" });
+    const next = kanbanReducer(state, {
+      type: "ADD_LABEL",
+      taskId: "ghost",
+      label: "Bug",
+    });
     expect(next).toBe(state);
   });
 });
 
 describe("REMOVE_LABEL", () => {
   it("removes an existing label from the task", () => {
-    const state = stateWith({ tasks: [task("t1", "Todo", { labels: ["Bug", "Feature"] })] });
-    const next = kanbanReducer(state, { type: "REMOVE_LABEL", taskId: "t1", label: "Bug" });
+    const state = stateWith({
+      tasks: [task("t1", "Todo", { labels: ["Bug", "Feature"] })],
+    });
+    const next = kanbanReducer(state, {
+      type: "REMOVE_LABEL",
+      taskId: "t1",
+      label: "Bug",
+    });
     expect(next.board.tasks[0].labels).toEqual(["Feature"]);
   });
 
   it("is a no-op when label is not present", () => {
-    const state = stateWith({ tasks: [task("t1", "Todo", { labels: ["Feature"] })] });
+    const state = stateWith({
+      tasks: [task("t1", "Todo", { labels: ["Feature"] })],
+    });
     const next = kanbanReducer(state, {
       type: "REMOVE_LABEL",
       taskId: "t1",

@@ -26,7 +26,9 @@ describe("labelStyle", () => {
   });
 
   it("hashes differently labelled strings into the palette range", () => {
-    const style = labelStyle("a very long label string that has many characters");
+    const style = labelStyle(
+      "a very long label string that has many characters",
+    );
     expect(LABEL_PALETTE).toContainEqual(style);
   });
 });
@@ -110,7 +112,9 @@ describe("buildMovedTaskList", () => {
     // Pass moved task with its column already updated (as the reducer does)
     const movedTask = { ...tasks[0], column: "Col2" };
     const result = buildMovedTaskList(tasks, movedTask, "Col2", 0);
-    expect(result.filter((t) => t.column === "Col1").map((t) => t.id)).toEqual(["b"]);
+    expect(result.filter((t) => t.column === "Col1").map((t) => t.id)).toEqual([
+      "b",
+    ]);
   });
 
   it("inserts task at index 0 in the target column", () => {

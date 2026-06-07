@@ -16,7 +16,9 @@ describe("useColumns", () => {
   });
 
   it("addColumn calls invoke with the new column appended and dispatches ADD_COLUMN", async () => {
-    const { result } = renderHook(() => useColumns(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useColumns(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     await act(async () => {
@@ -31,7 +33,9 @@ describe("useColumns", () => {
   });
 
   it("commitRename is a no-op when editingName is blank", async () => {
-    const { result } = renderHook(() => useColumns(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useColumns(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     act(() => {
@@ -45,7 +49,9 @@ describe("useColumns", () => {
   });
 
   it("commitRename is a no-op when editingName equals the old column name", async () => {
-    const { result } = renderHook(() => useColumns(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useColumns(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     act(() => {
@@ -60,7 +66,9 @@ describe("useColumns", () => {
   });
 
   it("commitRename is a no-op when editingName is a duplicate column name", async () => {
-    const { result } = renderHook(() => useColumns(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useColumns(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     act(() => {
@@ -74,7 +82,9 @@ describe("useColumns", () => {
   });
 
   it("commitRename calls invoke with renamed column and updated task columns", async () => {
-    const { result } = renderHook(() => useColumns(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useColumns(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     act(() => {
@@ -96,7 +106,9 @@ describe("useColumns", () => {
   });
 
   it("commitRename clears editingColumn after success", async () => {
-    const { result } = renderHook(() => useColumns(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useColumns(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     act(() => {
@@ -113,7 +125,9 @@ describe("useColumns", () => {
   });
 
   it("deleteColumn calls invoke with the column and its tasks removed", async () => {
-    const { result } = renderHook(() => useColumns(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useColumns(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     await act(async () => {
@@ -129,7 +143,9 @@ describe("useColumns", () => {
   });
 
   it("startRename sets editingColumn and editingName", async () => {
-    const { result } = renderHook(() => useColumns(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useColumns(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     act(() => {
@@ -141,7 +157,9 @@ describe("useColumns", () => {
   });
 
   it("cancelRename clears editingColumn", async () => {
-    const { result } = renderHook(() => useColumns(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useColumns(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     act(() => {
@@ -155,7 +173,9 @@ describe("useColumns", () => {
   });
 
   it("setEditingName updates editingName without changing editingColumn", async () => {
-    const { result } = renderHook(() => useColumns(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useColumns(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     act(() => {

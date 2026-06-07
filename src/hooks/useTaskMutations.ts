@@ -10,7 +10,10 @@ export function useTaskMutations() {
   const colNames = board.columns.map((c) => c.name);
   const getStatus = (colName: string) => statusForColumn(colNames, colName);
 
-  async function saveAndDispatch(updated: Board, action: Parameters<typeof dispatch>[0]) {
+  async function saveAndDispatch(
+    updated: Board,
+    action: Parameters<typeof dispatch>[0],
+  ) {
     await invoke("save_current_board", { board: updated });
     dispatch(action);
   }
@@ -23,7 +26,11 @@ export function useTaskMutations() {
     await saveAndDispatch(updated, { type: "UPDATE_TASK", id, patch });
   }
 
-  async function moveTask(id: string, targetColumn: string, insertIndex: number) {
+  async function moveTask(
+    id: string,
+    targetColumn: string,
+    insertIndex: number,
+  ) {
     const task = board.tasks.find((t) => t.id === id);
     if (!task) return;
     // Only update status when the task actually moves to a different column.
@@ -33,13 +40,27 @@ export function useTaskMutations() {
         : { ...task, column: targetColumn, status: getStatus(targetColumn) };
     const updated: Board = {
       ...board,
-      tasks: buildMovedTaskList(board.tasks, movedTask, targetColumn, insertIndex),
+      tasks: buildMovedTaskList(
+        board.tasks,
+        movedTask,
+        targetColumn,
+        insertIndex,
+      ),
     };
-    await saveAndDispatch(updated, { type: "MOVE_TASK", id, targetColumn, insertIndex, statusForColumn: getStatus });
+    await saveAndDispatch(updated, {
+      type: "MOVE_TASK",
+      id,
+      targetColumn,
+      insertIndex,
+      statusForColumn: getStatus,
+    });
   }
 
   async function deleteTask(id: string) {
-    const updated: Board = { ...board, tasks: board.tasks.filter((t) => t.id !== id) };
+    const updated: Board = {
+      ...board,
+      tasks: board.tasks.filter((t) => t.id !== id),
+    };
     await saveAndDispatch(updated, { type: "DELETE_TASK", id });
   }
 
@@ -54,7 +75,9 @@ export function useTaskMutations() {
   async function removeLabel(taskId: string, label: string) {
     const task = board.tasks.find((t) => t.id === taskId);
     if (!task) return;
-    await updateTask(taskId, { labels: task.labels.filter((l) => l !== label) });
+    await updateTask(taskId, {
+      labels: task.labels.filter((l) => l !== label),
+    });
   }
 
   async function sortColumnByDueDate(column: string) {
@@ -70,5 +93,12 @@ export function useTaskMutations() {
     await saveAndDispatch(updated, { type: "SORT_COLUMN_BY_DUE_DATE", column });
   }
 
-  return { updateTask, moveTask, deleteTask, addLabel, removeLabel, sortColumnByDueDate };
+  return {
+    updateTask,
+    moveTask,
+    deleteTask,
+    addLabel,
+    removeLabel,
+    sortColumnByDueDate,
+  };
 }

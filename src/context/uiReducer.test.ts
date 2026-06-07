@@ -47,14 +47,20 @@ describe("CLEAR_EXPAND_IF_MATCH", () => {
   });
 
   it("is a no-op when nothing is expanded", () => {
-    const next = uiReducer(state(), { type: "CLEAR_EXPAND_IF_MATCH", id: "t1" });
+    const next = uiReducer(state(), {
+      type: "CLEAR_EXPAND_IF_MATCH",
+      id: "t1",
+    });
     expect(next.expandedId).toBeNull();
   });
 });
 
 describe("START_RENAME_COLUMN", () => {
   it("sets editingColumn and editingName to the given name", () => {
-    const next = uiReducer(state(), { type: "START_RENAME_COLUMN", name: "Todo" });
+    const next = uiReducer(state(), {
+      type: "START_RENAME_COLUMN",
+      name: "Todo",
+    });
     expect(next.editingColumn).toBe("Todo");
     expect(next.editingName).toBe("Todo");
   });
@@ -106,13 +112,21 @@ describe("SET_NEW_TASK_TEXT", () => {
 
   it("updates an existing entry for the same column", () => {
     const s = state({ newTaskText: { Todo: "old text" } });
-    const next = uiReducer(s, { type: "SET_NEW_TASK_TEXT", column: "Todo", text: "new text" });
+    const next = uiReducer(s, {
+      type: "SET_NEW_TASK_TEXT",
+      column: "Todo",
+      text: "new text",
+    });
     expect(next.newTaskText["Todo"]).toBe("new text");
   });
 
   it("preserves entries for other columns", () => {
     const s = state({ newTaskText: { Done: "keep me" } });
-    const next = uiReducer(s, { type: "SET_NEW_TASK_TEXT", column: "Todo", text: "hi" });
+    const next = uiReducer(s, {
+      type: "SET_NEW_TASK_TEXT",
+      column: "Todo",
+      text: "hi",
+    });
     expect(next.newTaskText["Done"]).toBe("keep me");
   });
 });

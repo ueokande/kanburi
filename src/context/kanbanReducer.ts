@@ -19,7 +19,13 @@ export type KanbanAction =
   | { type: "ADD_TASK"; task: Task }
   | { type: "UPDATE_TASK"; id: string; patch: Partial<Task> }
   | { type: "DELETE_TASK"; id: string }
-  | { type: "MOVE_TASK"; id: string; targetColumn: string; insertIndex: number; statusForColumn: (col: string) => Task["status"] }
+  | {
+      type: "MOVE_TASK";
+      id: string;
+      targetColumn: string;
+      insertIndex: number;
+      statusForColumn: (col: string) => Task["status"];
+    }
   | { type: "ADD_COLUMN"; name: string }
   | { type: "RENAME_COLUMN"; oldName: string; newName: string }
   | { type: "DELETE_COLUMN"; name: string }
@@ -27,16 +33,26 @@ export type KanbanAction =
   | { type: "ADD_LABEL"; taskId: string; label: string }
   | { type: "REMOVE_LABEL"; taskId: string; label: string };
 
-export function kanbanReducer(state: KanbanState, action: KanbanAction): KanbanState {
+export function kanbanReducer(
+  state: KanbanState,
+  action: KanbanAction,
+): KanbanState {
   switch (action.type) {
     case "LOAD_START":
       return { ...state, isLoading: true };
 
     case "LOAD_SUCCESS":
-      return { board: action.board, filePath: action.filePath, isLoading: false };
+      return {
+        board: action.board,
+        filePath: action.filePath,
+        isLoading: false,
+      };
 
     case "ADD_TASK":
-      return { ...state, board: { ...state.board, tasks: [...state.board.tasks, action.task] } };
+      return {
+        ...state,
+        board: { ...state.board, tasks: [...state.board.tasks, action.task] },
+      };
 
     case "UPDATE_TASK":
       return {
@@ -52,7 +68,10 @@ export function kanbanReducer(state: KanbanState, action: KanbanAction): KanbanS
     case "DELETE_TASK":
       return {
         ...state,
-        board: { ...state.board, tasks: state.board.tasks.filter((t) => t.id !== action.id) },
+        board: {
+          ...state.board,
+          tasks: state.board.tasks.filter((t) => t.id !== action.id),
+        },
       };
 
     case "MOVE_TASK": {
@@ -61,12 +80,21 @@ export function kanbanReducer(state: KanbanState, action: KanbanAction): KanbanS
       const movedTask: Task =
         action.targetColumn === task.column
           ? { ...task }
-          : { ...task, column: action.targetColumn, status: action.statusForColumn(action.targetColumn) };
+          : {
+              ...task,
+              column: action.targetColumn,
+              status: action.statusForColumn(action.targetColumn),
+            };
       return {
         ...state,
         board: {
           ...state.board,
-          tasks: buildMovedTaskList(state.board.tasks, movedTask, action.targetColumn, action.insertIndex),
+          tasks: buildMovedTaskList(
+            state.board.tasks,
+            movedTask,
+            action.targetColumn,
+            action.insertIndex,
+          ),
         },
       };
     }
@@ -74,7 +102,10 @@ export function kanbanReducer(state: KanbanState, action: KanbanAction): KanbanS
     case "ADD_COLUMN":
       return {
         ...state,
-        board: { ...state.board, columns: [...state.board.columns, { name: action.name }] },
+        board: {
+          ...state.board,
+          columns: [...state.board.columns, { name: action.name }],
+        },
       };
 
     case "RENAME_COLUMN": {
@@ -82,8 +113,12 @@ export function kanbanReducer(state: KanbanState, action: KanbanAction): KanbanS
       return {
         ...state,
         board: {
-          columns: state.board.columns.map((c) => (c.name === oldName ? { name: newName } : c)),
-          tasks: state.board.tasks.map((t) => (t.column === oldName ? { ...t, column: newName } : t)),
+          columns: state.board.columns.map((c) =>
+            c.name === oldName ? { name: newName } : c,
+          ),
+          tasks: state.board.tasks.map((t) =>
+            t.column === oldName ? { ...t, column: newName } : t,
+          ),
         },
       };
     }
@@ -98,15 +133,23 @@ export function kanbanReducer(state: KanbanState, action: KanbanAction): KanbanS
       };
 
     case "SORT_COLUMN_BY_DUE_DATE": {
-      const others = state.board.tasks.filter((t) => t.column !== action.column);
-      const columnTasks = state.board.tasks.filter((t) => t.column === action.column);
+      const others = state.board.tasks.filter(
+        (t) => t.column !== action.column,
+      );
+      const columnTasks = state.board.tasks.filter(
+        (t) => t.column === action.column,
+      );
       const sorted = [...columnTasks].sort((a, b) => {
-        if (a.due_date && b.due_date) return a.due_date.localeCompare(b.due_date);
+        if (a.due_date && b.due_date)
+          return a.due_date.localeCompare(b.due_date);
         if (a.due_date) return -1;
         if (b.due_date) return 1;
         return 0;
       });
-      return { ...state, board: { ...state.board, tasks: [...others, ...sorted] } };
+      return {
+        ...state,
+        board: { ...state.board, tasks: [...others, ...sorted] },
+      };
     }
 
     case "ADD_LABEL": {
@@ -117,7 +160,9 @@ export function kanbanReducer(state: KanbanState, action: KanbanAction): KanbanS
         board: {
           ...state.board,
           tasks: state.board.tasks.map((t) =>
-            t.id === action.taskId ? { ...t, labels: [...t.labels, action.label] } : t,
+            t.id === action.taskId
+              ? { ...t, labels: [...t.labels, action.label] }
+              : t,
           ),
         },
       };

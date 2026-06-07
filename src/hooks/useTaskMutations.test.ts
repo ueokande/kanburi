@@ -16,7 +16,9 @@ describe("useTaskMutations", () => {
   });
 
   it("updateTask calls invoke with the patched board and dispatches UPDATE_TASK", async () => {
-    const { result } = renderHook(() => useTaskMutations(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useTaskMutations(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     await act(async () => {
@@ -33,7 +35,9 @@ describe("useTaskMutations", () => {
   });
 
   it("deleteTask calls invoke with the task removed", async () => {
-    const { result } = renderHook(() => useTaskMutations(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useTaskMutations(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     await act(async () => {
@@ -48,7 +52,9 @@ describe("useTaskMutations", () => {
   });
 
   it("addLabel is a no-op for an empty string", async () => {
-    const { result } = renderHook(() => useTaskMutations(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useTaskMutations(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     await act(async () => {
@@ -59,7 +65,9 @@ describe("useTaskMutations", () => {
   });
 
   it("addLabel strips a leading # from the label", async () => {
-    const { result } = renderHook(() => useTaskMutations(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useTaskMutations(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     await act(async () => {
@@ -76,7 +84,9 @@ describe("useTaskMutations", () => {
   });
 
   it("addLabel is a no-op for a duplicate label", async () => {
-    const { result } = renderHook(() => useTaskMutations(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useTaskMutations(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     // t2 already has label "Bug"
@@ -88,7 +98,9 @@ describe("useTaskMutations", () => {
   });
 
   it("addLabel appends the new label to the task", async () => {
-    const { result } = renderHook(() => useTaskMutations(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useTaskMutations(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     await act(async () => {
@@ -105,7 +117,9 @@ describe("useTaskMutations", () => {
   });
 
   it("removeLabel calls invoke with the label removed from the task", async () => {
-    const { result } = renderHook(() => useTaskMutations(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useTaskMutations(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     await act(async () => {
@@ -122,7 +136,9 @@ describe("useTaskMutations", () => {
   });
 
   it("moveTask updates the task's column and status when moving cross-column", async () => {
-    const { result } = renderHook(() => useTaskMutations(), { wrapper: makeWrapper(seedBoard) });
+    const { result } = renderHook(() => useTaskMutations(), {
+      wrapper: makeWrapper(seedBoard),
+    });
     await flushSeed();
 
     await act(async () => {
@@ -143,11 +159,25 @@ describe("useTaskMutations", () => {
     const board = {
       columns: [{ name: "Todo" }, { name: "Done" }],
       tasks: [
-        { id: "t1", text: "A", status: "todo" as const, column: "Todo", labels: [] },
-        { id: "t2", text: "B", status: "todo" as const, column: "Todo", labels: [] },
+        {
+          id: "t1",
+          text: "A",
+          status: "todo" as const,
+          column: "Todo",
+          labels: [],
+        },
+        {
+          id: "t2",
+          text: "B",
+          status: "todo" as const,
+          column: "Todo",
+          labels: [],
+        },
       ],
     };
-    const { result } = renderHook(() => useTaskMutations(), { wrapper: makeWrapper(board) });
+    const { result } = renderHook(() => useTaskMutations(), {
+      wrapper: makeWrapper(board),
+    });
     await flushSeed();
 
     await act(async () => {
@@ -167,12 +197,34 @@ describe("useTaskMutations", () => {
     const board = {
       columns: [{ name: "Todo" }],
       tasks: [
-        { id: "t1", text: "A", status: "todo" as const, column: "Todo", labels: [], due_date: "2025-03-01" },
-        { id: "t2", text: "B", status: "todo" as const, column: "Todo", labels: [], due_date: "2025-01-01" },
-        { id: "t3", text: "C", status: "todo" as const, column: "Todo", labels: [] },
+        {
+          id: "t1",
+          text: "A",
+          status: "todo" as const,
+          column: "Todo",
+          labels: [],
+          due_date: "2025-03-01",
+        },
+        {
+          id: "t2",
+          text: "B",
+          status: "todo" as const,
+          column: "Todo",
+          labels: [],
+          due_date: "2025-01-01",
+        },
+        {
+          id: "t3",
+          text: "C",
+          status: "todo" as const,
+          column: "Todo",
+          labels: [],
+        },
       ],
     };
-    const { result } = renderHook(() => useTaskMutations(), { wrapper: makeWrapper(board) });
+    const { result } = renderHook(() => useTaskMutations(), {
+      wrapper: makeWrapper(board),
+    });
     await flushSeed();
 
     await act(async () => {

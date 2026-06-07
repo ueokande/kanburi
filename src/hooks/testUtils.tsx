@@ -45,7 +45,13 @@ export function makeSeedBoard(): Board {
     columns: [{ name: "Todo" }, { name: "Done" }],
     tasks: [
       { id: "t1", text: "Task 1", status: "todo", column: "Todo", labels: [] },
-      { id: "t2", text: "Task 2", status: "done", column: "Done", labels: ["Bug"] },
+      {
+        id: "t2",
+        text: "Task 2",
+        status: "done",
+        column: "Done",
+        labels: ["Bug"],
+      },
     ],
   };
 }

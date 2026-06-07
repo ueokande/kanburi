@@ -7,11 +7,16 @@ import type { UIAction, UIState } from "./uiReducer";
 
 const KanbanStateContext = createContext<KanbanState | null>(null);
 const UIStateContext = createContext<UIState | null>(null);
-const KanbanDispatchContext = createContext<Dispatch<KanbanAction> | null>(null);
+const KanbanDispatchContext = createContext<Dispatch<KanbanAction> | null>(
+  null,
+);
 const UIDispatchContext = createContext<Dispatch<UIAction> | null>(null);
 
 export function BoardProvider({ children }: { children: ReactNode }) {
-  const [kanbanState, kanbanDispatch] = useReducer(kanbanReducer, initialKanbanState);
+  const [kanbanState, kanbanDispatch] = useReducer(
+    kanbanReducer,
+    initialKanbanState,
+  );
   const [uiState, uiDispatch] = useReducer(uiReducer, initialUIState);
   return (
     <KanbanStateContext.Provider value={kanbanState}>
@@ -40,7 +45,8 @@ export function useUIState(): UIState {
 
 export function useKanbanDispatch(): Dispatch<KanbanAction> {
   const ctx = useContext(KanbanDispatchContext);
-  if (!ctx) throw new Error("useKanbanDispatch must be used within BoardProvider");
+  if (!ctx)
+    throw new Error("useKanbanDispatch must be used within BoardProvider");
   return ctx;
 }
 

@@ -11,7 +11,15 @@ vi.mock("@tauri-apps/plugin-dialog", () => ({ open: mockOpen }));
 
 const mockBoard = {
   columns: [{ name: "Todo" }, { name: "Done" }],
-  tasks: [{ id: "t1", text: "Task 1", status: "todo" as const, column: "Todo", labels: [] }],
+  tasks: [
+    {
+      id: "t1",
+      text: "Task 1",
+      status: "todo" as const,
+      column: "Todo",
+      labels: [],
+    },
+  ],
 };
 
 describe("useBoard", () => {
@@ -69,7 +77,9 @@ describe("useBoard", () => {
       await result.current.openFile();
     });
 
-    expect(mockInvoke).toHaveBeenCalledWith("load_file", { path: "/chosen.md" });
+    expect(mockInvoke).toHaveBeenCalledWith("load_file", {
+      path: "/chosen.md",
+    });
     expect(result.current.filePath).toBe("/chosen.md");
   });
 });

@@ -24,10 +24,16 @@ export type UIAction =
 export function uiReducer(state: UIState, action: UIAction): UIState {
   switch (action.type) {
     case "TOGGLE_EXPAND":
-      return { ...state, expandedId: state.expandedId === action.id ? null : action.id };
+      return {
+        ...state,
+        expandedId: state.expandedId === action.id ? null : action.id,
+      };
 
     case "CLEAR_EXPAND_IF_MATCH":
-      return { ...state, expandedId: state.expandedId === action.id ? null : state.expandedId };
+      return {
+        ...state,
+        expandedId: state.expandedId === action.id ? null : state.expandedId,
+      };
 
     case "START_RENAME_COLUMN":
       return { ...state, editingColumn: action.name, editingName: action.name };
@@ -40,7 +46,10 @@ export function uiReducer(state: UIState, action: UIAction): UIState {
       return { ...state, editingColumn: null, editingName: "" };
 
     case "SET_NEW_TASK_TEXT":
-      return { ...state, newTaskText: { ...state.newTaskText, [action.column]: action.text } };
+      return {
+        ...state,
+        newTaskText: { ...state.newTaskText, [action.column]: action.text },
+      };
 
     default:
       return state;

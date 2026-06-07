@@ -89,8 +89,12 @@ export function useDragDrop() {
     }
     activeColumnEl = column;
 
-    const draggedEl = document.querySelector("[data-dragging]") as HTMLElement | null;
-    const taskList = column.querySelector("[data-card-list]") as HTMLElement | null;
+    const draggedEl = document.querySelector(
+      "[data-dragging]",
+    ) as HTMLElement | null;
+    const taskList = column.querySelector(
+      "[data-card-list]",
+    ) as HTMLElement | null;
     if (!taskList || !draggedEl) return;
 
     const existingPlaceholder = taskList.querySelector(
@@ -151,7 +155,9 @@ export function useDragDrop() {
     if (!taskId) return;
 
     const column = event.currentTarget as HTMLElement;
-    const taskList = column.querySelector("[data-card-list]") as HTMLElement | null;
+    const taskList = column.querySelector(
+      "[data-card-list]",
+    ) as HTMLElement | null;
     if (!taskList) return;
 
     const placeholder = taskList.querySelector(".drag-placeholder");
@@ -176,10 +182,21 @@ export function useDragDrop() {
         : { ...task, column: columnName, status: getStatus(columnName) };
     const updated = {
       ...board,
-      tasks: buildMovedTaskList(board.tasks, movedTask, columnName, insertIndex),
+      tasks: buildMovedTaskList(
+        board.tasks,
+        movedTask,
+        columnName,
+        insertIndex,
+      ),
     };
     void invoke("save_current_board", { board: updated }).then(() => {
-      dispatch({ type: "MOVE_TASK", id: taskId, targetColumn: columnName, insertIndex, statusForColumn: getStatus });
+      dispatch({
+        type: "MOVE_TASK",
+        id: taskId,
+        targetColumn: columnName,
+        insertIndex,
+        statusForColumn: getStatus,
+      });
     });
   }
 

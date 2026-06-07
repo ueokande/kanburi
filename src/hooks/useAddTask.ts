@@ -1,5 +1,10 @@
 import { invoke } from "@tauri-apps/api/core";
-import { useKanbanDispatch, useKanbanState, useUIDispatch, useUIState } from "../context/BoardContext";
+import {
+  useKanbanDispatch,
+  useKanbanState,
+  useUIDispatch,
+  useUIState,
+} from "../context/BoardContext";
 import { statusForColumn } from "./useBoard";
 import type { Board, Task } from "../types";
 import { parseTaskInput } from "../utils";
@@ -12,7 +17,9 @@ export function useAddTask() {
   const colNames = board.columns.map((c) => c.name);
   const getStatus = (colName: string) => statusForColumn(colNames, colName);
 
-  function setNewTaskText(updater: (prev: Record<string, string>) => Record<string, string>) {
+  function setNewTaskText(
+    updater: (prev: Record<string, string>) => Record<string, string>,
+  ) {
     const next = updater(newTaskText);
     for (const col of Object.keys(next)) {
       if (next[col] !== newTaskText[col]) {
