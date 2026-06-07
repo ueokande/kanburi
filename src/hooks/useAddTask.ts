@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
 import {
   useKanbanDispatch,
   useKanbanState,
@@ -8,6 +7,7 @@ import {
 import type { Board, Task } from "../types";
 import { parseTaskInput } from "../utils";
 import { statusForColumn } from "./useBoard";
+import { useSaveBoard } from "./useSaveBoard";
 
 export function useAddTask() {
   const { board } = useKanbanState();
@@ -16,6 +16,7 @@ export function useAddTask() {
   const uiDispatch = useUIDispatch();
   const colNames = board.columns.map((c) => c.name);
   const getStatus = (colName: string) => statusForColumn(colNames, colName);
+  const { saveBoard } = useSaveBoard();
 
   function setNewTaskText(
     updater: (prev: Record<string, string>) => Record<string, string>,
@@ -42,7 +43,7 @@ export function useAddTask() {
       due_date,
     };
     const updated: Board = { ...board, tasks: [...board.tasks, task] };
-    await invoke("save_current_board", { board: updated });
+    await saveBoard(updated);
     kanbanDispatch({ type: "ADD_TASK", task });
     uiDispatch({ type: "SET_NEW_TASK_TEXT", column, text: "" });
   }

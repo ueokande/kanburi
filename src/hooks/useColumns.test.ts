@@ -6,6 +6,7 @@ import { useColumns } from "./useColumns";
 
 const mockInvoke = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", () => ({ invoke: mockInvoke }));
+vi.mock("@tauri-apps/plugin-dialog", () => ({ confirm: vi.fn() }));
 
 describe("useColumns", () => {
   const seedBoard = makeSeedBoard();
@@ -29,6 +30,7 @@ describe("useColumns", () => {
       board: expect.objectContaining({
         columns: [{ name: "Todo" }, { name: "Done" }, { name: "Column 3" }],
       }),
+      force: false,
     });
   });
 
@@ -102,6 +104,7 @@ describe("useColumns", () => {
           expect.objectContaining({ id: "t2", column: "Done" }),
         ],
       },
+      force: false,
     });
   });
 
@@ -139,6 +142,7 @@ describe("useColumns", () => {
         columns: [{ name: "Done" }],
         tasks: [expect.objectContaining({ id: "t2" })],
       },
+      force: false,
     });
   });
 

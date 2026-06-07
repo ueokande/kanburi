@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
 import { useRef } from "react";
 import {
   useKanbanDispatch,
@@ -7,6 +6,7 @@ import {
   useUIState,
 } from "../context/BoardContext";
 import type { Board } from "../types";
+import { useSaveBoard } from "./useSaveBoard";
 
 export function useColumns() {
   const { board } = useKanbanState();
@@ -14,12 +14,13 @@ export function useColumns() {
   const kanbanDispatch = useKanbanDispatch();
   const uiDispatch = useUIDispatch();
   const renameInputRef = useRef<HTMLInputElement>(null);
+  const { saveBoard } = useSaveBoard();
 
   async function saveAndDispatch(
     updated: Board,
     action: Parameters<typeof kanbanDispatch>[0],
   ) {
-    await invoke("save_current_board", { board: updated });
+    await saveBoard(updated);
     kanbanDispatch(action);
   }
 
