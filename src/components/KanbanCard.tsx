@@ -59,7 +59,9 @@ export function KanbanCard({
               onUpdateText={(text) => onUpdate({ text })}
             />
             <PopupMenu label="Card actions" className={styles.menuWrap}>
-              <PopupMenuItem danger onClick={handleDelete}>Delete task</PopupMenuItem>
+              <PopupMenuItem danger onClick={handleDelete}>
+                Delete task
+              </PopupMenuItem>
             </PopupMenu>
           </div>
 

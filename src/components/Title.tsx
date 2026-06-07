@@ -11,12 +11,7 @@ interface Props {
   onUpdateText: (text: string) => void;
 }
 
-export function Title({
-  text,
-  status,
-  isExpanded,
-  onUpdateText,
-}: Props) {
+export function Title({ text, status, isExpanded, onUpdateText }: Props) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
   const composing = useComposing();

@@ -19,7 +19,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 150ms ease, background 150ms ease;
+  transition:
+    color 150ms ease,
+    background 150ms ease;
 }
 
 .trigger:hover {

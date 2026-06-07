@@ -10,7 +10,12 @@ interface PopupMenuProps {
   children: React.ReactNode;
 }
 
-export function PopupMenu({ label, className, triggerClassName, children }: PopupMenuProps) {
+export function PopupMenu({
+  label,
+  className,
+  triggerClassName,
+  children,
+}: PopupMenuProps) {
   const [open, setOpen] = useState(false);
   const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -22,8 +27,10 @@ export function PopupMenu({ label, className, triggerClassName, children }: Popu
     function handleMouseDown(e: MouseEvent) {
       const target = e.target as Node;
       if (
-        wrapRef.current && !wrapRef.current.contains(target) &&
-        dropdownRef.current && !dropdownRef.current.contains(target)
+        wrapRef.current &&
+        !wrapRef.current.contains(target) &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(target)
       ) {
         setOpen(false);
       }
@@ -59,10 +66,18 @@ export function PopupMenu({ label, className, triggerClassName, children }: Popu
       >
         •••
       </button>
-      {open && createPortal(
-        <div ref={dropdownRef} className={styles.dropdown} style={dropdownStyle} onClick={() => setOpen(false)}>{children}</div>,
-        document.body,
-      )}
+      {open &&
+        createPortal(
+          <div
+            ref={dropdownRef}
+            className={styles.dropdown}
+            style={dropdownStyle}
+            onClick={() => setOpen(false)}
+          >
+            {children}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
@@ -73,7 +88,11 @@ interface PopupMenuItemProps {
   children: React.ReactNode;
 }
 
-export function PopupMenuItem({ danger, onClick, children }: PopupMenuItemProps) {
+export function PopupMenuItem({
+  danger,
+  onClick,
+  children,
+}: PopupMenuItemProps) {
   return (
     <button
       type="button"

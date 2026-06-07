@@ -1,5 +1,5 @@
-import { useRef } from "react";
 import type React from "react";
+import { useRef } from "react";
 
 /**
  * Returns spreadable input props and a keydown guard for IME composition.
@@ -29,7 +29,9 @@ export function useComposing() {
 
   // Triple-check: manual ref + nativeEvent.isComposing + keyCode 229 (IME sentinel).
   const isComposing = (e: React.KeyboardEvent) =>
-    composingRef.current || e.nativeEvent.isComposing || e.nativeEvent.keyCode === 229;
+    composingRef.current ||
+    e.nativeEvent.isComposing ||
+    e.nativeEvent.keyCode === 229;
 
   return { props, isComposing };
 }

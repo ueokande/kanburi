@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import { DayPicker } from "react-day-picker";
+import { createPortal } from "react-dom";
 import "react-day-picker/style.css";
 import { formatDueDate, isOverdue } from "../utils";
 import styles from "./DatePicker.module.css";
@@ -37,7 +37,7 @@ export function DatePicker({ date, onChange }: Props) {
       if (
         popoverRef.current &&
         !popoverRef.current.contains(e.target as Node) &&
-        !(triggerRef.current?.contains(e.target as Node))
+        !triggerRef.current?.contains(e.target as Node)
       ) {
         setOpen(false);
       }
@@ -99,21 +99,22 @@ export function DatePicker({ date, onChange }: Props) {
         </button>
       )}
 
-      {open && createPortal(
-        <div
-          ref={popoverRef}
-          className={styles.popover}
-          style={{ top: popoverPos.top, left: popoverPos.left }}
-        >
-          <DayPicker
-            mode="single"
-            selected={selected}
-            onSelect={handleSelect}
-            defaultMonth={selected ?? new Date()}
-          />
-        </div>,
-        document.body,
-      )}
+      {open &&
+        createPortal(
+          <div
+            ref={popoverRef}
+            className={styles.popover}
+            style={{ top: popoverPos.top, left: popoverPos.left }}
+          >
+            <DayPicker
+              mode="single"
+              selected={selected}
+              onSelect={handleSelect}
+              defaultMonth={selected ?? new Date()}
+            />
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

@@ -12,7 +12,9 @@
   cursor: pointer;
   flex-shrink: 0;
   font-family: inherit;
-  transition: background 150ms ease, color 150ms ease;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
 }
 
 .trigger:hover {

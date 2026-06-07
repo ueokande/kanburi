@@ -1,7 +1,7 @@
+import { open } from "@tauri-apps/plugin-shell";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { open } from "@tauri-apps/plugin-shell";
 import styles from "./DescriptionInput.module.css";
 
 interface Props {

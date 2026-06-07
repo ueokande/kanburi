@@ -1,8 +1,8 @@
 import { confirm } from "@tauri-apps/plugin-dialog";
 import type { RefObject } from "react";
 import { useComposing } from "../hooks/useComposing";
-import { PopupMenu, PopupMenuItem } from "./PopupMenu";
 import styles from "./ColumnHeader.module.css";
+import { PopupMenu, PopupMenuItem } from "./PopupMenu";
 
 export interface ColumnHeaderProps {
   name: string;
@@ -53,8 +53,10 @@ export function ColumnHeader({
           {...composing.props}
           onBlur={onCommitRename}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && !composing.isComposing(e)) onCommitRename();
-            if (e.key === "Escape" && !composing.isComposing(e)) onCancelRename();
+            if (e.key === "Enter" && !composing.isComposing(e))
+              onCommitRename();
+            if (e.key === "Escape" && !composing.isComposing(e))
+              onCancelRename();
           }}
         />
       ) : (
@@ -69,8 +71,12 @@ export function ColumnHeader({
         </button>
       )}
       <PopupMenu label="Column actions" triggerClassName={styles.menuTrigger}>
-        <PopupMenuItem onClick={onSortByDueDate}>Sort by due date</PopupMenuItem>
-        <PopupMenuItem danger onClick={handleDelete}>Delete column</PopupMenuItem>
+        <PopupMenuItem onClick={onSortByDueDate}>
+          Sort by due date
+        </PopupMenuItem>
+        <PopupMenuItem danger onClick={handleDelete}>
+          Delete column
+        </PopupMenuItem>
       </PopupMenu>
     </div>
   );

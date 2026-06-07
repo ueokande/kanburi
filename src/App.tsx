@@ -2,19 +2,14 @@ import { useState } from "react";
 import styles from "./App.module.css";
 import { KanbanColumn } from "./components/KanbanColumn";
 import { WelcomeScreen } from "./components/WelcomeScreen";
+import { useKanbanState } from "./context/BoardContext";
 import { useBoard } from "./hooks/useBoard";
+import { useColumns } from "./hooks/useColumns";
 
 function App() {
-  const {
-    board,
-    filePath,
-    isLoading,
-    openFile,
-    loadFromPath,
-    tasks,
-    columns,
-    dnd,
-  } = useBoard();
+  const { board, filePath, isLoading } = useKanbanState();
+  const { openFile, loadFromPath } = useBoard();
+  const columns = useColumns();
   const [loadError, setLoadError] = useState<string | undefined>();
 
   const handleOpenFile = async () => {
@@ -74,44 +69,7 @@ function App() {
 
       <div className={styles.board}>
         {board.columns.map((col) => (
-          <KanbanColumn
-            key={col.name}
-            tasks={board.tasks.filter((t) => t.column === col.name)}
-            header={{
-              name: col.name,
-              taskCount: board.tasks.filter((t) => t.column === col.name)
-                .length,
-              isEditing: columns.editingColumn === col.name,
-              editingName: columns.editingName,
-              onEditingNameChange: columns.setEditingName,
-              onStartRename: () => columns.startRename(col.name),
-              onCommitRename: () => columns.commitRename(col.name),
-              onCancelRename: columns.cancelRename,
-              renameInputRef: columns.renameInputRef,
-              onDelete: () => columns.deleteColumn(col.name),
-              onSortByDueDate: () => tasks.sortColumnByDueDate(col.name),
-            }}
-            addTask={{
-              value: tasks.newTaskText[col.name] ?? "",
-              onChange: (v) =>
-                tasks.setNewTaskText((p) => ({ ...p, [col.name]: v })),
-              onAdd: () => tasks.addTask(col.name),
-            }}
-            cards={{
-              expandedId: tasks.expandedId,
-              onToggleExpand: tasks.toggleExpand,
-              onUpdate: tasks.updateTask,
-              onDelete: tasks.deleteTask,
-              onAddLabel: tasks.addLabel,
-              onRemoveLabel: tasks.removeLabel,
-              onDragStart: dnd.onDragStart,
-              onDragEnd: dnd.onDragEnd,
-            }}
-            dnd={{
-              onDragOver: dnd.onDragOver,
-              onDrop: (e) => dnd.onDrop(e, col.name),
-            }}
-          />
+          <KanbanColumn key={col.name} columnName={col.name} />
         ))}
       </div>
     </div>

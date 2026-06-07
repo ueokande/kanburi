@@ -1,21 +1,25 @@
-import { useRef } from "react";
-import type { Board, Status } from "../types";
+import { invoke } from "@tauri-apps/api/core";
+import { useKanbanDispatch, useKanbanState } from "../context/BoardContext";
+import type { Task } from "../types";
+import { buildMovedTaskList } from "../utils";
+import { statusForColumn } from "./useBoard";
 
-export function useDragDrop(
-  _board: Board,
-  moveTask: (id: string, targetColumn: string, insertIndex: number) => Promise<void>,
-  _statusForColumn: (colName: string) => Status,
-) {
-  const dragTaskIdRef = useRef<string | null>(null);
-  // Track the last column entered so we can clean up its placeholder when entering a new one.
-  const activeColumnRef = useRef<HTMLElement | null>(null);
+// Module-level refs so all column instances share the same drag state.
+let dragTaskId: string | null = null;
+let activeColumnEl: HTMLElement | null = null;
 
-  function makePlaceholder(height: number): HTMLLIElement {
-    const el = document.createElement("li");
-    el.className = "drag-placeholder";
-    el.style.height = `${height}px`;
-    return el;
-  }
+function makePlaceholder(height: number): HTMLLIElement {
+  const el = document.createElement("li");
+  el.className = "drag-placeholder";
+  el.style.height = `${height}px`;
+  return el;
+}
+
+export function useDragDrop() {
+  const { board } = useKanbanState();
+  const dispatch = useKanbanDispatch();
+  const colNames = board.columns.map((c) => c.name);
+  const getStatus = (colName: string) => statusForColumn(colNames, colName);
 
   // FLIP animation: snapshot positions → mutate DOM → animate cards that moved.
   function animateCards(taskList: HTMLElement, action: () => void) {
@@ -32,7 +36,9 @@ export function useDragDrop(
     }
     taskList.getBoundingClientRect(); // flush styles
 
-    const before = new Map(cards.map((el) => [el, el.getBoundingClientRect().top]));
+    const before = new Map(
+      cards.map((el) => [el, el.getBoundingClientRect().top]),
+    );
 
     action();
 
@@ -55,7 +61,7 @@ export function useDragDrop(
       event.preventDefault();
       return;
     }
-    dragTaskIdRef.current = taskId;
+    dragTaskId = taskId;
     event.dataTransfer.effectAllowed = "move";
     event.dataTransfer.setData("task", "");
     event.currentTarget.setAttribute("data-dragging", "true");
@@ -63,30 +69,36 @@ export function useDragDrop(
 
   function onDragEnd(event: React.DragEvent<HTMLLIElement>) {
     event.currentTarget.removeAttribute("data-dragging");
-    document.querySelectorAll(".drag-placeholder").forEach((el) => { el.remove(); });
+    document.querySelectorAll(".drag-placeholder").forEach((el) => {
+      el.remove();
+    });
     // Clean up any leftover animation transforms.
     document.querySelectorAll("[data-card-list] li").forEach((el) => {
       (el as HTMLElement).style.transition = "";
       (el as HTMLElement).style.transform = "";
     });
-    activeColumnRef.current = null;
-    dragTaskIdRef.current = null;
+    activeColumnEl = null;
+    dragTaskId = null;
   }
 
   function onDragOver(event: React.DragEvent<HTMLElement>) {
-    if (!dragTaskIdRef.current) return;
+    if (!dragTaskId) return;
     event.preventDefault();
 
     const column = event.currentTarget as HTMLElement;
 
     // Clean up placeholder in previous column when entering a new one.
-    if (activeColumnRef.current && activeColumnRef.current !== column) {
-      activeColumnRef.current.querySelector(".drag-placeholder")?.remove();
+    if (activeColumnEl && activeColumnEl !== column) {
+      activeColumnEl.querySelector(".drag-placeholder")?.remove();
     }
-    activeColumnRef.current = column;
+    activeColumnEl = column;
 
-    const draggedEl = document.querySelector("[data-dragging]") as HTMLElement | null;
-    const taskList = column.querySelector("[data-card-list]") as HTMLElement | null;
+    const draggedEl = document.querySelector(
+      "[data-dragging]",
+    ) as HTMLElement | null;
+    const taskList = column.querySelector(
+      "[data-card-list]",
+    ) as HTMLElement | null;
     if (!taskList || !draggedEl) return;
 
     const existingPlaceholder = taskList.querySelector(
@@ -102,8 +114,9 @@ export function useDragDrop(
     // Skips placeholder siblings so the check is accurate regardless of where the placeholder is.
     function isSamePosition(el: HTMLElement | null): boolean {
       if (el === draggedEl) return true;
-      let next: Element | null = draggedEl!.nextElementSibling;
-      while (next?.classList.contains("drag-placeholder")) next = next.nextElementSibling;
+      let next: Element | null = draggedEl ? draggedEl.nextElementSibling : null;
+      while (next?.classList.contains("drag-placeholder"))
+        next = next.nextElementSibling;
       return (el as Element | null) === next;
     }
 
@@ -115,7 +128,8 @@ export function useDragDrop(
         if (childEl === existingPlaceholder) return;
         if (isSamePosition(childEl)) {
           // Back at original position — remove any existing placeholder.
-          if (existingPlaceholder) animateCards(taskList, () => existingPlaceholder.remove());
+          if (existingPlaceholder)
+            animateCards(taskList, () => existingPlaceholder.remove());
           return;
         }
         insertBefore = childEl;
@@ -125,11 +139,13 @@ export function useDragDrop(
 
     // Append-to-end: remove placeholder if card is already at the end.
     if (!insertBefore && isSamePosition(null)) {
-      if (existingPlaceholder) animateCards(taskList, () => existingPlaceholder.remove());
+      if (existingPlaceholder)
+        animateCards(taskList, () => existingPlaceholder.remove());
       return;
     }
 
-    const placeholder = existingPlaceholder ?? makePlaceholder(draggedEl.offsetHeight);
+    const placeholder =
+      existingPlaceholder ?? makePlaceholder(draggedEl.offsetHeight);
 
     animateCards(taskList, () => {
       existingPlaceholder?.remove();
@@ -143,11 +159,13 @@ export function useDragDrop(
 
   function onDrop(event: React.DragEvent<HTMLElement>, columnName: string) {
     event.preventDefault();
-    const taskId = dragTaskIdRef.current;
+    const taskId = dragTaskId;
     if (!taskId) return;
 
     const column = event.currentTarget as HTMLElement;
-    const taskList = column.querySelector("[data-card-list]") as HTMLElement | null;
+    const taskList = column.querySelector(
+      "[data-card-list]",
+    ) as HTMLElement | null;
     if (!taskList) return;
 
     const placeholder = taskList.querySelector(".drag-placeholder");
@@ -164,9 +182,31 @@ export function useDragDrop(
     const insertIndex = placeholderIndex - draggingBefore;
     placeholder.remove();
 
-    void moveTask(taskId, columnName, insertIndex);
+    const task = board.tasks.find((t) => t.id === taskId);
+    if (!task) return;
+    const movedTask: Task =
+      columnName === task.column
+        ? { ...task }
+        : { ...task, column: columnName, status: getStatus(columnName) };
+    const updated = {
+      ...board,
+      tasks: buildMovedTaskList(
+        board.tasks,
+        movedTask,
+        columnName,
+        insertIndex,
+      ),
+    };
+    void invoke("save_current_board", { board: updated }).then(() => {
+      dispatch({
+        type: "MOVE_TASK",
+        id: taskId,
+        targetColumn: columnName,
+        insertIndex,
+        statusForColumn: getStatus,
+      });
+    });
   }
 
   return { onDragStart, onDragEnd, onDragOver, onDrop };
 }
-

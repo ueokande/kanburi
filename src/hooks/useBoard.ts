@@ -1,12 +1,10 @@
+import { invoke } from "@tauri-apps/api/core";
+import { open } from "@tauri-apps/plugin-dialog";
+import { useCallback } from "react";
+import { useKanbanDispatch, useKanbanState } from "../context/BoardContext";
 import type { Status } from "../types";
-import { useAddTask } from "./useAddTask";
-import { useBoardStore } from "./useBoardStore";
-import { useColumns } from "./useColumns";
-import { useDragDrop } from "./useDragDrop";
-import { useTaskExpand } from "./useTaskExpand";
-import { useTaskMutations } from "./useTaskMutations";
 
-function statusForColumn(colNames: string[], colName: string): Status {
+export function statusForColumn(colNames: string[], colName: string): Status {
   const idx = colNames.indexOf(colName);
   const total = colNames.length;
   if (idx === 0) return "todo";
@@ -15,46 +13,29 @@ function statusForColumn(colNames: string[], colName: string): Status {
 }
 
 export function useBoard() {
-  const { board, filePath, isLoading, openFile, loadFromPath, saveBoard } =
-    useBoardStore();
+  const { board, filePath, isLoading } = useKanbanState();
+  const dispatch = useKanbanDispatch();
 
-  const colNames = board.columns.map((c) => c.name);
-  const getStatus = (colName: string) => statusForColumn(colNames, colName);
+  const loadFromPath = useCallback(
+    async (path: string) => {
+      dispatch({ type: "LOAD_START" });
+      const loaded = await invoke<import("../types").Board>("load_file", {
+        path,
+      });
+      dispatch({ type: "LOAD_SUCCESS", board: loaded, filePath: path });
+    },
+    [dispatch],
+  );
 
-  const expand = useTaskExpand();
-  const add = useAddTask(board, saveBoard, getStatus);
-  const mutations = useTaskMutations(board, saveBoard, getStatus);
+  const openFile = useCallback(async () => {
+    const selected = await open({
+      multiple: false,
+      filters: [{ name: "Markdown", extensions: ["md"] }],
+    });
+    if (typeof selected === "string") {
+      await loadFromPath(selected);
+    }
+  }, [loadFromPath]);
 
-  async function deleteTask(id: string) {
-    expand.clearIfMatch(id);
-    await mutations.deleteTask(id);
-  }
-
-  const tasks = {
-    expandedId: expand.expandedId,
-    toggleExpand: expand.toggleExpand,
-    newTaskText: add.newTaskText,
-    setNewTaskText: add.setNewTaskText,
-    addTask: add.addTask,
-    updateTask: mutations.updateTask,
-    moveTask: mutations.moveTask,
-    deleteTask,
-    addLabel: mutations.addLabel,
-    removeLabel: mutations.removeLabel,
-    sortColumnByDueDate: mutations.sortColumnByDueDate,
-  };
-
-  const columns = useColumns(board, saveBoard);
-  const dnd = useDragDrop(board, tasks.moveTask, getStatus);
-
-  return {
-    board,
-    filePath,
-    isLoading,
-    openFile,
-    loadFromPath,
-    tasks,
-    columns,
-    dnd,
-  };
+  return { board, filePath, isLoading, openFile, loadFromPath };
 }

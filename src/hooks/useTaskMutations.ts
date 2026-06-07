@@ -1,16 +1,29 @@
-import type { Board, Status, Task } from "../types";
+import { invoke } from "@tauri-apps/api/core";
+import { useKanbanDispatch, useKanbanState } from "../context/BoardContext";
+import type { Board, Task } from "../types";
 import { buildMovedTaskList } from "../utils";
+import { statusForColumn } from "./useBoard";
 
-export function useTaskMutations(
-  board: Board,
-  saveBoard: (b: Board) => Promise<void>,
-  statusForColumn: (colName: string) => Status,
-) {
+export function useTaskMutations() {
+  const { board } = useKanbanState();
+  const dispatch = useKanbanDispatch();
+  const colNames = board.columns.map((c) => c.name);
+  const getStatus = (colName: string) => statusForColumn(colNames, colName);
+
+  async function saveAndDispatch(
+    updated: Board,
+    action: Parameters<typeof dispatch>[0],
+  ) {
+    await invoke("save_current_board", { board: updated });
+    dispatch(action);
+  }
+
   async function updateTask(id: string, patch: Partial<Task>) {
-    await saveBoard({
+    const updated: Board = {
       ...board,
       tasks: board.tasks.map((t) => (t.id === id ? { ...t, ...patch } : t)),
-    });
+    };
+    await saveAndDispatch(updated, { type: "UPDATE_TASK", id, patch });
   }
 
   async function moveTask(
@@ -20,24 +33,35 @@ export function useTaskMutations(
   ) {
     const task = board.tasks.find((t) => t.id === id);
     if (!task) return;
-
     // Only update status when the task actually moves to a different column.
     const movedTask: Task =
       targetColumn === task.column
         ? { ...task }
-        : { ...task, column: targetColumn, status: statusForColumn(targetColumn) };
-
-    await saveBoard({
+        : { ...task, column: targetColumn, status: getStatus(targetColumn) };
+    const updated: Board = {
       ...board,
-      tasks: buildMovedTaskList(board.tasks, movedTask, targetColumn, insertIndex),
+      tasks: buildMovedTaskList(
+        board.tasks,
+        movedTask,
+        targetColumn,
+        insertIndex,
+      ),
+    };
+    await saveAndDispatch(updated, {
+      type: "MOVE_TASK",
+      id,
+      targetColumn,
+      insertIndex,
+      statusForColumn: getStatus,
     });
   }
 
   async function deleteTask(id: string) {
-    await saveBoard({
+    const updated: Board = {
       ...board,
       tasks: board.tasks.filter((t) => t.id !== id),
-    });
+    };
+    await saveAndDispatch(updated, { type: "DELETE_TASK", id });
   }
 
   async function addLabel(taskId: string, label: string) {
@@ -65,7 +89,8 @@ export function useTaskMutations(
       if (b.due_date) return 1;
       return 0;
     });
-    await saveBoard({ ...board, tasks: [...others, ...sorted] });
+    const updated: Board = { ...board, tasks: [...others, ...sorted] };
+    await saveAndDispatch(updated, { type: "SORT_COLUMN_BY_DUE_DATE", column });
   }
 
   return {
