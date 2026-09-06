@@ -32,6 +32,15 @@ export function nextStatus(s: Status): Status {
   return s === "done" ? "todo" : "done";
 }
 
+/** Unique, alphabetically sorted list of labels used across all tasks. */
+export function getAllLabels(tasks: import("./types").Task[]): string[] {
+  const set = new Set<string>();
+  for (const task of tasks) {
+    for (const label of task.labels) set.add(label);
+  }
+  return [...set].sort((a, b) => a.localeCompare(b));
+}
+
 /** Reorder tasks by moving `movedTask` into `targetColumn` at `insertIndex`. */
 export function buildMovedTaskList(
   allTasks: import("./types").Task[],

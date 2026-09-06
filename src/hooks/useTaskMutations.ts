@@ -81,6 +81,17 @@ export function useTaskMutations() {
     });
   }
 
+  async function renameLabel(taskId: string, oldLabel: string, newLabel: string) {
+    const raw = newLabel.trim().replace(/^#/, "");
+    if (!raw || raw === oldLabel) return;
+    const task = board.tasks.find((t) => t.id === taskId);
+    if (!task?.labels.includes(oldLabel)) return;
+    if (task.labels.includes(raw)) return;
+    await updateTask(taskId, {
+      labels: task.labels.map((l) => (l === oldLabel ? raw : l)),
+    });
+  }
+
   async function sortColumnByDueDate(column: string) {
     const others = board.tasks.filter((t) => t.column !== column);
     const columnTasks = board.tasks.filter((t) => t.column === column);
@@ -100,6 +111,7 @@ export function useTaskMutations() {
     deleteTask,
     addLabel,
     removeLabel,
+    renameLabel,
     sortColumnByDueDate,
   };
 }

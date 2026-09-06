@@ -10,6 +10,7 @@ A native desktop Kanban board that saves everything in a single, human-readable 
 
 - Drag cards between columns
 - Labels, due dates, and descriptions per card
+- Label input autocompletes from labels already used on the board
 - All data persisted in a plain `.md` file you own
 
 ## Getting started

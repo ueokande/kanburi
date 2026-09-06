@@ -141,6 +141,110 @@ describe("useTaskMutations", () => {
     });
   });
 
+  it("renameLabel replaces the label in place", async () => {
+    const { result } = renderHook(() => useTaskMutations(), {
+      wrapper: makeWrapper(seedBoard),
+    });
+    await flushSeed();
+
+    await act(async () => {
+      await result.current.renameLabel("t2", "Bug", "Feature");
+    });
+
+    expect(mockInvoke).toHaveBeenCalledWith("save_current_board", {
+      board: expect.objectContaining({
+        tasks: expect.arrayContaining([
+          expect.objectContaining({ id: "t2", labels: ["Feature"] }),
+        ]),
+      }),
+      force: false,
+    });
+  });
+
+  it("renameLabel strips a leading # from the new label", async () => {
+    const { result } = renderHook(() => useTaskMutations(), {
+      wrapper: makeWrapper(seedBoard),
+    });
+    await flushSeed();
+
+    await act(async () => {
+      await result.current.renameLabel("t2", "Bug", "#Feature");
+    });
+
+    expect(mockInvoke).toHaveBeenCalledWith("save_current_board", {
+      board: expect.objectContaining({
+        tasks: expect.arrayContaining([
+          expect.objectContaining({ id: "t2", labels: ["Feature"] }),
+        ]),
+      }),
+      force: false,
+    });
+  });
+
+  it("renameLabel is a no-op for an empty string", async () => {
+    const { result } = renderHook(() => useTaskMutations(), {
+      wrapper: makeWrapper(seedBoard),
+    });
+    await flushSeed();
+
+    await act(async () => {
+      await result.current.renameLabel("t2", "Bug", "");
+    });
+
+    expect(mockInvoke).not.toHaveBeenCalled();
+  });
+
+  it("renameLabel is a no-op when the new label equals the old label", async () => {
+    const { result } = renderHook(() => useTaskMutations(), {
+      wrapper: makeWrapper(seedBoard),
+    });
+    await flushSeed();
+
+    await act(async () => {
+      await result.current.renameLabel("t2", "Bug", "Bug");
+    });
+
+    expect(mockInvoke).not.toHaveBeenCalled();
+  });
+
+  it("renameLabel is a no-op when the task doesn't have the old label", async () => {
+    const { result } = renderHook(() => useTaskMutations(), {
+      wrapper: makeWrapper(seedBoard),
+    });
+    await flushSeed();
+
+    await act(async () => {
+      await result.current.renameLabel("t1", "Missing", "Feature");
+    });
+
+    expect(mockInvoke).not.toHaveBeenCalled();
+  });
+
+  it("renameLabel is a no-op when the new label already exists on the task", async () => {
+    const board = {
+      columns: [{ name: "Todo" }],
+      tasks: [
+        {
+          id: "t1",
+          text: "A",
+          status: "todo" as const,
+          column: "Todo",
+          labels: ["Bug", "Feature"],
+        },
+      ],
+    };
+    const { result } = renderHook(() => useTaskMutations(), {
+      wrapper: makeWrapper(board),
+    });
+    await flushSeed();
+
+    await act(async () => {
+      await result.current.renameLabel("t1", "Bug", "Feature");
+    });
+
+    expect(mockInvoke).not.toHaveBeenCalled();
+  });
+
   it("moveTask updates the task's column and status when moving cross-column", async () => {
     const { result } = renderHook(() => useTaskMutations(), {
       wrapper: makeWrapper(seedBoard),

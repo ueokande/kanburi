@@ -61,6 +61,9 @@ export function KanbanColumn({ columnName }: Props) {
             onDelete={() => handleDeleteTask(task.id)}
             onAddLabel={(label) => mutations.addLabel(task.id, label)}
             onRemoveLabel={(label) => mutations.removeLabel(task.id, label)}
+            onRenameLabel={(oldLabel, newLabel) =>
+              mutations.renameLabel(task.id, oldLabel, newLabel)
+            }
             onDragStart={(e) => dnd.onDragStart(task.id, e)}
             onDragEnd={dnd.onDragEnd}
           />

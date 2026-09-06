@@ -44,6 +44,17 @@
   opacity: 1;
 }
 
+.labelBadgeEditable .labelText {
+  font-size: inherit;
+  font-weight: inherit;
+  font-family: inherit;
+  opacity: 1;
+}
+
+.labelBadgeEditable .labelText:hover {
+  text-decoration: underline;
+}
+
 .addBtn {
   display: inline-flex;
   align-items: center;
@@ -80,4 +91,42 @@
 
 .labelInput:focus {
   border-color: #0078d4;
+}
+
+/* Floating suggestion dropdown — portalled to body */
+.suggestions {
+  position: fixed;
+  z-index: 1000;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  min-width: 100px;
+  max-width: 220px;
+}
+
+.suggestionItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-family: inherit;
+  padding: 4px 8px;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.suggestionItem:hover,
+.suggestionHighlighted {
+  background: #e8f4fd;
+  color: #0078d4;
 }
