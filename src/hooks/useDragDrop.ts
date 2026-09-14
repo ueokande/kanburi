@@ -114,8 +114,12 @@ export function useDragDrop() {
     // Returns true when inserting before `el` (null = append) is the card's original position.
     // Skips placeholder siblings so the check is accurate regardless of where the placeholder is.
     function isSamePosition(el: HTMLElement | null): boolean {
+      if (!draggedEl) return false;
+      // Different column's list can never be the card's original position,
+      // even if both resolve to a "null" (append-to-end) insertion point.
+      if (draggedEl.parentElement !== taskList) return false;
       if (el === draggedEl) return true;
-      let next: Element | null = draggedEl ? draggedEl.nextElementSibling : null;
+      let next: Element | null = draggedEl.nextElementSibling;
       while (next?.classList.contains("drag-placeholder"))
         next = next.nextElementSibling;
       return (el as Element | null) === next;
