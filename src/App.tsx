@@ -67,6 +67,8 @@ function App() {
         </button>
       </header>
 
+      {loadError && <p role="alert">{loadError}</p>}
+
       <div className={styles.board}>
         {board.columns.map((col) => (
           <KanbanColumn key={col.name} columnName={col.name} />

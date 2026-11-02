@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { act, renderHook } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { flushSeed, makeSeedBoard, makeWrapper } from "./testUtils";
 import { useAddTask } from "./useAddTask";
 
@@ -15,6 +15,10 @@ describe("useAddTask", () => {
     vi.clearAllMocks();
     mockInvoke.mockResolvedValue(undefined);
     vi.spyOn(Date, "now").mockReturnValue(99999);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("addTask is a no-op when text is empty", async () => {
@@ -66,7 +70,7 @@ describe("useAddTask", () => {
       board: expect.objectContaining({
         tasks: expect.arrayContaining([
           expect.objectContaining({
-            id: "99999",
+            id: expect.any(String),
             text: "Buy milk",
             status: "todo",
             column: "Todo",
@@ -76,6 +80,28 @@ describe("useAddTask", () => {
       }),
       force: false,
     });
+  });
+
+  it("uses different IDs for tasks created at the same clock time", async () => {
+    const { result } = renderHook(() => useAddTask(), {
+      wrapper: makeWrapper(seedBoard),
+    });
+    await flushSeed();
+    act(() => {
+      result.current.setNewTaskText((prev) => ({ ...prev, Todo: "First" }));
+    });
+    await act(async () => {
+      await result.current.addTask("Todo");
+    });
+    act(() => {
+      result.current.setNewTaskText((prev) => ({ ...prev, Todo: "Second" }));
+    });
+    await act(async () => {
+      await result.current.addTask("Todo");
+    });
+    const tasks = mockInvoke.mock.calls[1][1].board.tasks;
+    expect(tasks).toHaveLength(4);
+    expect(tasks[2].id).not.toBe(tasks[3].id);
   });
 
   it("addTask parses labels and due_date from the input", async () => {

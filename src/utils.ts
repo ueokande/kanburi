@@ -58,7 +58,7 @@ export function buildMovedTaskList(
 }
 
 export function formatDueDate(due_date: string): string {
-  const d = new Date(due_date);
+  const d = new Date(`${due_date}T00:00:00`);
   const sameYear = d.getFullYear() === new Date().getFullYear();
   return d.toLocaleDateString("en-US", {
     month: "short",
@@ -68,5 +68,5 @@ export function formatDueDate(due_date: string): string {
 }
 export function isOverdue(due_date?: string): boolean {
   if (!due_date) return false;
-  return new Date(due_date) < new Date(new Date().toDateString());
+  return new Date(`${due_date}T00:00:00`) < new Date(new Date().toDateString());
 }

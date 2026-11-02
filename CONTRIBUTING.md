@@ -78,7 +78,7 @@ Two GitHub Actions workflows run automatically:
 
 | Workflow | Trigger | Jobs |
 |---|---|---|
-| `ci.yml` | Push / PR to `master` | Frontend lint + build; Rust check + clippy |
+| `ci.yml` | Push to any branch | Frontend tests + lint + build; Rust check + clippy + tests |
 | `release.yml` | Tag push `v*.*.*` | Native bundles on macOS, Linux, Windows → draft GitHub Release |
 
 ### Publishing a release

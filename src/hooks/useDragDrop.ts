@@ -114,6 +114,7 @@ export function useDragDrop() {
     // Returns true when inserting before `el` (null = append) is the card's original position.
     // Skips placeholder siblings so the check is accurate regardless of where the placeholder is.
     function isSamePosition(el: HTMLElement | null): boolean {
+      if (draggedEl?.parentElement !== taskList) return false;
       if (el === draggedEl) return true;
       let next: Element | null = draggedEl ? draggedEl.nextElementSibling : null;
       while (next?.classList.contains("drag-placeholder"))
@@ -198,7 +199,8 @@ export function useDragDrop() {
         insertIndex,
       ),
     };
-    void saveBoard(updated).then(() => {
+    void saveBoard(updated).then((saved) => {
+      if (!saved) return;
       dispatch({
         type: "MOVE_TASK",
         id: taskId,

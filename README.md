@@ -51,7 +51,9 @@ A native desktop Kanban board that saves everything in a single, human-readable 
 - Each `- [ ]` / `- [x]` line is a task (`[x]` = done).
 - `#Label` adds a label to the task (multiple allowed).
 - `@YYYY-MM-DD` sets the due date.
-- Lines indented with 2 spaces below a task are its description (multi-line supported).
+- Lines indented with 2 spaces below a task are its description (multi-line supported). Indented checkboxes and blank lines stay in the description.
+- Tasks before the first column heading are placed in a `To Do` column.
+- Due dates are calendar dates in your local timezone.
 
 ## Contributing
 

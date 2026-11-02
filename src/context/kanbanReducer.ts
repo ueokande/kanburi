@@ -15,6 +15,7 @@ export const initialKanbanState: KanbanState = {
 
 export type KanbanAction =
   | { type: "LOAD_START" }
+  | { type: "LOAD_FAILURE" }
   | { type: "LOAD_SUCCESS"; board: Board; filePath: string }
   | { type: "ADD_TASK"; task: Task }
   | { type: "UPDATE_TASK"; id: string; patch: Partial<Task> }
@@ -40,6 +41,9 @@ export function kanbanReducer(
   switch (action.type) {
     case "LOAD_START":
       return { ...state, isLoading: true };
+
+    case "LOAD_FAILURE":
+      return { ...state, isLoading: false };
 
     case "LOAD_SUCCESS":
       return {

@@ -25,34 +25,43 @@ pub fn parse_board(content: &str) -> Board {
             continue;
         }
 
-        let trimmed = line.trim();
-        let (rest, status) = if let Some(r) = trimmed.strip_prefix("- [ ] ") {
-            (r, "todo")
-        } else if let Some(r) = trimmed.strip_prefix("- [/] ") {
-            // Legacy in-progress marker: treat as todo on read.
-            (r, "todo")
-        } else if let Some(r) = trimmed.strip_prefix("- [x] ") {
-            (r, "done")
-        } else {
-            if line.starts_with("  ") && !trimmed.is_empty() {
-                if let Some(idx) = last_task_idx {
-                    let desc_line = line[2..].to_string();
-                    match &mut tasks[idx].description {
-                        Some(d) => {
-                            d.push('\n');
-                            d.push_str(&desc_line);
-                        }
-                        None => tasks[idx].description = Some(desc_line),
+        // Indented checkboxes belong to the description, not the board.
+        if let Some(desc_line) = line.strip_prefix("  ") {
+            if let Some(idx) = last_task_idx {
+                match &mut tasks[idx].description {
+                    Some(d) => {
+                        d.push('\n');
+                        d.push_str(desc_line);
                     }
+                    None => tasks[idx].description = Some(desc_line.to_string()),
                 }
             }
+            continue;
+        }
+
+        let (rest, status) = if let Some(r) = line.strip_prefix("- [ ] ") {
+            (r, "todo")
+        } else if let Some(r) = line.strip_prefix("- [/] ") {
+            (r, "todo")
+        } else if let Some(r) = line.strip_prefix("- [x] ") {
+            (r, "done")
+        } else {
             continue;
         };
 
         let (text, labels, due_date) = parse_task_tokens(rest);
         let column = current_column.clone().unwrap_or_else(|| "To Do".into());
+        if !columns.iter().any(|c| c.name == column) {
+            columns.push(Column {
+                name: column.clone(),
+            });
+        }
         let counter = col_task_counter.entry(column.clone()).or_insert(0);
-        let id = format!("{:x}", hash_str(&format!("{}:{}:{}", column, text, counter)));
+        let id = format!(
+            "{:x}-{}",
+            hash_str(&format!("{}:{}:{}", column, text, counter)),
+            tasks.len()
+        );
         *counter += 1;
 
         last_task_idx = Some(tasks.len());
@@ -93,7 +102,7 @@ pub fn serialize_board(board: &Board) -> String {
             out.push_str(&line);
             out.push('\n');
             if let Some(desc) = &task.description {
-                for dl in desc.lines() {
+                for dl in desc.split('\n') {
                     out.push_str(&format!("  {}\n", dl));
                 }
             }
@@ -126,9 +135,48 @@ fn parse_task_tokens(rest: &str) -> (String, Vec<String>, Option<String>) {
 }
 
 fn hash_str(s: &str) -> u64 {
-    s.bytes()
-        .enumerate()
-        .fold(0u64, |acc, (i, b)| {
-            acc.wrapping_add((b as u64).wrapping_mul(i as u64 + 1))
-        })
+    s.bytes().enumerate().fold(0u64, |acc, (i, b)| {
+        acc.wrapping_add((b as u64).wrapping_mul(i as u64 + 1))
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn preserves_tasks_without_column_headings() {
+        let board = parse_board("# Tasks\n- [ ] First\n- [x] Second\n");
+        assert_eq!(board.tasks.len(), 2);
+        assert_eq!(board.columns[0].name, "To Do");
+        let reloaded = parse_board(&serialize_board(&board));
+        assert_eq!(reloaded.tasks.len(), 2);
+    }
+
+    #[test]
+    fn preserves_tasks_before_the_first_column() {
+        let board = parse_board("- [ ] First\n## Done\n- [x] Second\n");
+        assert_eq!(parse_board(&serialize_board(&board)).tasks.len(), 2);
+    }
+
+    #[test]
+    fn nested_checkboxes_and_blank_lines_round_trip_as_description() {
+        let content = "## Todo\n- [ ] Parent\n  - [ ] Nested\n  \n  More detail\n  \n";
+        let board = parse_board(content);
+        assert_eq!(board.tasks.len(), 1);
+        assert_eq!(
+            board.tasks[0].description.as_deref(),
+            Some("- [ ] Nested\n\nMore detail\n")
+        );
+        let reloaded = parse_board(&serialize_board(&board));
+        assert_eq!(reloaded.tasks[0].description, board.tasks[0].description);
+    }
+
+    #[test]
+    fn ids_are_unique_even_when_title_hashes_collide() {
+        // The previous weighted sum assigns the same ID to these two tasks.
+        assert_eq!(hash_str("Todo:fa:0"), hash_str("Todo:ad:1"));
+        let board = parse_board("## Todo\n- [ ] fa\n- [ ] ad\n");
+        assert_ne!(board.tasks[0].id, board.tasks[1].id);
+    }
 }
