@@ -180,7 +180,14 @@ export function LabelEditor({ labels, onAdd, onRemove, onRename }: Props) {
         aria-activedescendant={
           activeIndex >= 0 ? `${id}-option-${activeIndex}` : undefined
         }
-        aria-describedby={`${hintId}${message || saveError ? ` ${errorId}` : ""}`}
+        aria-describedby={
+          [
+            field?.kind === "edit" ? hintId : null,
+            message || saveError ? errorId : null,
+          ]
+            .filter(Boolean)
+            .join(" ") || undefined
+        }
         aria-invalid={!!message || !!saveError}
         aria-busy={saving}
         value={value}
@@ -204,10 +211,9 @@ export function LabelEditor({ labels, onAdd, onRemove, onRename }: Props) {
   return (
     <div className={styles.labelEditor}>
       <span className={styles.labelEditorTitle}>Labels</span>
-      {field && (
+      {field?.kind === "edit" && (
         <span id={hintId} className={styles.hint}>
-          {field.kind === "edit" ? "Changes apply to this card only. " : ""}
-          Enter to save · Esc to cancel
+          Changes apply to this card only.
         </span>
       )}
       <div className={styles.labelList}>
