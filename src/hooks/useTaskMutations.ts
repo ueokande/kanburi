@@ -15,8 +15,9 @@ export function useTaskMutations() {
     updated: Board,
     action: Parameters<typeof dispatch>[0],
   ) {
-    await saveBoard(updated);
-    dispatch(action);
+    if (await saveBoard(updated)) {
+      dispatch(action);
+    }
   }
 
   async function updateTask(id: string, patch: Partial<Task>) {

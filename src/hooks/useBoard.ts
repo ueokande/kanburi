@@ -19,10 +19,15 @@ export function useBoard() {
   const loadFromPath = useCallback(
     async (path: string) => {
       dispatch({ type: "LOAD_START" });
-      const loaded = await invoke<import("../types").Board>("load_file", {
-        path,
-      });
-      dispatch({ type: "LOAD_SUCCESS", board: loaded, filePath: path });
+      try {
+        const loaded = await invoke<import("../types").Board>("load_file", {
+          path,
+        });
+        dispatch({ type: "LOAD_SUCCESS", board: loaded, filePath: path });
+      } catch (error) {
+        dispatch({ type: "LOAD_FAILURE" });
+        throw error;
+      }
     },
     [dispatch],
   );

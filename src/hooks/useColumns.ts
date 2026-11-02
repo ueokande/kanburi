@@ -20,12 +20,17 @@ export function useColumns() {
     updated: Board,
     action: Parameters<typeof kanbanDispatch>[0],
   ) {
-    await saveBoard(updated);
-    kanbanDispatch(action);
+    if (await saveBoard(updated)) {
+      kanbanDispatch(action);
+    }
   }
 
   async function addColumn() {
-    const name = `Column ${board.columns.length + 1}`;
+    let number = board.columns.length + 1;
+    while (board.columns.some((column) => column.name === `Column ${number}`)) {
+      number += 1;
+    }
+    const name = `Column ${number}`;
     const updated: Board = { ...board, columns: [...board.columns, { name }] };
     await saveAndDispatch(updated, { type: "ADD_COLUMN", name });
   }

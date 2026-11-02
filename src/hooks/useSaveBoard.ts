@@ -1,15 +1,17 @@
 import { confirm } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { useCallback } from "react";
-import { useKanbanState, useKanbanDispatch } from "../context/BoardContext";
+import { useKanbanState } from "../context/BoardContext";
 import type { Board } from "../types";
+import { useBoard } from "./useBoard";
 
 export function useSaveBoard() {
   const { filePath } = useKanbanState();
-  const dispatch = useKanbanDispatch();
+  const { loadFromPath } = useBoard();
 
   const saveBoard = useCallback(
-    async (board: Board) => {
+    // False means the disk version was reloaded; callers must discard their edit.
+    async (board: Board): Promise<boolean> => {
       try {
         await invoke("save_current_board", { board, force: false });
       } catch (e) {
@@ -26,16 +28,15 @@ export function useSaveBoard() {
 
         if (overwrite) {
           await invoke("save_current_board", { board, force: true });
+          return true;
         } else if (filePath) {
-          dispatch({ type: "LOAD_START" });
-          const reloaded = await invoke<Board>("load_file", {
-            path: filePath,
-          });
-          dispatch({ type: "LOAD_SUCCESS", board: reloaded, filePath });
+          await loadFromPath(filePath);
         }
+        return false;
       }
+      return true;
     },
-    [filePath, dispatch],
+    [filePath, loadFromPath],
   );
 
   return { saveBoard };

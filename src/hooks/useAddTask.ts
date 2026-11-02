@@ -35,7 +35,7 @@ export function useAddTask() {
     const { text, labels, due_date } = parseTaskInput(raw);
     if (!text) return;
     const task: Task = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       text,
       status: getStatus(column),
       column,
@@ -43,7 +43,7 @@ export function useAddTask() {
       due_date,
     };
     const updated: Board = { ...board, tasks: [...board.tasks, task] };
-    await saveBoard(updated);
+    if (!(await saveBoard(updated))) return;
     kanbanDispatch({ type: "ADD_TASK", task });
     uiDispatch({ type: "SET_NEW_TASK_TEXT", column, text: "" });
   }
