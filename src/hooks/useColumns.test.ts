@@ -26,7 +26,8 @@ describe("useColumns", () => {
       await result.current.addColumn();
     });
 
-    expect(mockInvoke).toHaveBeenCalledWith("save_current_board", {
+    expect(mockInvoke).toHaveBeenCalledWith("save_board", {
+      path: "/test.md",
       board: expect.objectContaining({
         columns: [{ name: "Todo" }, { name: "Done" }, { name: "Column 3" }],
       }),
@@ -96,7 +97,8 @@ describe("useColumns", () => {
       result.current.commitRename("Todo");
     });
 
-    expect(mockInvoke).toHaveBeenCalledWith("save_current_board", {
+    expect(mockInvoke).toHaveBeenCalledWith("save_board", {
+      path: "/test.md",
       board: {
         columns: [{ name: "Backlog" }, { name: "Done" }],
         tasks: [
@@ -137,7 +139,8 @@ describe("useColumns", () => {
       await result.current.deleteColumn("Todo");
     });
 
-    expect(mockInvoke).toHaveBeenCalledWith("save_current_board", {
+    expect(mockInvoke).toHaveBeenCalledWith("save_board", {
+      path: "/test.md",
       board: {
         columns: [{ name: "Done" }],
         tasks: [expect.objectContaining({ id: "t2" })],

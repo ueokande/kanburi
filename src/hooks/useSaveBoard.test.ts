@@ -28,7 +28,8 @@ describe("useSaveBoard", () => {
     });
 
     expect(mockInvoke).toHaveBeenCalledOnce();
-    expect(mockInvoke).toHaveBeenCalledWith("save_current_board", {
+    expect(mockInvoke).toHaveBeenCalledWith("save_board", {
+      path: "/test.md",
       board: seedBoard,
       force: false,
     });
@@ -71,7 +72,8 @@ describe("useSaveBoard", () => {
     });
 
     expect(mockInvoke).toHaveBeenCalledTimes(2);
-    expect(mockInvoke).toHaveBeenNthCalledWith(2, "save_current_board", {
+    expect(mockInvoke).toHaveBeenNthCalledWith(2, "save_board", {
+      path: "/test.md",
       board: seedBoard,
       force: true,
     });
@@ -101,10 +103,7 @@ describe("useSaveBoard", () => {
     });
   });
 
-  it("on CONFLICT + Reload: does nothing when no file is open", async () => {
-    mockInvoke.mockRejectedValueOnce("CONFLICT");
-    mockConfirm.mockResolvedValue(false); // user chooses Reload
-
+  it("does nothing when no file is open (nothing to save to)", async () => {
     // No seed board → filePath is null
     const { result } = renderHook(() => useSaveBoard(), {
       wrapper: makeWrapper(),
@@ -114,12 +113,8 @@ describe("useSaveBoard", () => {
       await result.current.saveBoard(seedBoard);
     });
 
-    // Only the initial failing call, no reload attempt
-    expect(mockInvoke).toHaveBeenCalledOnce();
-    expect(mockInvoke).toHaveBeenCalledWith("save_current_board", {
-      board: seedBoard,
-      force: false,
-    });
+    expect(mockInvoke).not.toHaveBeenCalled();
+    expect(mockConfirm).not.toHaveBeenCalled();
   });
 
   it("re-throws non-CONFLICT errors", async () => {

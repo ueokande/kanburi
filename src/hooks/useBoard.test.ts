@@ -82,4 +82,76 @@ describe("useBoard", () => {
     });
     expect(result.current.filePath).toBe("/chosen.md");
   });
+
+  it("loadFromPath adds a new tab to documents", async () => {
+    const { result } = renderHook(() => useBoard(), { wrapper: makeWrapper() });
+
+    await act(async () => {
+      await result.current.loadFromPath("/test.md");
+    });
+
+    expect(result.current.documents).toEqual([
+      { filePath: "/test.md", board: mockBoard },
+    ]);
+  });
+
+  it("loadFromPath switches to an already-open tab instead of reloading it", async () => {
+    const { result } = renderHook(() => useBoard(), { wrapper: makeWrapper() });
+
+    await act(async () => {
+      await result.current.loadFromPath("/a.md");
+    });
+    await act(async () => {
+      await result.current.loadFromPath("/b.md");
+    });
+    mockInvoke.mockClear();
+
+    await act(async () => {
+      await result.current.loadFromPath("/a.md");
+    });
+
+    expect(mockInvoke).not.toHaveBeenCalled();
+    expect(result.current.filePath).toBe("/a.md");
+    expect(result.current.documents).toHaveLength(2);
+  });
+
+  it("switchTab changes the active document without invoking the backend", async () => {
+    const { result } = renderHook(() => useBoard(), { wrapper: makeWrapper() });
+
+    await act(async () => {
+      await result.current.loadFromPath("/a.md");
+    });
+    await act(async () => {
+      await result.current.loadFromPath("/b.md");
+    });
+    mockInvoke.mockClear();
+
+    act(() => {
+      result.current.switchTab("/a.md");
+    });
+
+    expect(mockInvoke).not.toHaveBeenCalled();
+    expect(result.current.filePath).toBe("/a.md");
+  });
+
+  it("closeTab invokes close_file and removes the document", async () => {
+    const { result } = renderHook(() => useBoard(), { wrapper: makeWrapper() });
+
+    await act(async () => {
+      await result.current.loadFromPath("/a.md");
+    });
+    await act(async () => {
+      await result.current.loadFromPath("/b.md");
+    });
+
+    await act(async () => {
+      await result.current.closeTab("/b.md");
+    });
+
+    expect(mockInvoke).toHaveBeenCalledWith("close_file", { path: "/b.md" });
+    expect(result.current.documents).toEqual([
+      { filePath: "/a.md", board: mockBoard },
+    ]);
+    expect(result.current.filePath).toBe("/a.md");
+  });
 });

@@ -2,6 +2,7 @@ import { useKanbanState } from "../context/BoardContext";
 import { useAddTask } from "../hooks/useAddTask";
 import { useColumns } from "../hooks/useColumns";
 import { useDragDrop } from "../hooks/useDragDrop";
+import { useScrollPosition } from "../hooks/useScrollPosition";
 import { useTaskExpand } from "../hooks/useTaskExpand";
 import { useTaskMutations } from "../hooks/useTaskMutations";
 import { AddTaskInput } from "./AddTaskInput";
@@ -14,12 +15,15 @@ interface Props {
 }
 
 export function KanbanColumn({ columnName }: Props) {
-  const { board } = useKanbanState();
+  const { board, filePath } = useKanbanState();
   const columns = useColumns();
   const add = useAddTask();
   const mutations = useTaskMutations();
   const expand = useTaskExpand();
   const dnd = useDragDrop();
+  const cardListScroll = useScrollPosition(
+    filePath ? `${filePath}:${columnName}` : null,
+  );
 
   const tasks = board.tasks.filter((t) => t.column === columnName);
 
@@ -50,7 +54,12 @@ export function KanbanColumn({ columnName }: Props) {
         onSortByDueDate={() => mutations.sortColumnByDueDate(columnName)}
       />
 
-      <ul className={styles.cardList} data-card-list>
+      <ul
+        className={styles.cardList}
+        data-card-list
+        ref={cardListScroll.ref}
+        onScroll={cardListScroll.onScroll}
+      >
         {tasks.map((task) => (
           <KanbanCard
             key={task.id}

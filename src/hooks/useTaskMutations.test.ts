@@ -26,7 +26,8 @@ describe("useTaskMutations", () => {
       await result.current.updateTask("t1", { text: "Updated text" });
     });
 
-    expect(mockInvoke).toHaveBeenCalledWith("save_current_board", {
+    expect(mockInvoke).toHaveBeenCalledWith("save_board", {
+      path: "/test.md",
       board: expect.objectContaining({
         tasks: expect.arrayContaining([
           expect.objectContaining({ id: "t1", text: "Updated text" }),
@@ -46,7 +47,8 @@ describe("useTaskMutations", () => {
       await result.current.deleteTask("t1");
     });
 
-    expect(mockInvoke).toHaveBeenCalledWith("save_current_board", {
+    expect(mockInvoke).toHaveBeenCalledWith("save_board", {
+      path: "/test.md",
       board: expect.objectContaining({
         tasks: [expect.objectContaining({ id: "t2" })],
       }),
@@ -77,7 +79,8 @@ describe("useTaskMutations", () => {
       await result.current.addLabel("t1", "#Feature");
     });
 
-    expect(mockInvoke).toHaveBeenCalledWith("save_current_board", {
+    expect(mockInvoke).toHaveBeenCalledWith("save_board", {
+      path: "/test.md",
       board: expect.objectContaining({
         tasks: expect.arrayContaining([
           expect.objectContaining({ id: "t1", labels: ["Feature"] }),
@@ -111,7 +114,8 @@ describe("useTaskMutations", () => {
       await result.current.addLabel("t2", "Feature");
     });
 
-    expect(mockInvoke).toHaveBeenCalledWith("save_current_board", {
+    expect(mockInvoke).toHaveBeenCalledWith("save_board", {
+      path: "/test.md",
       board: expect.objectContaining({
         tasks: expect.arrayContaining([
           expect.objectContaining({ id: "t2", labels: ["Bug", "Feature"] }),
@@ -131,7 +135,8 @@ describe("useTaskMutations", () => {
       await result.current.removeLabel("t2", "Bug");
     });
 
-    expect(mockInvoke).toHaveBeenCalledWith("save_current_board", {
+    expect(mockInvoke).toHaveBeenCalledWith("save_board", {
+      path: "/test.md",
       board: expect.objectContaining({
         tasks: expect.arrayContaining([
           expect.objectContaining({ id: "t2", labels: [] }),
@@ -151,7 +156,8 @@ describe("useTaskMutations", () => {
       await result.current.moveTask("t1", "Done", 0);
     });
 
-    expect(mockInvoke).toHaveBeenCalledWith("save_current_board", {
+    expect(mockInvoke).toHaveBeenCalledWith("save_board", {
+      path: "/test.md",
       board: expect.objectContaining({
         tasks: expect.arrayContaining([
           expect.objectContaining({ id: "t1", column: "Done", status: "done" }),
@@ -191,7 +197,8 @@ describe("useTaskMutations", () => {
       await result.current.moveTask("t1", "Todo", 1);
     });
 
-    expect(mockInvoke).toHaveBeenCalledWith("save_current_board", {
+    expect(mockInvoke).toHaveBeenCalledWith("save_board", {
+      path: "/test.md",
       board: expect.objectContaining({
         tasks: expect.arrayContaining([
           expect.objectContaining({ id: "t1", status: "todo" }),

@@ -57,18 +57,25 @@ Runs the React frontend in a browser. Tauri APIs are unavailable; file I/O won't
 
 ```
 src/                  React + TypeScript frontend
-  components/         UI components
-  hooks/              Custom React hooks (useTasks, useBoard, …)
+  components/         UI components (KanbanColumn, TabBar, …)
+  hooks/              Custom React hooks (useTasks, useBoard, useSession, …)
   types.ts            Shared TypeScript types
   global.css          Global CSS reset and root styles
 src-tauri/            Rust backend
   src/
-    commands.rs       Tauri commands (load_file, save_current_board)
+    commands.rs       Tauri commands (load_file, save_board, close_file)
+    session.rs        Local session-state persistence (load_session, save_session)
     markdown.rs       Markdown parser / serializer
     models.rs         Rust data models
   capabilities/       Tauri permission declarations
   tauri.conf.json     App configuration
 ```
+
+Multiple files can be open at once as tabs (`useBoard`'s `documents` /
+`activeFilePath`, mirrored per-file on the Rust side by `commands::OpenFiles`).
+The set of open tabs and the active one are persisted to a local
+`session.toml` file (in the OS app-config directory, via `session.rs`) and
+restored automatically on the next launch by `useSession`.
 
 ---
 

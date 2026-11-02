@@ -376,3 +376,182 @@ describe("REMOVE_LABEL", () => {
     expect(next.board.tasks[0].labels).toEqual(["Feature"]);
   });
 });
+
+describe("LOAD_SUCCESS with multiple tabs", () => {
+  const boardA: Board = { columns: [{ name: "Todo" }], tasks: [] };
+  const boardB: Board = { columns: [{ name: "Done" }], tasks: [] };
+
+  it("adds a new document for a newly opened file without dropping others", () => {
+    const afterFirst = kanbanReducer(initialKanbanState, {
+      type: "LOAD_SUCCESS",
+      board: boardA,
+      filePath: "/a.md",
+    });
+    const afterSecond = kanbanReducer(afterFirst, {
+      type: "LOAD_SUCCESS",
+      board: boardB,
+      filePath: "/b.md",
+    });
+
+    expect(afterSecond.documents).toEqual([
+      { filePath: "/a.md", board: boardA },
+      { filePath: "/b.md", board: boardB },
+    ]);
+    expect(afterSecond.board).toEqual(boardB);
+    expect(afterSecond.filePath).toBe("/b.md");
+  });
+
+  it("mutations (e.g. ADD_TASK) keep the active document in documents in sync", () => {
+    const loaded = kanbanReducer(initialKanbanState, {
+      type: "LOAD_SUCCESS",
+      board: boardA,
+      filePath: "/a.md",
+    });
+    const t: Task = task("t1", "Todo");
+    const next = kanbanReducer(loaded, { type: "ADD_TASK", task: t });
+
+    expect(next.documents).toEqual([{ filePath: "/a.md", board: next.board }]);
+    expect(next.board.tasks).toEqual([t]);
+  });
+});
+
+describe("SWITCH_TAB", () => {
+  it("makes the target document's board/filePath active", () => {
+    const state: KanbanState = {
+      ...initialKanbanState,
+      documents: [
+        { filePath: "/a.md", board: { columns: [{ name: "A" }], tasks: [] } },
+        { filePath: "/b.md", board: { columns: [{ name: "B" }], tasks: [] } },
+      ],
+      board: { columns: [{ name: "A" }], tasks: [] },
+      filePath: "/a.md",
+    };
+
+    const next = kanbanReducer(state, {
+      type: "SWITCH_TAB",
+      filePath: "/b.md",
+    });
+
+    expect(next.filePath).toBe("/b.md");
+    expect(next.board).toEqual({ columns: [{ name: "B" }], tasks: [] });
+  });
+
+  it("is a no-op when the target path isn't an open document", () => {
+    const board: Board = { columns: [], tasks: [] };
+    const state: KanbanState = {
+      ...initialKanbanState,
+      documents: [{ filePath: "/a.md", board }],
+      board,
+      filePath: "/a.md",
+    };
+
+    const next = kanbanReducer(state, {
+      type: "SWITCH_TAB",
+      filePath: "/missing.md",
+    });
+
+    expect(next).toBe(state);
+  });
+});
+
+describe("CLOSE_TAB", () => {
+  const docA = {
+    filePath: "/a.md",
+    board: { columns: [{ name: "A" }], tasks: [] },
+  };
+  const docB = {
+    filePath: "/b.md",
+    board: { columns: [{ name: "B" }], tasks: [] },
+  };
+
+  it("removes the closed document without changing the active tab if it wasn't active", () => {
+    const state: KanbanState = {
+      ...initialKanbanState,
+      documents: [docA, docB],
+      board: docA.board,
+      filePath: "/a.md",
+    };
+
+    const next = kanbanReducer(state, { type: "CLOSE_TAB", filePath: "/b.md" });
+
+    expect(next.documents).toEqual([docA]);
+    expect(next.filePath).toBe("/a.md");
+    expect(next.board).toEqual(docA.board);
+  });
+
+  it("switches to another open document when the active tab is closed", () => {
+    const state: KanbanState = {
+      ...initialKanbanState,
+      documents: [docA, docB],
+      board: docA.board,
+      filePath: "/a.md",
+    };
+
+    const next = kanbanReducer(state, { type: "CLOSE_TAB", filePath: "/a.md" });
+
+    expect(next.documents).toEqual([docB]);
+    expect(next.filePath).toBe("/b.md");
+    expect(next.board).toEqual(docB.board);
+  });
+
+  it("returns to the empty board when the last tab is closed", () => {
+    const state: KanbanState = {
+      ...initialKanbanState,
+      documents: [docA],
+      board: docA.board,
+      filePath: "/a.md",
+    };
+
+    const next = kanbanReducer(state, { type: "CLOSE_TAB", filePath: "/a.md" });
+
+    expect(next.documents).toEqual([]);
+    expect(next.filePath).toBeNull();
+    expect(next.board).toEqual({ columns: [], tasks: [] });
+  });
+});
+
+describe("RESTORE_SESSION", () => {
+  const docA = {
+    filePath: "/a.md",
+    board: { columns: [{ name: "A" }], tasks: [] },
+  };
+  const docB = {
+    filePath: "/b.md",
+    board: { columns: [{ name: "B" }], tasks: [] },
+  };
+
+  it("restores documents and activates the requested path", () => {
+    const next = kanbanReducer(initialKanbanState, {
+      type: "RESTORE_SESSION",
+      documents: [docA, docB],
+      activeFilePath: "/b.md",
+    });
+
+    expect(next.documents).toEqual([docA, docB]);
+    expect(next.filePath).toBe("/b.md");
+    expect(next.board).toEqual(docB.board);
+    expect(next.isLoading).toBe(false);
+  });
+
+  it("falls back to the first document when the active path isn't found", () => {
+    const next = kanbanReducer(initialKanbanState, {
+      type: "RESTORE_SESSION",
+      documents: [docA, docB],
+      activeFilePath: "/missing.md",
+    });
+
+    expect(next.filePath).toBe("/a.md");
+  });
+
+  it("restores an empty state when there are no documents to restore", () => {
+    const next = kanbanReducer(initialKanbanState, {
+      type: "RESTORE_SESSION",
+      documents: [],
+      activeFilePath: null,
+    });
+
+    expect(next.documents).toEqual([]);
+    expect(next.filePath).toBeNull();
+    expect(next.board).toEqual({ columns: [], tasks: [] });
+  });
+});

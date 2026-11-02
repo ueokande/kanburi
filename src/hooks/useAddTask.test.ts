@@ -62,7 +62,8 @@ describe("useAddTask", () => {
       await result.current.addTask("Todo");
     });
 
-    expect(mockInvoke).toHaveBeenCalledWith("save_current_board", {
+    expect(mockInvoke).toHaveBeenCalledWith("save_board", {
+      path: "/test.md",
       board: expect.objectContaining({
         tasks: expect.arrayContaining([
           expect.objectContaining({
@@ -94,7 +95,8 @@ describe("useAddTask", () => {
       await result.current.addTask("Todo");
     });
 
-    expect(mockInvoke).toHaveBeenCalledWith("save_current_board", {
+    expect(mockInvoke).toHaveBeenCalledWith("save_board", {
+      path: "/test.md",
       board: expect.objectContaining({
         tasks: expect.arrayContaining([
           expect.objectContaining({
@@ -124,7 +126,8 @@ describe("useAddTask", () => {
       await result.current.addTask("Done");
     });
 
-    expect(mockInvoke).toHaveBeenCalledWith("save_current_board", {
+    expect(mockInvoke).toHaveBeenCalledWith("save_board", {
+      path: "/test.md",
       board: expect.objectContaining({
         tasks: expect.arrayContaining([
           expect.objectContaining({ column: "Done", status: "done" }),

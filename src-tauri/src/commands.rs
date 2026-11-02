@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::Mutex;
@@ -8,16 +9,15 @@ use tauri::Manager;
 use crate::markdown::{parse_board, serialize_board};
 use crate::models::Board;
 
-/// Holds the path and last-known modification time of the currently open file.
-pub struct CurrentFileState {
-    pub path: Option<PathBuf>,
-    pub mtime: Option<SystemTime>,
-}
+/// Tracks the last-known modification time of every file currently open in a
+/// tab, keyed by its path. Multiple files can be open (and tracked for
+/// conflict detection) at the same time.
+pub struct OpenFiles(pub Mutex<HashMap<PathBuf, Option<SystemTime>>>);
 
-pub struct CurrentFile(pub Mutex<CurrentFileState>);
-
-/// Open a file at the given path, validate it, parse it, and store the path and
-/// mtime in app state so that subsequent saves go to the same file.
+/// Open a file at the given path, validate it, parse it, and record its path
+/// and mtime in app state (without disturbing the tracked state of any other
+/// currently open files) so that subsequent saves can detect external
+/// modifications.
 #[tauri::command]
 pub fn load_file(
     app: tauri::AppHandle,
@@ -32,11 +32,19 @@ pub fn load_file(
         .and_then(|m| m.modified())
         .ok();
     let board = parse_board(&content);
-    let state = app.state::<CurrentFile>();
+    let state = app.state::<OpenFiles>();
     let mut guard = state.0.lock().unwrap();
-    guard.path = Some(pb);
-    guard.mtime = mtime;
+    guard.insert(pb, mtime);
     Ok(board)
+}
+
+/// Stop tracking a file (e.g. when its tab is closed). Safe to call for a
+/// path that isn't tracked.
+#[tauri::command]
+pub fn close_file(app: tauri::AppHandle, path: String) {
+    let state = app.state::<OpenFiles>();
+    let mut guard = state.0.lock().unwrap();
+    guard.remove(&PathBuf::from(path));
 }
 
 /// Returns true if the file at `path` has a different modification time than
@@ -48,7 +56,8 @@ pub(crate) fn mtime_conflict(stored: Option<SystemTime>, path: &std::path::Path)
     current != stored
 }
 
-/// Persist the board to whichever file was last opened via `load_file`.
+/// Persist the board to the given path, which must already be tracked via a
+/// prior `load_file` call for the same path.
 ///
 /// If `force` is false, the command first checks whether the file's current
 /// modification time matches the one recorded at load/last-save time. If they
@@ -56,28 +65,25 @@ pub(crate) fn mtime_conflict(stored: Option<SystemTime>, path: &std::path::Path)
 /// `Err("CONFLICT")` instead of overwriting. Pass `force: true` to skip this
 /// check and overwrite unconditionally.
 #[tauri::command]
-pub fn save_current_board(
+pub fn save_board(
     app: tauri::AppHandle,
+    path: String,
     board: Board,
     force: bool,
 ) -> Result<(), String> {
-    let state = app.state::<CurrentFile>();
+    let pb = PathBuf::from(&path);
+    let state = app.state::<OpenFiles>();
     let mut guard = state.0.lock().unwrap();
-    let path = guard
-        .path
-        .as_ref()
-        .ok_or_else(|| "No file is currently open.".to_string())?
-        .clone();
+    let stored_mtime = *guard.get(&pb).unwrap_or(&None);
 
-    if !force && mtime_conflict(guard.mtime, &path) {
+    if !force && mtime_conflict(stored_mtime, &pb) {
         return Err("CONFLICT".to_string());
     }
 
-    fs::write(&path, serialize_board(&board)).map_err(|e| e.to_string())?;
+    fs::write(&pb, serialize_board(&board)).map_err(|e| e.to_string())?;
 
-    guard.mtime = fs::metadata(&path)
-        .and_then(|m| m.modified())
-        .ok();
+    let new_mtime = fs::metadata(&pb).and_then(|m| m.modified()).ok();
+    guard.insert(pb, new_mtime);
 
     Ok(())
 }

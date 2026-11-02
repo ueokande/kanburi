@@ -1,21 +1,44 @@
 import type { Board, Task } from "../types";
 import { buildMovedTaskList } from "../utils";
 
+const EMPTY_BOARD: Board = { columns: [], tasks: [] };
+
+/** A single open tab: a file path paired with its in-memory board. */
+export interface OpenDocument {
+  filePath: string;
+  board: Board;
+}
+
+/**
+ * `board`/`filePath` always mirror the currently active tab (or the empty
+ * board / `null` when no tabs are open), so existing consumers that only
+ * care about "the current board" don't need to change. `documents` holds
+ * every open tab so the UI can render a tab bar and switch between them.
+ */
 export interface KanbanState {
   board: Board;
   filePath: string | null;
   isLoading: boolean;
+  documents: OpenDocument[];
 }
 
 export const initialKanbanState: KanbanState = {
-  board: { columns: [], tasks: [] },
+  board: EMPTY_BOARD,
   filePath: null,
   isLoading: false,
+  documents: [],
 };
 
 export type KanbanAction =
   | { type: "LOAD_START" }
   | { type: "LOAD_SUCCESS"; board: Board; filePath: string }
+  | { type: "SWITCH_TAB"; filePath: string }
+  | { type: "CLOSE_TAB"; filePath: string }
+  | {
+      type: "RESTORE_SESSION";
+      documents: OpenDocument[];
+      activeFilePath: string | null;
+    }
   | { type: "ADD_TASK"; task: Task }
   | { type: "UPDATE_TASK"; id: string; patch: Partial<Task> }
   | { type: "DELETE_TASK"; id: string }
@@ -37,16 +60,92 @@ export function kanbanReducer(
   state: KanbanState,
   action: KanbanAction,
 ): KanbanState {
+  const next = kanbanReducerBase(state, action);
+  return syncActiveDocument(next);
+}
+
+/**
+ * Keeps `documents` in sync with the top-level `board`/`filePath` mirror
+ * after any action that mutates the active board in place (add/update/move
+ * task, rename column, etc.), so the tab the user is looking at is always
+ * reflected in the open-tabs list.
+ */
+function syncActiveDocument(state: KanbanState): KanbanState {
+  if (!state.filePath) return state;
+  const idx = state.documents.findIndex((d) => d.filePath === state.filePath);
+  if (idx === -1) return state;
+  if (state.documents[idx].board === state.board) return state;
+  const documents = [...state.documents];
+  documents[idx] = { filePath: state.filePath, board: state.board };
+  return { ...state, documents };
+}
+
+function upsertDocument(
+  documents: OpenDocument[],
+  doc: OpenDocument,
+): OpenDocument[] {
+  const idx = documents.findIndex((d) => d.filePath === doc.filePath);
+  if (idx === -1) return [...documents, doc];
+  const next = [...documents];
+  next[idx] = doc;
+  return next;
+}
+
+function kanbanReducerBase(
+  state: KanbanState,
+  action: KanbanAction,
+): KanbanState {
   switch (action.type) {
     case "LOAD_START":
       return { ...state, isLoading: true };
 
     case "LOAD_SUCCESS":
       return {
+        ...state,
         board: action.board,
         filePath: action.filePath,
         isLoading: false,
+        documents: upsertDocument(state.documents, {
+          filePath: action.filePath,
+          board: action.board,
+        }),
       };
+
+    case "SWITCH_TAB": {
+      const doc = state.documents.find((d) => d.filePath === action.filePath);
+      if (!doc) return state;
+      return { ...state, board: doc.board, filePath: doc.filePath };
+    }
+
+    case "CLOSE_TAB": {
+      const documents = state.documents.filter(
+        (d) => d.filePath !== action.filePath,
+      );
+      if (action.filePath !== state.filePath) {
+        return { ...state, documents };
+      }
+      const nextDoc = documents[0];
+      return {
+        ...state,
+        documents,
+        board: nextDoc?.board ?? EMPTY_BOARD,
+        filePath: nextDoc?.filePath ?? null,
+      };
+    }
+
+    case "RESTORE_SESSION": {
+      const active =
+        (action.activeFilePath &&
+          action.documents.find((d) => d.filePath === action.activeFilePath)) ||
+        action.documents[0];
+      return {
+        ...state,
+        documents: action.documents,
+        board: active?.board ?? EMPTY_BOARD,
+        filePath: active?.filePath ?? null,
+        isLoading: false,
+      };
+    }
 
     case "ADD_TASK":
       return {

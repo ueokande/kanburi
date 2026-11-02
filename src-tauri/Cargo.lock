@@ -1699,6 +1699,7 @@ dependencies = [
  "tauri-plugin-dialog",
  "tauri-plugin-shell",
  "tempfile",
+ "toml 0.8.2",
 ]
 
 [[package]]

@@ -13,18 +13,24 @@ export function statusForColumn(colNames: string[], colName: string): Status {
 }
 
 export function useBoard() {
-  const { board, filePath, isLoading } = useKanbanState();
+  const { board, filePath, isLoading, documents } = useKanbanState();
   const dispatch = useKanbanDispatch();
 
+  /** Open `path` as a tab: focus it if already open, otherwise load it. */
   const loadFromPath = useCallback(
     async (path: string) => {
+      const existing = documents.find((d) => d.filePath === path);
+      if (existing) {
+        dispatch({ type: "SWITCH_TAB", filePath: path });
+        return;
+      }
       dispatch({ type: "LOAD_START" });
       const loaded = await invoke<import("../types").Board>("load_file", {
         path,
       });
       dispatch({ type: "LOAD_SUCCESS", board: loaded, filePath: path });
     },
-    [dispatch],
+    [dispatch, documents],
   );
 
   const openFile = useCallback(async () => {
@@ -37,5 +43,29 @@ export function useBoard() {
     }
   }, [loadFromPath]);
 
-  return { board, filePath, isLoading, openFile, loadFromPath };
+  const switchTab = useCallback(
+    (path: string) => {
+      dispatch({ type: "SWITCH_TAB", filePath: path });
+    },
+    [dispatch],
+  );
+
+  const closeTab = useCallback(
+    async (path: string) => {
+      await invoke("close_file", { path });
+      dispatch({ type: "CLOSE_TAB", filePath: path });
+    },
+    [dispatch],
+  );
+
+  return {
+    board,
+    filePath,
+    isLoading,
+    documents,
+    openFile,
+    loadFromPath,
+    switchTab,
+    closeTab,
+  };
 }

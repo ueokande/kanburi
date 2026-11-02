@@ -1,7 +1,7 @@
-import { confirm } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
+import { confirm } from "@tauri-apps/plugin-dialog";
 import { useCallback } from "react";
-import { useKanbanState, useKanbanDispatch } from "../context/BoardContext";
+import { useKanbanDispatch, useKanbanState } from "../context/BoardContext";
 import type { Board } from "../types";
 
 export function useSaveBoard() {
@@ -10,8 +10,9 @@ export function useSaveBoard() {
 
   const saveBoard = useCallback(
     async (board: Board) => {
+      if (!filePath) return;
       try {
-        await invoke("save_current_board", { board, force: false });
+        await invoke("save_board", { path: filePath, board, force: false });
       } catch (e) {
         if (String(e) !== "CONFLICT") throw e;
 
@@ -25,8 +26,8 @@ export function useSaveBoard() {
         );
 
         if (overwrite) {
-          await invoke("save_current_board", { board, force: true });
-        } else if (filePath) {
+          await invoke("save_board", { path: filePath, board, force: true });
+        } else {
           dispatch({ type: "LOAD_START" });
           const reloaded = await invoke<Board>("load_file", {
             path: filePath,
