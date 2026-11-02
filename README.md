@@ -10,6 +10,7 @@ A native desktop Kanban board that saves everything in a single, human-readable 
 
 - Drag cards between columns
 - Labels, due dates, and descriptions per card
+- Label autocomplete from labels used on the current board
 - All data persisted in a plain `.md` file you own
 
 ## Getting started
@@ -58,3 +59,16 @@ A native desktop Kanban board that saves everything in a single, human-readable 
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup, build instructions, and architecture notes.
+
+## Label editing
+
+Expand a card and use **+** to add a label, or click a label name to change it
+on that card only. Suggestions come from the open board; no separate label
+history or storage is created. Labels no longer used by any card stop appearing
+in suggestions. Matching ignores case, but label names remain case-sensitive.
+
+Use the arrow keys to select a suggestion and Enter to save, or click a suggestion.
+For a new name, choose **Add #name** or press Enter without selecting a suggestion.
+Escape, clicking outside, or leaving the field cancels the unfinished edit.
+Labels already on the card cannot be added again, and names cannot contain
+whitespace because Markdown stores labels as individual `#name` tokens.

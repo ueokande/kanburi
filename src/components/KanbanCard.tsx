@@ -16,8 +16,9 @@ interface Props {
   onToggleExpand: () => void;
   onUpdate: (patch: Partial<Task>) => void;
   onDelete: () => void;
-  onAddLabel: (label: string) => void;
+  onAddLabel: (label: string) => Promise<void>;
   onRemoveLabel: (label: string) => void;
+  onRenameLabel: (oldLabel: string, newLabel: string) => Promise<void>;
   onDragStart: (event: React.DragEvent<HTMLLIElement>) => void;
   onDragEnd: (event: React.DragEvent<HTMLLIElement>) => void;
 }
@@ -30,6 +31,7 @@ export function KanbanCard({
   onDelete,
   onAddLabel,
   onRemoveLabel,
+  onRenameLabel,
   onDragStart,
   onDragEnd,
 }: Props) {
@@ -89,6 +91,7 @@ export function KanbanCard({
             labels={task.labels}
             onAdd={onAddLabel}
             onRemove={onRemoveLabel}
+            onRename={onRenameLabel}
           />
           <DescriptionInput
             value={task.description}

@@ -243,3 +243,58 @@ describe("useTaskMutations", () => {
     expect(savedBoard.tasks.map((t) => t.id)).toEqual(["t2", "t1", "t3"]);
   });
 });
+
+describe("label validation and card-scoped rename", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockInvoke.mockResolvedValue(undefined);
+  });
+
+  it("renames only the selected card and preserves label order", async () => {
+    const board = makeSeedBoard();
+    board.tasks[0].labels = ["Bug", "Backend"];
+    const { result } = renderHook(() => useTaskMutations(), {
+      wrapper: makeWrapper(board),
+    });
+    await flushSeed();
+    await act(async () => {
+      await result.current.renameLabel("t1", "Bug", "#Feature");
+    });
+    const saved = mockInvoke.mock.calls[0][1].board;
+    expect(saved.tasks[0].labels).toEqual(["Feature", "Backend"]);
+    expect(saved.tasks[1].labels).toEqual(["Bug"]);
+  });
+
+  it.each([
+    "",
+    "#",
+    "two words",
+    "two\twords",
+    "two\u3000words",
+  ])("rejects invalid labels at the mutation boundary: %s", async (value) => {
+    const { result } = renderHook(() => useTaskMutations(), {
+      wrapper: makeWrapper(makeSeedBoard()),
+    });
+    await flushSeed();
+    await act(async () => {
+      await result.current.addLabel("t1", value);
+      await result.current.renameLabel("t2", "Bug", value);
+    });
+    expect(mockInvoke).not.toHaveBeenCalled();
+  });
+
+  it("does not replace another label, rename a missing label, or save an unchanged name", async () => {
+    const board = makeSeedBoard();
+    board.tasks[0].labels = ["Bug", "Backend"];
+    const { result } = renderHook(() => useTaskMutations(), {
+      wrapper: makeWrapper(board),
+    });
+    await flushSeed();
+    await act(async () => {
+      await result.current.renameLabel("t1", "Bug", "Backend");
+      await result.current.renameLabel("t1", "Missing", "Feature");
+      await result.current.renameLabel("t1", "Bug", "Bug");
+    });
+    expect(mockInvoke).not.toHaveBeenCalled();
+  });
+});
