@@ -36,10 +36,7 @@ export function parseSearchQuery(value: string): SearchQuery {
       const due = token.slice(4).toLowerCase();
       if (dueOptions.some((option) => option.value === due) || validDate(due))
         result.dueDates.push(due);
-      else
-        result.errors.push(
-          `Invalid deadline “${token}”. Use due:today, due:tomorrow, due:overdue, due:week, due:none or due:YYYY-MM-DD.`,
-        );
+      else result.errors.push(`Invalid deadline “${token}”.`);
     } else result.terms.push(token);
   }
   return result;
@@ -85,10 +82,10 @@ export function searchCompletion(
   labels: string[],
   now = new Date(),
 ) {
-  const start = value.slice(0, caret).search(/\S+$/);
-  if (start < 0) return null;
+  const tokenStart = value.slice(0, caret).search(/\S+$/);
+  const start = tokenStart < 0 ? caret : tokenStart;
   const tail = value.slice(caret).search(/\s/);
-  const end = tail < 0 ? value.length : caret + tail;
+  const end = tokenStart < 0 ? caret : tail < 0 ? value.length : caret + tail;
   const prefix = value.slice(start, caret);
   if (prefix.startsWith("#"))
     return {
@@ -100,7 +97,11 @@ export function searchCompletion(
           label.toLowerCase().startsWith(prefix.slice(1).toLowerCase()),
         )
         .slice(0, 8)
-        .map((label) => ({ value: `#${label}`, label: `#${label}` })),
+        .map((label) => ({
+          value: `#${label}`,
+          label: `#${label}`,
+          continue: false,
+        })),
     };
   if (prefix.toLowerCase().startsWith("due:")) {
     const part = prefix.slice(4).toLowerCase();
@@ -112,13 +113,19 @@ export function searchCompletion(
         ...dueOptions.map((option) => ({
           value: `due:${option.value}`,
           label: option.label,
+          continue: false,
         })),
         {
           value: `due:${localDate(now)}`,
           label: `Exact date · ${localDate(now)}`,
+          continue: false,
         },
       ].filter((option) => option.value.slice(4).startsWith(part)),
     };
   }
-  return null;
+  const options = [
+    { value: "#", label: "Label", continue: true },
+    { value: "due:", label: "Due date", continue: true },
+  ].filter((option) => option.value.startsWith(prefix.toLowerCase()));
+  return options.length ? { start, end, kind: "Filters", options } : null;
 }

@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { useComposing } from "../hooks/useComposing";
 import { searchCompletion } from "../taskFilters";
 import styles from "./BoardSearch.module.css";
@@ -28,6 +28,15 @@ export function BoardSearch({
   const inputRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const id = useId();
+  const pendingCaret = useRef<number | null>(null);
+  useLayoutEffect(() => {
+    const position = pendingCaret.current;
+    if (position === null) return;
+    pendingCaret.current = null;
+    inputRef.current?.focus();
+    inputRef.current?.setSelectionRange(position, position);
+    setCaret(position);
+  });
   const completion =
     !dismissed && focused && !isComposing
       ? searchCompletion(query, caret, labels)
@@ -47,19 +56,16 @@ export function BoardSearch({
     const option = options[index];
     if (!completion || !option) return;
     const suffix = query.slice(completion.end);
+    const separator = option.continue || /^\s/.test(suffix) ? "" : " ";
     const text =
-      query.slice(0, completion.start) +
-      option.value +
-      (suffix.startsWith(" ") ? "" : " ") +
-      suffix;
-    const position = completion.start + option.value.length + 1;
+      query.slice(0, completion.start) + option.value + separator + suffix;
+    const position =
+      completion.start + option.value.length + (option.continue ? 0 : 1);
+    pendingCaret.current = position;
     onChange(text);
     setCaret(position);
-    setDismissed(true);
-    requestAnimationFrame(() => {
-      inputRef.current?.focus();
-      inputRef.current?.setSelectionRange(position, position);
-    });
+    setDismissed(!option.continue);
+    setHighlight(0);
   }
   return (
     <div className={`${styles.wrap} ${open ? styles.expanded : ""}`}>
@@ -76,8 +82,7 @@ export function BoardSearch({
             aria-activedescendant={
               options.length ? `${id}-option-${selected}` : undefined
             }
-            aria-describedby={`${id}-help`}
-            placeholder="Search… #label due:today"
+            placeholder="Search tasks"
             value={query}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
@@ -177,14 +182,8 @@ export function BoardSearch({
                   </button>
                 ))}
               </div>
-              <div className={styles.tip}>
-                ↑ ↓ Select · Enter / Tab Complete
-              </div>
             </div>
           )}
-          <span id={`${id}-help`} className={styles.help}>
-            Text · #label · due:today / YYYY-MM-DD
-          </span>
           <span
             role="status"
             aria-live="polite"

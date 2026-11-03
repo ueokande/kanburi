@@ -163,3 +163,35 @@ it("dismisses suggestions before collapsing the search and reports invalid deadl
     screen.getByRole("button", { name: "Search (active)" }),
   );
 });
+
+it("offers qualifiers on empty input and continues directly to values", () => {
+  const input = setup();
+  expect(screen.queryByText(/Select · Enter/)).toBeNull();
+  expect(screen.queryByText(/Text · #label/)).toBeNull();
+  fireEvent.click(screen.getByRole("option", { name: "# Label" }));
+  expect((input as HTMLInputElement).value).toBe("#");
+  expect(screen.getByRole("option", { name: /#Backend/ })).toBeTruthy();
+  fireEvent.click(screen.getByRole("option", { name: /#Backend/ }));
+  expect((input as HTMLInputElement).value).toBe("#Backend ");
+  fireEvent.change(input, {
+    target: { value: "#Backend d", selectionStart: 10, selectionEnd: 10 },
+  });
+  expect(screen.getAllByRole("option")).toHaveLength(1);
+  fireEvent.keyDown(input, { key: "Enter" });
+  expect((input as HTMLInputElement).value).toBe("#Backend due:");
+  expect(screen.getByRole("option", { name: /due:today/ })).toBeTruthy();
+  fireEvent.keyDown(input, { key: "ArrowDown" });
+  fireEvent.keyDown(input, { key: "Tab" });
+  expect((input as HTMLInputElement).value).toBe("#Backend due:today ");
+});
+it("offers qualifiers after whitespace and dismisses them without changing free text", () => {
+  const input = setup();
+  fireEvent.change(input, {
+    target: { value: "login ", selectionStart: 6, selectionEnd: 6 },
+  });
+  expect(screen.getByRole("option", { name: "due: Due date" })).toBeTruthy();
+  fireEvent.keyDown(input, { key: "Escape" });
+  expect(screen.queryByRole("listbox")).toBeNull();
+  expect((input as HTMLInputElement).value).toBe("login ");
+  expect(screen.getByText("Fix login")).toBeTruthy();
+});

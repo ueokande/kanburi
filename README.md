@@ -44,7 +44,9 @@ login #Backend due:today
 
 Free-text words match titles, descriptions, or labels without case sensitivity.
 Each word and each filter must match (AND). Tags match full, case-sensitive label
-names; multiple tags require all of them. Typing `#` suggests existing labels in
+names; multiple tags require all of them. Empty input and whitespace after a term
+show `#` and `due:` suggestions. Typing narrows these suggestions; choosing one
+inserts the qualifier and immediately opens its value suggestions. Typing `#` suggests existing labels in
 the current board. Typing `due:` suggests `overdue`, `today`, `tomorrow`, `week`
 (today through six days from now), `none`, and today's date. You can also type an
 exact date, such as `due:2026-11-03`. Dates use your local calendar and include

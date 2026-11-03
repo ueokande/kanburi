@@ -99,7 +99,11 @@ it("finds the token at the cursor and preserves its full replacement range", () 
     end: 12,
     options: [{ value: "#Backend" }],
   });
-  expect(searchCompletion("hello ", 6, ["Backend"], now)).toBeNull();
+  expect(
+    searchCompletion("hello ", 6, ["Backend"], now)?.options.map(
+      (option) => option.value,
+    ),
+  ).toEqual(["#", "due:"]);
   expect(
     searchCompletion("due:to", 6, [], now)?.options.map((o) => o.value),
   ).toEqual(["due:today", "due:tomorrow"]);
