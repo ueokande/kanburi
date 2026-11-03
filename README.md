@@ -12,6 +12,7 @@ A native desktop Kanban board that saves everything in a single, human-readable 
 - Restore open files and the selected tab when the app starts
 - Drag cards between columns
 - Labels, due dates, and descriptions per card
+- Search task titles, descriptions, and labels within each open board
 - Label autocomplete from labels used on the current board
 - All data persisted in a plain `.md` file you own
 
@@ -31,6 +32,16 @@ The first Markdown H1 is used as the document name in the sidebar and board head
 Workspace preferences and file paths are stored in `settings.toml` in the operating system’s application configuration directory for `com.kanburi.app` (for example, `$XDG_CONFIG_HOME/com.kanburi.app/` or `~/.config/com.kanburi.app/` on Linux). Board contents remain exclusively in your Markdown files. If settings cannot be read, Kanburi reports the problem without overwriting them; choose **Retry** or explicitly reset with **Use default settings**.
 
 > **Tip:** Keep your board file in a cloud-synced folder (iCloud Drive, Dropbox, etc.) to access it from multiple machines.
+
+## Searching tasks
+
+Use **Search tasks** above the board to filter cards as you type. Search is a
+case-insensitive substring match against each task's title, description, or label.
+Leading and trailing spaces are ignored. Columns remain visible, and their counts
+show matching tasks. **Clear search** or Escape in the search field shows all tasks
+again. Each open board keeps its own search until it is closed; searches are not
+saved to Markdown or restored after restarting. Editing and dragging filtered cards
+still saves the complete board, including hidden tasks.
 
 ## Markdown file format
 

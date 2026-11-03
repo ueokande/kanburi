@@ -1,6 +1,16 @@
 import type { Status } from "./types";
 import { LABEL_PALETTE } from "./types";
 
+export function taskMatchesQuery(
+  task: import("./types").Task,
+  query: string,
+): boolean {
+  const needle = query.trim().toLowerCase();
+  return [task.text, task.description ?? "", ...task.labels].some((value) =>
+    value.toLowerCase().includes(needle),
+  );
+}
+
 export function labelStyle(label: string) {
   const hash = [...label].reduce((a, c) => a + c.charCodeAt(0), 0);
   return LABEL_PALETTE[hash % LABEL_PALETTE.length];

@@ -270,3 +270,20 @@ it("can resize open from a button-collapsed sidebar and expand on double-click",
   expect(separator.getAttribute("aria-valuenow")).toBe("250");
   expect(screen.getByRole("button", { name: "Collapse sidebar" })).toBeTruthy();
 });
+
+it("keeps search independent for each open board when switching tabs", async () => {
+  render(<App />);
+  await screen.findByRole("tab", { name: /work.md/ });
+  fireEvent.change(screen.getByRole("searchbox"), {
+    target: { value: "work query" },
+  });
+  fireEvent.click(screen.getByRole("tab", { name: /personal.md/ }));
+  expect((screen.getByRole("searchbox") as HTMLInputElement).value).toBe("");
+  fireEvent.change(screen.getByRole("searchbox"), {
+    target: { value: "personal query" },
+  });
+  fireEvent.click(screen.getByRole("tab", { name: /work.md/ }));
+  expect((screen.getByRole("searchbox") as HTMLInputElement).value).toBe(
+    "work query",
+  );
+});

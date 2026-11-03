@@ -116,7 +116,9 @@ export function useDragDrop() {
     function isSamePosition(el: HTMLElement | null): boolean {
       if (draggedEl?.parentElement !== taskList) return false;
       if (el === draggedEl) return true;
-      let next: Element | null = draggedEl ? draggedEl.nextElementSibling : null;
+      let next: Element | null = draggedEl
+        ? draggedEl.nextElementSibling
+        : null;
       while (next?.classList.contains("drag-placeholder"))
         next = next.nextElementSibling;
       return (el as Element | null) === next;
@@ -177,11 +179,17 @@ export function useDragDrop() {
 
     const children = Array.from(taskList.children);
     const placeholderIndex = children.indexOf(placeholder as HTMLElement);
-    // Account for the dragged element still being in the same column's DOM.
-    const draggingBefore = children
-      .slice(0, placeholderIndex)
-      .filter((el) => (el as HTMLElement).hasAttribute("data-dragging")).length;
-    const insertIndex = placeholderIndex - draggingBefore;
+    // Anchor to the next visible task, since filtering can hide intervening cards.
+    const nextCard = children
+      .slice(placeholderIndex + 1)
+      .find((el) => !(el as HTMLElement).hasAttribute("data-dragging"));
+    const nextId = nextCard?.getAttribute("data-task-id");
+    const columnTasks = board.tasks.filter(
+      (task) => task.column === columnName && task.id !== taskId,
+    );
+    const insertIndex = nextId
+      ? columnTasks.findIndex((task) => task.id === nextId)
+      : columnTasks.length;
     placeholder.remove();
 
     const task = board.tasks.find((t) => t.id === taskId);

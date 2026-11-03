@@ -47,6 +47,7 @@ export function KanbanCard({
     <li
       className={`${styles.card} ${task.status === "done" ? styles.done : ""} ${isExpanded ? styles.expanded : ""}`}
       draggable
+      data-task-id={task.id}
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
     >

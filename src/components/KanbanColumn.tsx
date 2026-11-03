@@ -4,6 +4,7 @@ import { useColumns } from "../hooks/useColumns";
 import { useDragDrop } from "../hooks/useDragDrop";
 import { useTaskExpand } from "../hooks/useTaskExpand";
 import { useTaskMutations } from "../hooks/useTaskMutations";
+import { taskMatchesQuery } from "../utils";
 import { AddTaskInput } from "./AddTaskInput";
 import { ColumnHeader } from "./ColumnHeader";
 import { KanbanCard } from "./KanbanCard";
@@ -11,9 +12,10 @@ import styles from "./KanbanColumn.module.css";
 
 interface Props {
   columnName: string;
+  query?: string;
 }
 
-export function KanbanColumn({ columnName }: Props) {
+export function KanbanColumn({ columnName, query = "" }: Props) {
   const { board } = useKanbanState();
   const columns = useColumns();
   const add = useAddTask();
@@ -21,7 +23,9 @@ export function KanbanColumn({ columnName }: Props) {
   const expand = useTaskExpand();
   const dnd = useDragDrop();
 
-  const tasks = board.tasks.filter((t) => t.column === columnName);
+  const tasks = board.tasks.filter(
+    (t) => t.column === columnName && taskMatchesQuery(t, query),
+  );
 
   async function handleDeleteTask(id: string) {
     expand.clearIfMatch(id);
