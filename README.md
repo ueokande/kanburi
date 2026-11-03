@@ -35,19 +35,28 @@ Workspace preferences and file paths are stored in `settings.toml` in the operat
 
 ## Searching tasks
 
-Use **Filter** in the board header to open a compact panel. Search matches task
-titles, descriptions, and labels using case-insensitive substrings, ignoring
-leading and trailing spaces. Choose a **Label** for an exact label match and a
-**Due date** condition: overdue, today, next 7 days (today through six days from
-now), or no due date. Dates use your local calendar; due-date conditions include
-completed tasks. All selected conditions must match.
+Click the search icon in the board header to reveal the search field. Combine
+free text with `#Label` and `due:` tokens, for example:
 
-The button shows the number of active conditions even when the panel is closed.
-Escape, the close button, or clicking outside closes the panel without clearing
-conditions. **Clear filters** removes all conditions. Columns remain visible and
-show matching task counts. Each board keeps independent conditions until closed;
-filters are not saved to Markdown or restored after restarting. Editing and
-dragging filtered cards still saves the complete board, including hidden tasks.
+```text
+login #Backend due:today
+```
+
+Free-text words match titles, descriptions, or labels without case sensitivity.
+Each word and each filter must match (AND). Tags match full, case-sensitive label
+names; multiple tags require all of them. Typing `#` suggests existing labels in
+the current board. Typing `due:` suggests `overdue`, `today`, `tomorrow`, `week`
+(today through six days from now), `none`, and today's date. You can also type an
+exact date, such as `due:2026-11-03`. Dates use your local calendar and include
+completed tasks. Invalid deadlines show a hint and match no tasks.
+
+Use Up/Down to select a suggestion, Enter or Tab to insert it, or click it. Escape
+first dismisses suggestions, then collapses the search field. The search icon also
+toggles the field; collapsing keeps the query active and shows a blue indicator.
+**Clear search** removes the query. Columns remain visible with matching counts.
+Each board keeps its own query until closed. Queries are not saved to Markdown or
+restored after restarting. Editing and dragging filtered cards still saves the
+complete board, including hidden tasks.
 
 ## Markdown file format
 

@@ -1,53 +1,124 @@
 import type { Task } from "./types";
 import { taskMatchesQuery } from "./utils";
 
-export type DueFilter = "any" | "overdue" | "today" | "week" | "none";
-export interface TaskFilters {
-  query: string;
-  label: string;
-  due: DueFilter;
+export interface SearchQuery {
+  terms: string[];
+  labels: string[];
+  dueDates: string[];
+  errors: string[];
 }
-export const emptyTaskFilters: TaskFilters = {
-  query: "",
-  label: "",
-  due: "any",
-};
-
-function localDate(date: Date): string {
+export const dueOptions = [
+  { value: "overdue", label: "Overdue" },
+  { value: "today", label: "Today" },
+  { value: "tomorrow", label: "Tomorrow" },
+  { value: "week", label: "Next 7 days" },
+  { value: "none", label: "No due date" },
+];
+export function localDate(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
-
+function validDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T12:00:00`);
+  return !Number.isNaN(date.getTime()) && localDate(date) === value;
+}
+export function parseSearchQuery(value: string): SearchQuery {
+  const result: SearchQuery = {
+    terms: [],
+    labels: [],
+    dueDates: [],
+    errors: [],
+  };
+  for (const token of value.trim().split(/\s+/).filter(Boolean)) {
+    if (token.startsWith("#")) {
+      if (token.length > 1) result.labels.push(token.slice(1));
+    } else if (token.toLowerCase().startsWith("due:")) {
+      const due = token.slice(4).toLowerCase();
+      if (dueOptions.some((option) => option.value === due) || validDate(due))
+        result.dueDates.push(due);
+      else
+        result.errors.push(
+          `Invalid deadline “${token}”. Use due:today, due:tomorrow, due:overdue, due:week, due:none or due:YYYY-MM-DD.`,
+        );
+    } else result.terms.push(token);
+  }
+  return result;
+}
 export function taskMatchesFilters(
   task: Task,
-  filters: TaskFilters,
+  filters: SearchQuery,
   now = new Date(),
 ): boolean {
-  if (!taskMatchesQuery(task, filters.query)) return false;
-  if (filters.label && !task.labels.includes(filters.label)) return false;
+  if (filters.errors.length) return false;
+  if (!filters.terms.every((term) => taskMatchesQuery(task, term)))
+    return false;
+  if (!filters.labels.every((label) => task.labels.includes(label)))
+    return false;
   const today = localDate(now);
-  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 6);
-  switch (filters.due) {
-    case "overdue":
-      return !!task.due_date && task.due_date < today;
-    case "today":
-      return task.due_date === today;
-    case "week":
-      return (
-        !!task.due_date &&
-        task.due_date >= today &&
-        task.due_date <= localDate(end)
-      );
-    case "none":
-      return !task.due_date;
-    default:
-      return true;
-  }
+  const day = (offset: number) =>
+    localDate(
+      new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset),
+    );
+  return filters.dueDates.every((due) => {
+    switch (due) {
+      case "overdue":
+        return !!task.due_date && task.due_date < today;
+      case "today":
+        return task.due_date === today;
+      case "tomorrow":
+        return task.due_date === day(1);
+      case "week":
+        return (
+          !!task.due_date && task.due_date >= today && task.due_date <= day(6)
+        );
+      case "none":
+        return !task.due_date;
+      default:
+        return task.due_date === due;
+    }
+  });
 }
 
-export function activeFilterCount(filters: TaskFilters): number {
-  return (
-    Number(!!filters.query.trim()) +
-    Number(!!filters.label) +
-    Number(filters.due !== "any")
-  );
+export function searchCompletion(
+  value: string,
+  caret: number,
+  labels: string[],
+  now = new Date(),
+) {
+  const start = value.slice(0, caret).search(/\S+$/);
+  if (start < 0) return null;
+  const tail = value.slice(caret).search(/\s/);
+  const end = tail < 0 ? value.length : caret + tail;
+  const prefix = value.slice(start, caret);
+  if (prefix.startsWith("#"))
+    return {
+      start,
+      end,
+      kind: "Labels",
+      options: labels
+        .filter((label) =>
+          label.toLowerCase().startsWith(prefix.slice(1).toLowerCase()),
+        )
+        .slice(0, 8)
+        .map((label) => ({ value: `#${label}`, label: `#${label}` })),
+    };
+  if (prefix.toLowerCase().startsWith("due:")) {
+    const part = prefix.slice(4).toLowerCase();
+    return {
+      start,
+      end,
+      kind: "Due date",
+      options: [
+        ...dueOptions.map((option) => ({
+          value: `due:${option.value}`,
+          label: option.label,
+        })),
+        {
+          value: `due:${localDate(now)}`,
+          label: `Exact date · ${localDate(now)}`,
+        },
+      ].filter((option) => option.value.slice(4).startsWith(part)),
+    };
+  }
+  return null;
 }

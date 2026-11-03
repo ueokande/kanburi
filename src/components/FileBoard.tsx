@@ -5,12 +5,8 @@ import { useKanbanState, useSaveStatus } from "../context/BoardContext";
 import { useColumns } from "../hooks/useColumns";
 import { fileName } from "../fileNames";
 import { getAllLabels } from "../utils";
-import {
-  activeFilterCount,
-  emptyTaskFilters,
-  taskMatchesFilters,
-} from "../taskFilters";
-import { BoardFilter } from "./BoardFilter";
+import { parseSearchQuery, taskMatchesFilters } from "../taskFilters";
+import { BoardSearch } from "./BoardSearch";
 
 export function FileBoard({
   onTitleChange,
@@ -20,8 +16,9 @@ export function FileBoard({
   const { board, filePath } = useKanbanState();
   const columns = useColumns();
   const { status } = useSaveStatus();
-  const [filters, setFilters] = useState(emptyTaskFilters);
-  const filtering = activeFilterCount(filters) > 0;
+  const [query, setQuery] = useState("");
+  const filters = parseSearchQuery(query);
+  const filtering = !!query.trim();
   const visibleTasks = board.tasks.filter((task) =>
     taskMatchesFilters(task, filters),
   );
@@ -43,9 +40,10 @@ export function FileBoard({
         >
           {status.error ? "Save failed" : status.pending ? "Saving…" : "Saved"}
         </span>
-        <BoardFilter
-          filters={filters}
-          onChange={setFilters}
+        <BoardSearch
+          query={query}
+          onChange={setQuery}
+          error={filters.errors[0]}
           labels={getAllLabels(board.tasks)}
           matchCount={matchCount}
           total={board.tasks.length}

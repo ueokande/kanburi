@@ -274,19 +274,18 @@ it("can resize open from a button-collapsed sidebar and expand on double-click",
 it("keeps search independent for each open board when switching tabs", async () => {
   render(<App />);
   await screen.findByRole("tab", { name: /work.md/ });
-  fireEvent.click(screen.getByRole("button", { name: "Filter" }));
-  fireEvent.change(screen.getByRole("searchbox"), {
+  fireEvent.click(screen.getByRole("button", { name: "Search" }));
+  fireEvent.change(screen.getByRole("combobox"), {
     target: { value: "work query" },
   });
   fireEvent.click(screen.getByRole("tab", { name: /personal.md/ }));
-  fireEvent.click(screen.getByRole("button", { name: "Filter" }));
-  expect((screen.getByRole("searchbox") as HTMLInputElement).value).toBe("");
-  fireEvent.change(screen.getByRole("searchbox"), {
+  fireEvent.click(screen.getByRole("button", { name: "Search" }));
+  expect((screen.getByRole("combobox") as HTMLInputElement).value).toBe("");
+  fireEvent.change(screen.getByRole("combobox"), {
     target: { value: "personal query" },
   });
   fireEvent.click(screen.getByRole("tab", { name: /work.md/ }));
-  fireEvent.click(screen.getByRole("button", { name: /Filter/ }));
-  expect((screen.getByRole("searchbox") as HTMLInputElement).value).toBe(
+  expect((screen.getByRole("combobox") as HTMLInputElement).value).toBe(
     "work query",
   );
 });

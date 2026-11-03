@@ -47,9 +47,9 @@ function setup() {
       <FileBoard onTitleChange={() => {}} />
     </BoardProvider>,
   );
-  expect(screen.queryByRole("searchbox")).toBeNull();
-  fireEvent.click(screen.getByRole("button", { name: "Filter" }));
-  return screen.getByRole("searchbox", { name: "Search tasks" });
+  expect(screen.queryByRole("combobox")).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Search" }));
+  return screen.getByRole("combobox", { name: "Search tasks" });
 }
 it.each([
   " LOGIN ",
@@ -69,16 +69,16 @@ it("reports no matches and restores all cards via clear or Escape", () => {
   fireEvent.change(search, { target: { value: "absent" } });
   expect(screen.getByText("No tasks match your filters.")).toBeTruthy();
   expect(screen.queryByText("Fix login")).toBeNull();
-  fireEvent.click(screen.getByRole("button", { name: "Clear filters" }));
+  fireEvent.click(screen.getByRole("button", { name: "Clear search" }));
   expect(document.activeElement).toBe(search);
   expect(screen.getByText("Write docs")).toBeTruthy();
   fireEvent.change(search, { target: { value: "login" } });
   fireEvent.keyDown(search, { key: "Escape" });
   expect(screen.queryByRole("dialog")).toBeNull();
   expect(screen.queryByText("Write docs")).toBeNull();
-  fireEvent.click(screen.getByRole("button", { name: /Filter/ }));
-  expect(screen.getByRole("searchbox")).toBeTruthy();
-  fireEvent.change(screen.getByRole("searchbox"), { target: { value: "   " } });
+  fireEvent.click(screen.getByRole("button", { name: /Search/ }));
+  expect(screen.getByRole("combobox")).toBeTruthy();
+  fireEvent.change(screen.getByRole("combobox"), { target: { value: "   " } });
   expect(screen.getByText("Fix login")).toBeTruthy();
 });
 it("preserves hidden tasks when saving a filtered board", async () => {
@@ -95,26 +95,71 @@ it("preserves hidden tasks when saving a filtered board", async () => {
   );
 });
 
-it("combines label and due date filters and keeps them when dismissed", () => {
-  setup();
-  fireEvent.change(screen.getByRole("combobox", { name: "Label" }), {
-    target: { value: "Backend" },
-  });
-  fireEvent.change(screen.getByRole("combobox", { name: "Due date" }), {
-    target: { value: "none" },
-  });
+it("combines label and due tokens and keeps the query when collapsed", () => {
+  const input = setup();
+  fireEvent.change(input, { target: { value: "#Backend due:none " } });
   expect(screen.getByText("1 of 2 tasks")).toBeTruthy();
   expect(screen.queryByText("Write docs")).toBeNull();
-  fireEvent.mouseDown(document.body);
-  expect(screen.queryByRole("dialog")).toBeNull();
-  expect(screen.getByRole("button", { name: /2 active filters/ })).toBeTruthy();
-  fireEvent.click(screen.getByRole("button", { name: /Filter/ }));
-  expect(
-    (screen.getByRole("combobox", { name: "Label" }) as HTMLSelectElement)
-      .value,
-  ).toBe("Backend");
-  fireEvent.click(screen.getByRole("button", { name: "Clear filters" }));
+  fireEvent.click(screen.getByRole("button", { name: "Hide search" }));
+  expect(screen.queryByRole("combobox")).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Search (active)" }));
+  expect((screen.getByRole("combobox") as HTMLInputElement).value).toBe(
+    "#Backend due:none ",
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Clear search" }));
   expect(screen.getByText("Write docs")).toBeTruthy();
-  expect(screen.queryByRole("button", { name: /2 active filters/ })).toBeNull();
   expect(invoke).not.toHaveBeenCalled();
+});
+it("completes existing labels and due values with the keyboard", () => {
+  const input = setup();
+  fireEvent.change(input, {
+    target: { value: "#ba", selectionStart: 3, selectionEnd: 3 },
+  });
+  fireEvent.keyDown(input, { key: "Enter" });
+  expect((input as HTMLInputElement).value).toBe("#Backend ");
+  fireEvent.change(input, {
+    target: { value: "#Backend due:to", selectionStart: 15, selectionEnd: 15 },
+  });
+  expect(screen.getByRole("option", { name: /due:today/ })).toBeTruthy();
+  fireEvent.keyDown(input, { key: "ArrowDown" });
+  fireEvent.keyDown(input, { key: "Tab" });
+  expect((input as HTMLInputElement).value).toBe("#Backend due:tomorrow ");
+});
+it("does not complete tokens while an IME is composing", () => {
+  const input = setup();
+  fireEvent.compositionStart(input);
+  fireEvent.change(input, {
+    target: { value: "#Ba", selectionStart: 3, selectionEnd: 3 },
+  });
+  fireEvent.keyDown(input, { key: "Enter", keyCode: 229 });
+  expect((input as HTMLInputElement).value).toBe("#Ba");
+  fireEvent.compositionEnd(input);
+});
+
+it("replaces the token at the cursor without losing surrounding terms", () => {
+  const input = setup();
+  fireEvent.change(input, {
+    target: { value: "login #Ba due:none", selectionStart: 9, selectionEnd: 9 },
+  });
+  fireEvent.click(screen.getByRole("option", { name: /#Backend/ }));
+  expect((input as HTMLInputElement).value).toBe("login #Backend due:none");
+  expect(screen.getByText("Fix login")).toBeTruthy();
+});
+it("dismisses suggestions before collapsing the search and reports invalid deadlines", () => {
+  const input = setup();
+  fireEvent.change(input, {
+    target: { value: "#", selectionStart: 1, selectionEnd: 1 },
+  });
+  expect(screen.getByRole("listbox")).toBeTruthy();
+  fireEvent.keyDown(input, { key: "Escape" });
+  expect(screen.queryByRole("listbox")).toBeNull();
+  expect(screen.getByRole("combobox")).toBeTruthy();
+  fireEvent.change(input, { target: { value: "due:2026-02-30" } });
+  expect(screen.getByText(/Invalid deadline/)).toBeTruthy();
+  expect(screen.queryByText("Fix login")).toBeNull();
+  fireEvent.keyDown(input, { key: "Escape" });
+  expect(screen.queryByRole("combobox")).toBeNull();
+  expect(document.activeElement).toBe(
+    screen.getByRole("button", { name: "Search (active)" }),
+  );
 });
