@@ -190,3 +190,24 @@ it("drags the sidebar border with pointer capture and stops on pointer cancellat
   fireEvent.pointerMove(separator, { pointerId: 9, clientX: 400 });
   expect(separator.getAttribute("aria-valuenow")).toBe("340");
 });
+
+it("opens workspace settings from the sidebar and restores focus after closing", async () => {
+  render(<App />);
+  await screen.findByRole("tab", { name: /work.md/ });
+  const settings = screen.getByRole("button", { name: "Settings" });
+  fireEvent.click(settings);
+  const dialog = screen.getByRole("dialog", { name: "Settings" });
+  fireEvent.click(
+    within(dialog).getByRole("checkbox", {
+      name: "Restore open files on startup",
+    }),
+  );
+  await waitFor(() =>
+    expect(invoke).toHaveBeenCalledWith("save_settings", {
+      settings: expect.objectContaining({ restoreOnStartup: false }),
+    }),
+  );
+  fireEvent.click(within(dialog).getByRole("button", { name: "Done" }));
+  expect(screen.queryByRole("dialog")).toBeNull();
+  expect(document.activeElement).toBe(settings);
+});

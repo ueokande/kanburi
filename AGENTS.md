@@ -60,7 +60,11 @@ Parser: `src-tauri/src/markdown.rs`
 ### Entry points
 
 - `src/main.tsx` — React root; imports `global.css`
-- `src/App.tsx` — workspace sidebar, settings, and independently mounted board providers per file
+- `src/App.tsx` — workspace layout coordinator
+- `src/components/Sidebar.tsx` / `FileTabs.tsx` / `SidebarResizeHandle.tsx` — file navigation and resizing
+- `src/components/SettingsDialog.tsx` — workspace settings dialog
+- `src/components/WorkspaceContent.tsx` / `FileBoard.tsx` — independent board providers and board presentation
+- `src/components/AppIcon.tsx` — shared application logo from `resources/icon.svg`
 - `src/hooks/useWorkspace.ts` — open/close/select files, startup restoration, ordered settings writes
 - `src/global.css` — global reset, `body`, `#root`
 - `src/types.ts` — shared TypeScript types (`Task`, `Column`, `Board`, `Status`, `LABEL_PALETTE`)

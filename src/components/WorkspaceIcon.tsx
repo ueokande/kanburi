@@ -1,12 +1,8 @@
-export function WorkspaceIcon({
-  name,
-}: {
-  name: "board" | "file" | "settings";
-}) {
+export function WorkspaceIcon({ name }: { name: "file" | "settings" }) {
   return (
     <svg
-      width={name === "board" ? 28 : 20}
-      height={name === "board" ? 28 : 20}
+      width={20}
+      height={20}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -15,38 +11,7 @@ export function WorkspaceIcon({
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      {name === "board" ? (
-        <>
-          <rect
-            x="1"
-            y="2"
-            width="6"
-            height="20"
-            rx="1"
-            fill="currentColor"
-            stroke="none"
-          />
-          <rect
-            x="9"
-            y="2"
-            width="6"
-            height="20"
-            rx="1"
-            fill="currentColor"
-            stroke="none"
-          />
-          <rect
-            x="17"
-            y="2"
-            width="6"
-            height="20"
-            rx="1"
-            fill="currentColor"
-            stroke="none"
-          />
-          <path d="M3 8h2m6 0h2m6 0h2" stroke="white" />
-        </>
-      ) : name === "file" ? (
+      {name === "file" ? (
         <>
           <path d="M14 2H5a1 1 0 0 0-1 1v18a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V8z" />
           <path d="M14 2v6h6M8 12h8M8 16h8" />
