@@ -161,7 +161,7 @@ export function BoardSearch({
                 event.preventDefault();
                 event.stopPropagation();
                 if (options.length) setDismissed(true);
-                else {
+                else if (!query.trim()) {
                   setOpen(false);
                   triggerRef.current?.focus();
                 }

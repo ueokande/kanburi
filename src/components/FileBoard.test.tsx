@@ -70,7 +70,7 @@ it.each([
   expect(screen.getByRole("button", { name: "Done" })).toBeTruthy();
   expect(invoke).not.toHaveBeenCalled();
 });
-it("reports no matches and restores all cards via clear or Escape", () => {
+it("reports no matches and restores all cards via clear", () => {
   const search = setup();
   fireEvent.change(search, { target: { value: "absent" } });
   expect(screen.getByText("No tasks match your filters.")).toBeTruthy();
@@ -82,7 +82,6 @@ it("reports no matches and restores all cards via clear or Escape", () => {
   fireEvent.keyDown(search, { key: "Escape" });
   expect(screen.queryByRole("dialog")).toBeNull();
   expect(screen.queryByText("Write docs")).toBeNull();
-  fireEvent.click(screen.getByRole("button", { name: /Search/ }));
   expect(screen.getByRole("combobox")).toBeTruthy();
   fireEvent.change(screen.getByRole("combobox"), { target: { value: "   " } });
   expect(screen.getByText("Fix login")).toBeTruthy();
@@ -150,7 +149,7 @@ it("replaces the token at the cursor without losing surrounding terms", () => {
   expect((input as HTMLInputElement).value).toBe("login #Backend due:none");
   expect(screen.getByText("Fix login")).toBeTruthy();
 });
-it("dismisses suggestions before collapsing the search and reports invalid deadlines", () => {
+it("dismisses suggestions and keeps a non-empty search open on Escape", () => {
   const input = setup();
   fireEvent.change(input, {
     target: { value: "#", selectionStart: 1, selectionEnd: 1 },
@@ -163,10 +162,8 @@ it("dismisses suggestions before collapsing the search and reports invalid deadl
   expect(input.getAttribute("aria-invalid")).toBe("true");
   expect(screen.queryByText("Fix login")).toBeNull();
   fireEvent.keyDown(input, { key: "Escape" });
-  expect(screen.queryByRole("combobox")).toBeNull();
-  expect(document.activeElement).toBe(
-    screen.getByRole("button", { name: "Search (active)" }),
-  );
+  expect(screen.getByRole("combobox")).toBe(input);
+  expect(document.activeElement).toBe(input);
 });
 
 it("offers qualifiers on empty input and continues directly to values", () => {
