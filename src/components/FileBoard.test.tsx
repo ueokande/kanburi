@@ -61,6 +61,8 @@ it.each([
   expect(screen.getByText("Fix login")).toBeTruthy();
   expect(screen.queryByText("Write docs")).toBeNull();
   expect(screen.getByRole("region", { name: "Done" })).toBeTruthy();
+  expect(screen.getByRole("button", { name: "Todo" })).toBeTruthy();
+  expect(screen.getByRole("button", { name: "Done" })).toBeTruthy();
   expect(invoke).not.toHaveBeenCalled();
 });
 it("reports no matches and restores all cards via clear or Escape", () => {

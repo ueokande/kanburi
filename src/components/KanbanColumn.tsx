@@ -13,9 +13,14 @@ import styles from "./KanbanColumn.module.css";
 interface Props {
   columnName: string;
   visibleTasks?: Task[];
+  showTaskCount?: boolean;
 }
 
-export function KanbanColumn({ columnName, visibleTasks }: Props) {
+export function KanbanColumn({
+  columnName,
+  visibleTasks,
+  showTaskCount = true,
+}: Props) {
   const { board } = useKanbanState();
   const columns = useColumns();
   const add = useAddTask();
@@ -42,7 +47,10 @@ export function KanbanColumn({ columnName, visibleTasks }: Props) {
     >
       <ColumnHeader
         name={columnName}
-        taskCount={tasks.length}
+        taskCount={
+          board.tasks.filter((task) => task.column === columnName).length
+        }
+        showTaskCount={showTaskCount}
         isEditing={columns.editingColumn === columnName}
         editingName={columns.editingName}
         onEditingNameChange={columns.setEditingName}

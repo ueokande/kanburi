@@ -7,6 +7,7 @@ import { PopupMenu, PopupMenuItem } from "./PopupMenu";
 export interface ColumnHeaderProps {
   name: string;
   taskCount: number;
+  showTaskCount?: boolean;
   isEditing: boolean;
   editingName: string;
   onEditingNameChange: (value: string) => void;
@@ -21,6 +22,7 @@ export interface ColumnHeaderProps {
 export function ColumnHeader({
   name,
   taskCount,
+  showTaskCount = true,
   isEditing,
   editingName,
   onEditingNameChange,
@@ -67,7 +69,9 @@ export function ColumnHeader({
           title="Click to rename"
         >
           {name}
-          <span className={styles.taskCount}>{taskCount}</span>
+          {showTaskCount && (
+            <span className={styles.taskCount}>{taskCount}</span>
+          )}
         </button>
       )}
       <PopupMenu label="Column actions" triggerClassName={styles.menuTrigger}>

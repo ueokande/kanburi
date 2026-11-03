@@ -68,6 +68,7 @@ export function FileBoard({
             key={col.name}
             columnName={col.name}
             visibleTasks={visibleTasks}
+            showTaskCount={!filtering}
           />
         ))}
       </div>

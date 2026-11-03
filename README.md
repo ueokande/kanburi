@@ -57,7 +57,7 @@ completed tasks. Invalid deadlines mark the search field as invalid and match no
 Use Up/Down to select a suggestion, Enter or Tab to insert it, or click it. Escape
 first dismisses suggestions, then collapses the search field. The search icon also
 toggles the field; collapsing keeps the query active and shows a blue indicator.
-**Clear search** removes the query. Columns remain visible with matching counts.
+**Clear search** removes the query. Columns remain visible; task counts are hidden while searching.
 Each board keeps its own query until closed. Queries are not saved to Markdown or
 restored after restarting. Editing and dragging filtered cards still saves the
 complete board, including hidden tasks.
