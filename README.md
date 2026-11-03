@@ -65,7 +65,8 @@ restored after restarting. Editing and dragging filtered cards still saves the
 complete board, including hidden tasks.
 
 The search field expands to the left of its icon without adding another header
-row. Open **Board actions** (`•••`) and choose **+ Add column** to add a column.
+row. An empty search field collapses when it loses focus; a non-empty query stays
+visible and active. Open **Board actions** (`•••`) and choose **+ Add column** to add a column.
 The normal saved state is shown as a small check beside the board title; saving
 and failure states remain visible as text.
 

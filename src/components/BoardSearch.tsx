@@ -96,7 +96,10 @@ export function BoardSearch({
               setFocused(true);
               refreshCompletion(event.currentTarget);
             }}
-            onBlur={() => setFocused(false)}
+            onBlur={() => {
+              setFocused(false);
+              if (!query.trim()) setOpen(false);
+            }}
             onCompositionStart={() => {
               composing.props.onCompositionStart();
               setIsComposing(true);

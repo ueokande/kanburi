@@ -277,3 +277,22 @@ it("expands search before the magnifier and shows compact saved status", () => {
   expect(status.textContent).toBe("");
   expect(status.querySelector("svg")).toBeTruthy();
 });
+
+it.each([
+  "",
+  "   ",
+])("collapses an empty search when the field loses focus: %j", (value) => {
+  const input = setup();
+  fireEvent.change(input, { target: { value } });
+  fireEvent.blur(input);
+  expect(screen.queryByRole("combobox", { name: "Search tasks" })).toBeNull();
+  expect(screen.getByRole("button", { name: "Search" })).toBeTruthy();
+});
+
+it("keeps a non-empty search visible when the field loses focus", () => {
+  const input = setup();
+  fireEvent.change(input, { target: { value: "login" } });
+  fireEvent.blur(input);
+  expect(screen.getByRole("combobox", { name: "Search tasks" })).toBeTruthy();
+  expect(screen.getByRole("button", { name: "Hide search" })).toBeTruthy();
+});
