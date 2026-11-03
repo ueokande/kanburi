@@ -4,7 +4,9 @@
   background: #f8f9fc;
 }
 .sidebar {
-  width: 250px;
+  position: relative;
+  width: var(--sidebar-width, 250px);
+  transition: width 220ms cubic-bezier(0.2, 0, 0, 1);
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -209,12 +211,61 @@
   width: 64px;
 }
 .collapsed .brand {
-  padding: 24px 16px;
+  justify-content: center;
+  padding: 24px 0;
 }
 .collapsed .sidebarFooter {
   flex-direction: column;
   padding: 8px;
 }
+.collapsed .sidebarFooter button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 0;
+  flex: none;
+}
+.resizeHandle {
+  position: absolute;
+  inset: 0 -4px 0 auto;
+  width: 8px;
+  z-index: 2;
+  cursor: col-resize;
+  touch-action: none;
+}
+.resizeHandle::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 3px;
+  width: 2px;
+  background: transparent;
+  transition: background 120ms;
+}
+.resizeHandle:hover::after,
+.resizeHandle:focus-visible::after,
+.resizing .resizeHandle::after {
+  background: #0961ef;
+}
+.resizeHandle:focus-visible {
+  outline: none;
+}
+.resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+.resizing .sidebar {
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .resizeHandle::after {
+    transition: none;
+  }
+}
+
 .settings {
   position: fixed;
   inset: 0;
@@ -256,9 +307,6 @@
   cursor: pointer;
 }
 @media (max-width: 720px) {
-  .sidebar {
-    width: 190px;
-  }
   .brand {
     font-size: 20px;
     padding-left: 16px;

@@ -143,3 +143,50 @@ it("has one sidebar open action and no extra action above a collapsed board", as
   fireEvent.click(screen.getByRole("button", { name: "Expand sidebar" }));
   expect(screen.getByRole("tab", { name: /work.md/ })).toBeTruthy();
 });
+
+it("resizes the sidebar with the keyboard and remembers its width across collapse", async () => {
+  render(<App />);
+  await screen.findByRole("tab", { name: /work.md/ });
+  const separator = screen.getByRole("separator", { name: "Resize sidebar" });
+  expect(separator.getAttribute("aria-valuenow")).toBe("250");
+  fireEvent.keyDown(separator, { key: "ArrowRight" });
+  expect(separator.getAttribute("aria-valuenow")).toBe("266");
+  fireEvent.click(screen.getByRole("button", { name: "Collapse sidebar" }));
+  expect(screen.queryByRole("separator")).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Expand sidebar" }));
+  const expanded = screen.getByRole("separator", { name: "Resize sidebar" });
+  expect(expanded.getAttribute("aria-valuenow")).toBe("266");
+  fireEvent.keyDown(expanded, { key: "Home" });
+  expect(expanded.getAttribute("aria-valuenow")).toBe("180");
+  fireEvent.keyDown(expanded, { key: "ArrowLeft" });
+  expect(expanded.getAttribute("aria-valuenow")).toBe("180");
+  fireEvent.doubleClick(expanded);
+  expect(expanded.getAttribute("aria-valuenow")).toBe("250");
+});
+
+it("drags the sidebar border with pointer capture and stops on pointer cancellation", async () => {
+  render(<App />);
+  await screen.findByRole("tab", { name: /work.md/ });
+  const separator = screen.getByRole("separator", { name: "Resize sidebar" });
+  const capture = vi.fn();
+  const release = vi.fn();
+  Object.assign(separator, {
+    setPointerCapture: capture,
+    hasPointerCapture: () => true,
+    releasePointerCapture: release,
+  });
+  fireEvent.pointerDown(separator, { pointerId: 7, button: 0, clientX: 250 });
+  expect(capture).toHaveBeenCalledWith(7);
+  fireEvent.pointerMove(separator, { pointerId: 8, clientX: 450 });
+  expect(separator.getAttribute("aria-valuenow")).toBe("250");
+  fireEvent.pointerMove(separator, { pointerId: 7, clientX: 340 });
+  expect(separator.getAttribute("aria-valuenow")).toBe("340");
+  fireEvent.pointerUp(separator, { pointerId: 7 });
+  expect(release).toHaveBeenCalledWith(7);
+  fireEvent.pointerMove(separator, { pointerId: 7, clientX: 400 });
+  expect(separator.getAttribute("aria-valuenow")).toBe("340");
+  fireEvent.pointerDown(separator, { pointerId: 9, button: 0, clientX: 340 });
+  fireEvent.pointerCancel(separator, { pointerId: 9 });
+  fireEvent.pointerMove(separator, { pointerId: 9, clientX: 400 });
+  expect(separator.getAttribute("aria-valuenow")).toBe("340");
+});

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { KeyboardEvent } from "react";
+import type { CSSProperties, KeyboardEvent } from "react";
 import styles from "./App.module.css";
 import { KanbanColumn } from "./components/KanbanColumn";
 import { WorkspaceIcon } from "./components/WorkspaceIcon";
@@ -10,6 +10,7 @@ import {
   useSaveStatus,
 } from "./context/BoardContext";
 import { useColumns } from "./hooks/useColumns";
+import { useSidebarResize, MIN_SIDEBAR_WIDTH } from "./hooks/useSidebarResize";
 import { useWorkspace } from "./hooks/useWorkspace";
 
 function fileName(path: string) {
@@ -71,6 +72,7 @@ function FileBoard({
 
 function App() {
   const workspace = useWorkspace();
+  const sidebar = useSidebarResize();
   const [showSettings, setShowSettings] = useState(false);
   const tabButtons = useRef(new Map<string, HTMLButtonElement>());
   const settingsButton = useRef<HTMLButtonElement>(null);
@@ -94,9 +96,14 @@ function App() {
 
   return (
     <div
-      className={`${styles.app} ${workspace.sidebarCollapsed ? styles.collapsed : ""}`}
+      className={`${styles.app} ${workspace.sidebarCollapsed ? styles.collapsed : ""} ${sidebar.isResizing ? styles.resizing : ""}`}
+      style={{ "--sidebar-width": `${sidebar.width}px` } as CSSProperties}
     >
-      <aside className={styles.sidebar} aria-label="Files">
+      <aside
+        ref={sidebar.sidebarRef}
+        className={styles.sidebar}
+        aria-label="Files"
+      >
         <div className={styles.brand}>
           <span aria-hidden="true">
             <WorkspaceIcon name="board" />
@@ -186,6 +193,27 @@ function App() {
             {workspace.sidebarCollapsed ? "»" : "«"}
           </button>
         </footer>
+        {!workspace.sidebarCollapsed && (
+          // biome-ignore lint/a11y/useSemanticElements: An adjustable window splitter is not a thematic break.
+          <div
+            role="separator"
+            aria-label="Resize sidebar"
+            title="Drag to resize; double-click to reset"
+            aria-orientation="vertical"
+            aria-valuemin={MIN_SIDEBAR_WIDTH}
+            aria-valuemax={sidebar.maxWidth}
+            aria-valuenow={Math.round(sidebar.width)}
+            tabIndex={0}
+            className={styles.resizeHandle}
+            onPointerDown={sidebar.onPointerDown}
+            onPointerMove={sidebar.onPointerMove}
+            onPointerUp={sidebar.onPointerUp}
+            onPointerCancel={sidebar.stopResizing}
+            onLostPointerCapture={sidebar.stopResizing}
+            onKeyDown={sidebar.onKeyDown}
+            onDoubleClick={sidebar.resetWidth}
+          />
+        )}
       </aside>
       <main className={styles.main}>
         {workspace.error && (
