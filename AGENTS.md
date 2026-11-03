@@ -36,6 +36,7 @@ The board is serialized as:
 - [x] Completed task #label
 ```
 
+- First nonempty H1 → optional document title (`Board.title`), shown in file tabs and the board header; preserve it on saves and use the filename when absent.
 - `##` heading → column
 - `- [ ]` / `- [x]` → task (todo / done)
 - `#Word` inline → label

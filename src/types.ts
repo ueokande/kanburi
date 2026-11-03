@@ -15,6 +15,7 @@ export interface Column {
 }
 
 export interface Board {
+  title?: string | null;
   columns: Column[];
   tasks: Task[];
 }

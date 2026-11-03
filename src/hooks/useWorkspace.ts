@@ -195,6 +195,24 @@ export function useWorkspace() {
     }
   }, [loadPaths]);
 
+  const updateTitle = useCallback(
+    (path: string, title: string | null | undefined) => {
+      setWorkspace((previous) => {
+        const tab = previous.tabs.find((tab) => tab.path === path);
+        if (!tab || tab.board.title === title) return previous;
+        return {
+          ...previous,
+          tabs: previous.tabs.map((tab) =>
+            tab.path === path
+              ? { ...tab, board: { ...tab.board, title } }
+              : tab,
+          ),
+        };
+      });
+    },
+    [],
+  );
+
   function closeFile(path: string) {
     setWorkspace((previous) => {
       const index = previous.tabs.findIndex((tab) => tab.path === path);
@@ -220,6 +238,7 @@ export function useWorkspace() {
     openFiles,
     loadPaths,
     closeFile,
+    updateTitle,
     selectFile: (path: string) =>
       setWorkspace((previous) => ({ ...previous, activeFile: path })),
     setRestoreOnStartup: (value: boolean) =>

@@ -376,3 +376,23 @@ describe("REMOVE_LABEL", () => {
     expect(next.board.tasks[0].labels).toEqual(["Feature"]);
   });
 });
+
+it("keeps the document title when renaming and deleting columns", () => {
+  const state = stateWith({
+    title: "Roadmap",
+    columns: [{ name: "Todo" }],
+    tasks: [task("first", "Todo")],
+  });
+  const renamed = kanbanReducer(state, {
+    type: "RENAME_COLUMN",
+    oldName: "Todo",
+    newName: "Planned",
+  });
+  expect(renamed.board.title).toBe("Roadmap");
+  expect(renamed.board.tasks[0].column).toBe("Planned");
+  const deleted = kanbanReducer(renamed, {
+    type: "DELETE_COLUMN",
+    name: "Planned",
+  });
+  expect(deleted.board.title).toBe("Roadmap");
+});

@@ -15,33 +15,14 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 28px 22px 36px;
+  padding: 26px 22px 24px;
   font-size: 24px;
   font-weight: 750;
   color: #141924;
 }
 .brand span {
   color: #0961ef;
-  font-size: 34px;
-}
-.sidebarHeading {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 18px 12px 22px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #596174;
-}
-.sidebarHeading button {
-  border: 1px solid #d0d6e1;
-  border-radius: 6px;
-  background: #fafbff;
-  color: #596174;
-  width: 28px;
-  height: 28px;
-  font-size: 23px;
-  cursor: pointer;
 }
 .fileList {
   overflow-y: auto;
@@ -70,9 +51,6 @@
   text-align: left;
   cursor: pointer;
   font-size: 16px;
-}
-.fileTab > span:first-child {
-  font-size: 23px;
 }
 .fileLabel {
   display: flex;
@@ -231,15 +209,6 @@
   flex-direction: column;
   padding: 8px;
 }
-.collapsedOpen {
-  align-self: flex-start;
-  margin: 12px 20px 0;
-  padding: 6px 10px;
-  border: 1px solid #d4d9e3;
-  background: #fff;
-  border-radius: 6px;
-  cursor: pointer;
-}
 .settings {
   position: fixed;
   inset: 0;
@@ -297,12 +266,48 @@
   }
 }
 .saveStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   color: #5d687a;
   font-size: 13px;
   white-space: nowrap;
 }
-.saveStatus::first-letter {
-  color: #299c40;
+.saveStatus::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #299c40;
+}
+.saveFailed::before {
+  background: #c23d32;
+}
+.saving::before {
+  background: #b77d13;
+}
+.selected:hover {
+  background: #d7e5ff;
+}
+.sidebar button:focus-visible,
+.addColBtn:focus-visible {
+  outline: 2px solid #0961ef;
+  outline-offset: -2px;
+}
+.openFileBtn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+@media (max-width: 540px) {
+  .appHeader {
+    flex-wrap: wrap;
+  }
+  .fileHeading {
+    flex-basis: 100%;
+  }
+  .addColBtn {
+    margin-left: auto;
+  }
 }
 
 .fileTab svg {

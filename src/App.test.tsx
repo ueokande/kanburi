@@ -91,3 +91,55 @@ it("supports keyboard tab selection and returning to welcome after closing all f
     await screen.findByText("Open a Markdown file to get started."),
   ).toBeTruthy();
 });
+
+it("uses the Markdown H1 in the sidebar and board header, and preserves it on save", async () => {
+  const original = invoke.getMockImplementation();
+  invoke.mockImplementation(async (command, args) => {
+    if (command === "load_file")
+      return {
+        title: args.path === "/work.md" ? "Project roadmap" : null,
+        columns: [{ name: "To Do" }],
+        tasks: [],
+      };
+    return original?.(command, args);
+  });
+  render(<App />);
+  const tab = await screen.findByRole("tab", { name: /Project roadmap/ });
+  expect(tab.textContent).toContain("/work.md");
+  expect(
+    within(screen.getByRole("tabpanel")).getByRole("heading", {
+      name: "Project roadmap",
+    }),
+  ).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "+ Add column" }));
+  await waitFor(() =>
+    expect(invoke).toHaveBeenCalledWith(
+      "save_current_board",
+      expect.objectContaining({
+        path: "/work.md",
+        board: expect.objectContaining({ title: "Project roadmap" }),
+      }),
+    ),
+  );
+  fireEvent.click(screen.getByRole("tab", { name: /personal.md/ }));
+  expect(
+    within(screen.getByRole("tabpanel")).getByRole("heading", {
+      name: "personal.md",
+    }),
+  ).toBeTruthy();
+});
+
+it("has one sidebar open action and no extra action above a collapsed board", async () => {
+  render(<App />);
+  await screen.findByRole("tab", { name: /work.md/ });
+  expect(screen.queryByText("OPEN FILES")).toBeNull();
+  expect(screen.getAllByRole("button", { name: /Open file/ })).toHaveLength(1);
+  fireEvent.click(screen.getByRole("button", { name: "Collapse sidebar" }));
+  expect(screen.queryByRole("button", { name: "Show open files" })).toBeNull();
+  expect(screen.getByRole("button", { name: "Expand sidebar" })).toBeTruthy();
+  expect(screen.getByRole("tabpanel").getAttribute("aria-label")).toBe(
+    "work.md",
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Expand sidebar" }));
+  expect(screen.getByRole("tab", { name: /work.md/ })).toBeTruthy();
+});

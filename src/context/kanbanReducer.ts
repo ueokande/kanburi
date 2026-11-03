@@ -117,6 +117,7 @@ export function kanbanReducer(
       return {
         ...state,
         board: {
+          ...state.board,
           columns: state.board.columns.map((c) =>
             c.name === oldName ? { name: newName } : c,
           ),
@@ -131,6 +132,7 @@ export function kanbanReducer(
       return {
         ...state,
         board: {
+          ...state.board,
           columns: state.board.columns.filter((c) => c.name !== action.name),
           tasks: state.board.tasks.filter((t) => t.column !== action.name),
         },

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 import styles from "./App.module.css";
 import { KanbanColumn } from "./components/KanbanColumn";
@@ -22,23 +22,30 @@ function directory(path: string) {
   );
 }
 
-function FileBoard() {
+function FileBoard({
+  onTitleChange,
+}: {
+  onTitleChange: (path: string, title: string | null | undefined) => void;
+}) {
   const { board, filePath } = useKanbanState();
   const columns = useColumns();
   const { status } = useSaveStatus();
+  const title = board.title?.trim() || fileName(filePath ?? "");
+  useEffect(() => {
+    if (filePath) onTitleChange(filePath, board.title);
+  }, [filePath, board.title, onTitleChange]);
   return (
     <>
       <header className={styles.appHeader}>
         <div className={styles.fileHeading}>
-          <h1>{fileName(filePath ?? "")}</h1>
+          <h1 title={title}>{title}</h1>
           <p title={filePath ?? ""}>{filePath}</p>
         </div>
-        <span className={styles.saveStatus} role="status">
-          {status.error
-            ? "Save failed"
-            : status.pending
-              ? "Saving…"
-              : "● Saved"}
+        <span
+          className={`${styles.saveStatus} ${status.error ? styles.saveFailed : status.pending ? styles.saving : ""}`}
+          role="status"
+        >
+          {status.error ? "Save failed" : status.pending ? "Saving…" : "Saved"}
         </span>
         <button
           type="button"
@@ -98,17 +105,6 @@ function App() {
         </div>
         {!workspace.sidebarCollapsed && (
           <>
-            <div className={styles.sidebarHeading}>
-              <span>OPEN FILES</span>
-              <button
-                type="button"
-                aria-label="Open files"
-                onClick={workspace.openFiles}
-                disabled={!workspace.ready || workspace.isOpening}
-              >
-                +
-              </button>
-            </div>
             <div
               role="tablist"
               aria-label="Open files"
@@ -128,7 +124,7 @@ function App() {
                     aria-selected={tab.path === workspace.activeFile}
                     tabIndex={tab.path === workspace.activeFile ? 0 : -1}
                     className={styles.fileTab}
-                    title={tab.path}
+                    title={`${tab.board.title?.trim() || fileName(tab.path)}\n${tab.path}`}
                     onClick={() => workspace.selectFile(tab.path)}
                     onKeyDown={(event) => navigateTabs(event, index)}
                     ref={(element) => {
@@ -138,14 +134,20 @@ function App() {
                   >
                     <WorkspaceIcon name="file" />
                     <span className={styles.fileLabel}>
-                      <strong>{fileName(tab.path)}</strong>
-                      <small>{directory(tab.path)}</small>
+                      <strong>
+                        {tab.board.title?.trim() || fileName(tab.path)}
+                      </strong>
+                      <small>
+                        {tab.board.title?.trim()
+                          ? tab.path
+                          : directory(tab.path)}
+                      </small>
                     </span>
                   </button>
                   <button
                     type="button"
                     className={styles.closeFile}
-                    aria-label={`Close ${fileName(tab.path)}`}
+                    aria-label={`Close ${tab.board.title?.trim() || fileName(tab.path)}`}
                     title={`Close ${tab.path}`}
                     onClick={() => workspace.closeFile(tab.path)}
                   >
@@ -186,15 +188,6 @@ function App() {
         </footer>
       </aside>
       <main className={styles.main}>
-        {workspace.sidebarCollapsed && (
-          <button
-            className={styles.collapsedOpen}
-            type="button"
-            onClick={workspace.toggleSidebar}
-          >
-            Show open files
-          </button>
-        )}
         {workspace.error && (
           <p role="alert" className={styles.error}>
             {workspace.error}
@@ -238,7 +231,9 @@ function App() {
               workspace.sidebarCollapsed ? undefined : `file-tab-${index}`
             }
             aria-label={
-              workspace.sidebarCollapsed ? fileName(tab.path) : undefined
+              workspace.sidebarCollapsed
+                ? tab.board.title?.trim() || fileName(tab.path)
+                : undefined
             }
             hidden={tab.path !== workspace.activeFile}
             className={styles.panel}
@@ -250,7 +245,7 @@ function App() {
                 isLoading: false,
               }}
             >
-              <FileBoard />
+              <FileBoard onTitleChange={workspace.updateTitle} />
             </BoardProvider>
           </section>
         ))}
