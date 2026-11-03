@@ -143,7 +143,8 @@
 .appHeader {
   width: 100%;
   min-width: 0;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 20px;
   padding: 24px 24px 18px;
@@ -354,10 +355,10 @@
 }
 @media (max-width: 540px) {
   .appHeader {
-    flex-wrap: wrap;
+    grid-template-columns: minmax(0, 1fr) auto;
   }
   .fileHeading {
-    flex-basis: 100%;
+    grid-column: 1 / -1;
   }
   .addColBtn {
     margin-left: auto;
