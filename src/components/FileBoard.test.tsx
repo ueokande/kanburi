@@ -51,6 +51,11 @@ function setup() {
   fireEvent.click(screen.getByRole("button", { name: "Search" }));
   return screen.getByRole("combobox", { name: "Search tasks" });
 }
+
+function addColumn() {
+  fireEvent.click(screen.getByRole("button", { name: "Board actions" }));
+  fireEvent.click(screen.getByRole("button", { name: "+ Add column" }));
+}
 it.each([
   " LOGIN ",
   "session",
@@ -85,7 +90,7 @@ it("reports no matches and restores all cards via clear or Escape", () => {
 it("preserves hidden tasks when saving a filtered board", async () => {
   const search = setup();
   fireEvent.change(search, { target: { value: "login" } });
-  fireEvent.click(screen.getByRole("button", { name: "+ Add column" }));
+  addColumn();
   await waitFor(() =>
     expect(invoke).toHaveBeenCalledWith(
       "save_current_board",
@@ -252,4 +257,23 @@ it("uses the final DOM cursor position after a space key, even if selection even
   fireEvent.keyUp(input, { key: " ", code: "Space" });
   expect(screen.getByRole("option", { name: "# Label" })).toBeTruthy();
   expect(screen.getByRole("option", { name: "due: Due date" })).toBeTruthy();
+});
+
+it("keeps secondary column creation in the board actions menu", () => {
+  setup();
+  expect(screen.queryByRole("button", { name: "+ Add column" })).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Board actions" }));
+  expect(screen.getByRole("button", { name: "+ Add column" })).toBeTruthy();
+});
+
+it("expands search before the magnifier and shows compact saved status", () => {
+  setup();
+  const input = screen.getByRole("combobox", { name: "Search tasks" });
+  const trigger = screen.getByRole("button", { name: "Hide search" });
+  expect(
+    input.compareDocumentPosition(trigger) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  const status = screen.getByRole("status", { name: "Saved" });
+  expect(status.textContent).toBe("");
+  expect(status.querySelector("svg")).toBeTruthy();
 });

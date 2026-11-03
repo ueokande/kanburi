@@ -64,6 +64,11 @@ Each board keeps its own query until closed. Queries are not saved to Markdown o
 restored after restarting. Editing and dragging filtered cards still saves the
 complete board, including hidden tasks.
 
+The search field expands to the left of its icon without adding another header
+row. Open **Board actions** (`•••`) and choose **+ Add column** to add a column.
+The normal saved state is shown as a small check beside the board title; saving
+and failure states remain visible as text.
+
 ## Markdown file format
 
 ```markdown

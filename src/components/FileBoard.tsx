@@ -7,6 +7,7 @@ import { fileName } from "../fileNames";
 import { getAllLabels } from "../utils";
 import { parseSearchQuery, taskMatchesFilters } from "../taskFilters";
 import { BoardSearch } from "./BoardSearch";
+import { PopupMenu, PopupMenuItem } from "./PopupMenu";
 
 export function FileBoard({
   onTitleChange,
@@ -31,28 +32,64 @@ export function FileBoard({
     <>
       <header className={styles.appHeader}>
         <div className={styles.fileHeading}>
-          <h1 title={title}>{title}</h1>
+          <div className={styles.titleLine}>
+            <h1 title={title}>{title}</h1>
+            <span
+              className={`${styles.saveStatus} ${status.error ? styles.saveFailed : status.pending ? styles.saving : styles.saved}`}
+              role="status"
+              aria-label={
+                status.error
+                  ? "Save failed"
+                  : status.pending
+                    ? "Saving"
+                    : "Saved"
+              }
+              title={
+                status.error
+                  ? "Save failed"
+                  : status.pending
+                    ? "Saving…"
+                    : "Saved"
+              }
+            >
+              {status.error ? (
+                "Save failed"
+              ) : status.pending ? (
+                "Saving…"
+              ) : (
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="m6 12 4 4 8-8" />
+                </svg>
+              )}
+            </span>
+          </div>
           <p title={filePath ?? ""}>{filePath}</p>
         </div>
-        <span
-          className={`${styles.saveStatus} ${status.error ? styles.saveFailed : status.pending ? styles.saving : ""}`}
-          role="status"
-        >
-          {status.error ? "Save failed" : status.pending ? "Saving…" : "Saved"}
-        </span>
         <BoardSearch
           query={query}
           onChange={setQuery}
           invalid={filters.errors.length > 0}
           labels={getAllLabels(board.tasks)}
         />
-        <button
-          type="button"
-          className={styles.addColBtn}
-          onClick={columns.addColumn}
+        <PopupMenu
+          label="Board actions"
+          className={styles.boardMenu}
+          triggerClassName={styles.boardMenuTrigger}
         >
-          + Add column
-        </button>
+          <PopupMenuItem onClick={columns.addColumn}>
+            + Add column
+          </PopupMenuItem>
+        </PopupMenu>
       </header>
       {filtering && matchCount === 0 && (
         <p className={styles.noMatches}>No tasks match your filters.</p>

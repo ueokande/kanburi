@@ -39,6 +39,11 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
+function addColumn() {
+  fireEvent.click(screen.getByRole("button", { name: "Board actions" }));
+  fireEvent.click(screen.getByRole("button", { name: "+ Add column" }));
+}
+
 it("keeps an asynchronous edit bound to its original file when switching tabs", async () => {
   render(<App />);
   await screen.findByRole("tab", { name: /work.md/ });
@@ -49,7 +54,7 @@ it("keeps an asynchronous edit bound to its original file when switching tabs", 
         finishSave = resolve;
       }),
   );
-  fireEvent.click(screen.getByRole("button", { name: "+ Add column" }));
+  addColumn();
   await waitFor(() => expect(finishSave).toBeDefined());
   expect(invoke).toHaveBeenCalledWith(
     "save_current_board",
@@ -111,7 +116,7 @@ it("uses the Markdown H1 in the sidebar and board header, and preserves it on sa
       name: "Project roadmap",
     }),
   ).toBeTruthy();
-  fireEvent.click(screen.getByRole("button", { name: "+ Add column" }));
+  addColumn();
   await waitFor(() =>
     expect(invoke).toHaveBeenCalledWith(
       "save_current_board",
