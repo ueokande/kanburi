@@ -1,6 +1,7 @@
 import { expect, it } from "vitest";
 import type { Task } from "./types";
 import {
+  applySearchCompletion,
   parseSearchQuery,
   searchCompletion,
   taskMatchesFilters,
@@ -107,4 +108,15 @@ it("finds the token at the cursor and preserves its full replacement range", () 
   expect(
     searchCompletion("due:to", 6, [], now)?.options.map((o) => o.value),
   ).toEqual(["due:today", "due:tomorrow"]);
+});
+it("applies a completion while preserving surrounding tokens and caret position", () => {
+  const query = "login #Ba due:none";
+  const completion = searchCompletion(query, 9, ["Backend"], now);
+  if (!completion) throw new Error("Expected a label completion");
+  expect(
+    applySearchCompletion(query, completion, completion.options[0]),
+  ).toEqual({
+    query: "login #Backend due:none",
+    caret: 15,
+  });
 });

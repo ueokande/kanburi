@@ -7,6 +7,22 @@ export interface SearchQuery {
   dueDates: string[];
   errors: string[];
 }
+export interface SearchCompletionOption {
+  value: string;
+  label: string;
+  continue: boolean;
+}
+export interface SearchCompletion {
+  start: number;
+  end: number;
+  kind: "Filters" | "Labels" | "Due date";
+  options: SearchCompletionOption[];
+}
+export interface AppliedSearchCompletion {
+  query: string;
+  caret: number;
+}
+
 export const dueOptions = [
   { value: "overdue", label: "Overdue" },
   { value: "today", label: "Today" },
@@ -81,7 +97,7 @@ export function searchCompletion(
   caret: number,
   labels: string[],
   now = new Date(),
-) {
+): SearchCompletion | null {
   const tokenStart = value.slice(0, caret).search(/\S+$/);
   const start = tokenStart < 0 ? caret : tokenStart;
   const tail = value.slice(caret).search(/\s/);
@@ -128,4 +144,18 @@ export function searchCompletion(
     { value: "due:", label: "Due date", continue: true },
   ].filter((option) => option.value.startsWith(prefix.toLowerCase()));
   return options.length ? { start, end, kind: "Filters", options } : null;
+}
+
+export function applySearchCompletion(
+  query: string,
+  completion: SearchCompletion,
+  option: SearchCompletionOption,
+): AppliedSearchCompletion {
+  const suffix = query.slice(completion.end);
+  const separator = option.continue || /^\s/.test(suffix) ? "" : " ";
+  const nextTokenOffset = option.continue ? 0 : 1;
+  return {
+    query: query.slice(0, completion.start) + option.value + separator + suffix,
+    caret: completion.start + option.value.length + nextTokenOffset,
+  };
 }

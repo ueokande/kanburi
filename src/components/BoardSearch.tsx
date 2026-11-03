@@ -1,19 +1,27 @@
+import type {
+  ChangeEvent,
+  CompositionEvent,
+  KeyboardEvent,
+  SyntheticEvent,
+} from "react";
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { useComposing } from "../hooks/useComposing";
-import { searchCompletion } from "../taskFilters";
+import { applySearchCompletion, searchCompletion } from "../taskFilters";
 import styles from "./BoardSearch.module.css";
+
+interface BoardSearchProps {
+  query: string;
+  onChange: (query: string) => void;
+  labels: string[];
+  invalid?: boolean;
+}
 
 export function BoardSearch({
   query,
   onChange,
   labels,
   invalid,
-}: {
-  query: string;
-  onChange: (query: string) => void;
-  labels: string[];
-  invalid?: boolean;
-}) {
+}: BoardSearchProps) {
   const [open, setOpen] = useState(false);
   const [caret, setCaret] = useState(query.length);
   const [highlight, setHighlight] = useState(0);
@@ -38,7 +46,9 @@ export function BoardSearch({
       ? searchCompletion(query, caret, labels)
       : null;
   const options = completion?.options ?? [];
-  const selected = Math.min(highlight, options.length - 1);
+  const hasOptions = options.length > 0;
+  const hasQuery = query.trim().length > 0;
+  const selected = hasOptions ? Math.min(highlight, options.length - 1) : 0;
   useEffect(() => {
     if (open) inputRef.current?.focus();
   }, [open]);
@@ -56,17 +66,69 @@ export function BoardSearch({
   function choose(index: number) {
     const option = options[index];
     if (!completion || !option) return;
-    const suffix = query.slice(completion.end);
-    const separator = option.continue || /^\s/.test(suffix) ? "" : " ";
-    const text =
-      query.slice(0, completion.start) + option.value + separator + suffix;
-    const position =
-      completion.start + option.value.length + (option.continue ? 0 : 1);
-    pendingCaret.current = position;
-    onChange(text);
-    setCaret(position);
+    const applied = applySearchCompletion(query, completion, option);
+    pendingCaret.current = applied.caret;
+    onChange(applied.query);
+    setCaret(applied.caret);
     setDismissed(false);
     setHighlight(0);
+  }
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    onChange(event.target.value);
+    setCaret(event.target.selectionStart ?? event.target.value.length);
+    setHighlight(0);
+    setDismissed(false);
+  }
+  function handleSelect(event: SyntheticEvent<HTMLInputElement>) {
+    const input = event.currentTarget;
+    setCaret(input.selectionStart ?? query.length);
+    if (input.selectionStart !== input.selectionEnd) setDismissed(true);
+  }
+  function handleCompositionEnd(event: CompositionEvent<HTMLInputElement>) {
+    composing.props.onCompositionEnd();
+    setIsComposing(false);
+    refreshCompletion(event.currentTarget);
+    // WebViews can finalize the caret after compositionend.
+    requestAnimationFrame(() => {
+      if (inputRef.current) refreshCompletion(inputRef.current);
+    });
+  }
+  function handleKeyUp(event: KeyboardEvent<HTMLInputElement>) {
+    if (
+      !composing.isComposing(event) &&
+      (event.code === "Space" || event.key === " " || event.key === "　")
+    ) {
+      refreshCompletion(event.currentTarget);
+    }
+  }
+  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (composing.isComposing(event)) return;
+    if (hasOptions && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
+      event.preventDefault();
+      const direction = event.key === "ArrowDown" ? 1 : -1;
+      setHighlight((selected + direction + options.length) % options.length);
+      return;
+    }
+    if (hasOptions && (event.key === "Enter" || event.key === "Tab")) {
+      event.preventDefault();
+      choose(selected);
+      return;
+    }
+    if (event.key !== "Escape") return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (hasOptions) {
+      setDismissed(true);
+    } else if (!hasQuery) {
+      setOpen(false);
+      triggerRef.current?.focus();
+    }
+  }
+  function clearSearch() {
+    onChange("");
+    setCaret(0);
+    setDismissed(false);
+    inputRef.current?.focus();
   }
   return (
     <div className={`${styles.wrap} ${open ? styles.expanded : ""}`}>
@@ -85,10 +147,10 @@ export function BoardSearch({
             aria-label="Search tasks"
             aria-invalid={invalid || undefined}
             aria-autocomplete="list"
-            aria-expanded={options.length > 0}
-            aria-controls={options.length ? `${id}-options` : undefined}
+            aria-expanded={hasOptions}
+            aria-controls={hasOptions ? `${id}-options` : undefined}
             aria-activedescendant={
-              options.length ? `${id}-option-${selected}` : undefined
+              hasOptions ? `${id}-option-${selected}` : undefined
             }
             placeholder="Search tasks"
             value={query}
@@ -104,86 +166,24 @@ export function BoardSearch({
               composing.props.onCompositionStart();
               setIsComposing(true);
             }}
-            onCompositionEnd={(event) => {
-              composing.props.onCompositionEnd();
-              setIsComposing(false);
-              refreshCompletion(event.currentTarget);
-              // WebViews can finalize the caret after compositionend.
-              requestAnimationFrame(() => {
-                if (inputRef.current) refreshCompletion(inputRef.current);
-              });
-            }}
-            onChange={(event) => {
-              onChange(event.target.value);
-              setCaret(
-                event.target.selectionStart ?? event.target.value.length,
-              );
-              setHighlight(0);
-              setDismissed(false);
-            }}
-            onSelect={(event) => {
-              const input = event.currentTarget;
-              setCaret(input.selectionStart ?? query.length);
-              if (input.selectionStart !== input.selectionEnd)
-                setDismissed(true);
-            }}
+            onCompositionEnd={handleCompositionEnd}
+            onChange={handleChange}
+            onSelect={handleSelect}
             onClick={() => setDismissed(false)}
-            onKeyUp={(event) => {
-              if (
-                !composing.isComposing(event) &&
-                (event.code === "Space" ||
-                  event.key === " " ||
-                  event.key === "　")
-              ) {
-                refreshCompletion(event.currentTarget);
-              }
-            }}
-            onKeyDown={(event) => {
-              if (composing.isComposing(event)) return;
-              if (
-                options.length &&
-                (event.key === "ArrowDown" || event.key === "ArrowUp")
-              ) {
-                event.preventDefault();
-                setHighlight(
-                  (selected +
-                    (event.key === "ArrowDown" ? 1 : -1) +
-                    options.length) %
-                    options.length,
-                );
-              } else if (
-                options.length &&
-                (event.key === "Enter" || event.key === "Tab")
-              ) {
-                event.preventDefault();
-                choose(selected);
-              } else if (event.key === "Escape") {
-                event.preventDefault();
-                event.stopPropagation();
-                if (options.length) setDismissed(true);
-                else if (!query.trim()) {
-                  setOpen(false);
-                  triggerRef.current?.focus();
-                }
-              }
-            }}
+            onKeyUp={handleKeyUp}
+            onKeyDown={handleKeyDown}
           />
           {query && (
             <button
               type="button"
               className={styles.clear}
               aria-label="Clear search"
-              onClick={() => {
-                onChange("");
-                setCaret(0);
-                setDismissed(false);
-                inputRef.current?.focus();
-              }}
+              onClick={clearSearch}
             >
               ×
             </button>
           )}
-          {options.length > 0 && (
+          {hasOptions && (
             <div className={styles.suggestions}>
               <div className={styles.group}>{completion?.kind}</div>
               <div
@@ -218,12 +218,12 @@ export function BoardSearch({
       <button
         ref={triggerRef}
         type="button"
-        className={`${styles.trigger} ${query.trim() ? styles.active : ""}`}
+        className={`${styles.trigger} ${hasQuery ? styles.active : ""}`}
         aria-label={
-          open ? "Hide search" : query.trim() ? "Search (active)" : "Search"
+          open ? "Hide search" : hasQuery ? "Search (active)" : "Search"
         }
         aria-expanded={open}
-        onClick={() => setOpen(!open)}
+        onClick={() => setOpen((expanded) => !expanded)}
       >
         <svg
           viewBox="0 0 24 24"
@@ -238,7 +238,7 @@ export function BoardSearch({
           <circle cx="10.5" cy="10.5" r="6.5" />
           <path d="m16 16 4.5 4.5" />
         </svg>
-        {query.trim() && <span className={styles.dot} />}
+        {hasQuery && <span className={styles.dot} />}
       </button>
     </div>
   );
