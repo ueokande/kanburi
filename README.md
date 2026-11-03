@@ -52,7 +52,7 @@ space after free text or a filter does the same. Typing `#` suggests existing la
 the current board. Typing `due:` suggests `overdue`, `today`, `tomorrow`, `week`
 (today through six days from now), `none`, and today's date. You can also type an
 exact date, such as `due:2026-11-03`. Dates use your local calendar and include
-completed tasks. Invalid deadlines show a hint and match no tasks.
+completed tasks. Invalid deadlines mark the search field as invalid and match no tasks.
 
 Use Up/Down to select a suggestion, Enter or Tab to insert it, or click it. Escape
 first dismisses suggestions, then collapses the search field. The search icon also

@@ -7,16 +7,12 @@ export function BoardSearch({
   query,
   onChange,
   labels,
-  matchCount,
-  total,
-  error,
+  invalid,
 }: {
   query: string;
   onChange: (query: string) => void;
   labels: string[];
-  matchCount: number;
-  total: number;
-  error?: string;
+  invalid?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [caret, setCaret] = useState(query.length);
@@ -81,6 +77,7 @@ export function BoardSearch({
             type="text"
             role="combobox"
             aria-label="Search tasks"
+            aria-invalid={invalid || undefined}
             aria-autocomplete="list"
             aria-expanded={options.length > 0}
             aria-controls={options.length ? `${id}-options` : undefined}
@@ -207,13 +204,6 @@ export function BoardSearch({
               </div>
             </div>
           )}
-          <span
-            role="status"
-            aria-live="polite"
-            className={error ? styles.error : styles.count}
-          >
-            {error ?? `${matchCount} of ${total} tasks`}
-          </span>
         </div>
       )}
       <button

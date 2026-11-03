@@ -43,10 +43,8 @@ export function FileBoard({
         <BoardSearch
           query={query}
           onChange={setQuery}
-          error={filters.errors[0]}
+          invalid={filters.errors.length > 0}
           labels={getAllLabels(board.tasks)}
-          matchCount={matchCount}
-          total={board.tasks.length}
         />
         <button
           type="button"

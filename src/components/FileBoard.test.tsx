@@ -60,7 +60,6 @@ it.each([
   fireEvent.change(search, { target: { value: query } });
   expect(screen.getByText("Fix login")).toBeTruthy();
   expect(screen.queryByText("Write docs")).toBeNull();
-  expect(screen.getByText("1 of 2 tasks")).toBeTruthy();
   expect(screen.getByRole("region", { name: "Done" })).toBeTruthy();
   expect(invoke).not.toHaveBeenCalled();
 });
@@ -98,7 +97,6 @@ it("preserves hidden tasks when saving a filtered board", async () => {
 it("combines label and due tokens and keeps the query when collapsed", () => {
   const input = setup();
   fireEvent.change(input, { target: { value: "#Backend due:none " } });
-  expect(screen.getByText("1 of 2 tasks")).toBeTruthy();
   expect(screen.queryByText("Write docs")).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: "Hide search" }));
   expect(screen.queryByRole("combobox")).toBeNull();
@@ -155,7 +153,7 @@ it("dismisses suggestions before collapsing the search and reports invalid deadl
   expect(screen.queryByRole("listbox")).toBeNull();
   expect(screen.getByRole("combobox")).toBeTruthy();
   fireEvent.change(input, { target: { value: "due:2026-02-30" } });
-  expect(screen.getByText(/Invalid deadline/)).toBeTruthy();
+  expect(input.getAttribute("aria-invalid")).toBe("true");
   expect(screen.queryByText("Fix login")).toBeNull();
   fireEvent.keyDown(input, { key: "Escape" });
   expect(screen.queryByRole("combobox")).toBeNull();
