@@ -1,4 +1,4 @@
-import { MIN_SIDEBAR_WIDTH } from "../hooks/useSidebarResize";
+import { COLLAPSED_SIDEBAR_WIDTH } from "../hooks/useSidebarResize";
 import type { useSidebarResize } from "../hooks/useSidebarResize";
 import styles from "./Sidebar.module.css";
 
@@ -14,7 +14,7 @@ export function SidebarResizeHandle({
       aria-label="Resize sidebar"
       title="Drag to resize; double-click to reset"
       aria-orientation="vertical"
-      aria-valuemin={MIN_SIDEBAR_WIDTH}
+      aria-valuemin={COLLAPSED_SIDEBAR_WIDTH}
       aria-valuemax={resize.maxWidth}
       aria-valuenow={Math.round(resize.width)}
       tabIndex={0}

@@ -152,14 +152,16 @@ it("resizes the sidebar with the keyboard and remembers its width across collaps
   fireEvent.keyDown(separator, { key: "ArrowRight" });
   expect(separator.getAttribute("aria-valuenow")).toBe("266");
   fireEvent.click(screen.getByRole("button", { name: "Collapse sidebar" }));
-  expect(screen.queryByRole("separator")).toBeNull();
+  expect(screen.getByRole("separator").getAttribute("aria-valuenow")).toBe(
+    "64",
+  );
   fireEvent.click(screen.getByRole("button", { name: "Expand sidebar" }));
   const expanded = screen.getByRole("separator", { name: "Resize sidebar" });
   expect(expanded.getAttribute("aria-valuenow")).toBe("266");
   fireEvent.keyDown(expanded, { key: "Home" });
-  expect(expanded.getAttribute("aria-valuenow")).toBe("180");
+  expect(expanded.getAttribute("aria-valuenow")).toBe("64");
   fireEvent.keyDown(expanded, { key: "ArrowLeft" });
-  expect(expanded.getAttribute("aria-valuenow")).toBe("180");
+  expect(expanded.getAttribute("aria-valuenow")).toBe("64");
   fireEvent.doubleClick(expanded);
   expect(expanded.getAttribute("aria-valuenow")).toBe("250");
 });
@@ -210,4 +212,61 @@ it("opens workspace settings from the sidebar and restores focus after closing",
   fireEvent.click(within(dialog).getByRole("button", { name: "Done" }));
   expect(screen.queryByRole("dialog")).toBeNull();
   expect(document.activeElement).toBe(settings);
+});
+
+it("snaps to the minimum or closed width and can reopen within the same drag", async () => {
+  render(<App />);
+  await screen.findByRole("tab", { name: /work.md/ });
+  const separator = screen.getByRole("separator", { name: "Resize sidebar" });
+  const capture = vi.fn();
+  const release = vi.fn();
+  Object.assign(separator, {
+    setPointerCapture: capture,
+    hasPointerCapture: () => true,
+    releasePointerCapture: release,
+  });
+  fireEvent.pointerDown(separator, { pointerId: 12, button: 0, clientX: 250 });
+  fireEvent.pointerMove(separator, { pointerId: 12, clientX: 160 });
+  expect(separator.getAttribute("aria-valuenow")).toBe("180");
+  expect(screen.getByRole("button", { name: "Collapse sidebar" })).toBeTruthy();
+  fireEvent.pointerMove(separator, { pointerId: 12, clientX: 100 });
+  expect(separator.getAttribute("aria-valuenow")).toBe("64");
+  expect(screen.getByRole("button", { name: "Expand sidebar" })).toBeTruthy();
+  expect(screen.getByRole("separator")).toBe(separator);
+  expect(release).not.toHaveBeenCalled();
+  await waitFor(() =>
+    expect(invoke).toHaveBeenCalledWith("save_settings", {
+      settings: expect.objectContaining({ sidebarCollapsed: true }),
+    }),
+  );
+  fireEvent.pointerMove(separator, { pointerId: 12, clientX: 160 });
+  expect(separator.getAttribute("aria-valuenow")).toBe("180");
+  expect(screen.getByRole("tab", { name: /work.md/ })).toBeTruthy();
+  fireEvent.pointerMove(separator, { pointerId: 12, clientX: 290 });
+  expect(separator.getAttribute("aria-valuenow")).toBe("290");
+  fireEvent.pointerUp(separator, { pointerId: 12 });
+  expect(release).toHaveBeenCalledWith(12);
+});
+
+it("can resize open from a button-collapsed sidebar and expand on double-click", async () => {
+  render(<App />);
+  await screen.findByRole("tab", { name: /work.md/ });
+  fireEvent.click(screen.getByRole("button", { name: "Collapse sidebar" }));
+  const separator = screen.getByRole("separator", { name: "Resize sidebar" });
+  Object.assign(separator, {
+    setPointerCapture: vi.fn(),
+    hasPointerCapture: () => true,
+    releasePointerCapture: vi.fn(),
+  });
+  fireEvent.pointerDown(separator, { pointerId: 13, button: 0, clientX: 64 });
+  fireEvent.pointerMove(separator, { pointerId: 13, clientX: 100 });
+  expect(separator.getAttribute("aria-valuenow")).toBe("64");
+  fireEvent.pointerMove(separator, { pointerId: 13, clientX: 200 });
+  expect(separator.getAttribute("aria-valuenow")).toBe("200");
+  expect(screen.getByRole("button", { name: "Collapse sidebar" })).toBeTruthy();
+  fireEvent.pointerUp(separator, { pointerId: 13 });
+  fireEvent.click(screen.getByRole("button", { name: "Collapse sidebar" }));
+  fireEvent.doubleClick(separator);
+  expect(separator.getAttribute("aria-valuenow")).toBe("250");
+  expect(screen.getByRole("button", { name: "Collapse sidebar" })).toBeTruthy();
 });

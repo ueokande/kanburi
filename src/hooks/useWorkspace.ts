@@ -228,6 +228,14 @@ export function useWorkspace() {
     });
   }
 
+  const setSidebarCollapsed = useCallback((collapsed: boolean) => {
+    setWorkspace((previous) =>
+      previous.sidebarCollapsed === collapsed
+        ? previous
+        : { ...previous, sidebarCollapsed: collapsed },
+    );
+  }, []);
+
   return {
     ...workspace,
     ready,
@@ -243,6 +251,7 @@ export function useWorkspace() {
       setWorkspace((previous) => ({ ...previous, activeFile: path })),
     setRestoreOnStartup: (value: boolean) =>
       setWorkspace((previous) => ({ ...previous, restoreOnStartup: value })),
+    setSidebarCollapsed,
     toggleSidebar: () =>
       setWorkspace((previous) => ({
         ...previous,

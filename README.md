@@ -22,7 +22,7 @@ A native desktop Kanban board that saves everything in a single, human-readable 
 3. Your board loads from that file. Changes are saved automatically.
 4. Use **+ Open file** in the sidebar to open more files (multiple selection is supported). Select a file to switch boards; **×** closes its tab without deleting the file. Arrow Up/Down, Home, and End navigate the file tabs.
 
-Drag the sidebar’s right border to resize it; double-click the border to reset its width. You can also focus the border and use Left/Right arrows, Home, or End. Collapsing and expanding the sidebar preserves its current width, and follows your system’s reduced-motion preference.
+Drag the sidebar’s right border to resize it. Near the minimum width it snaps to either the expanded minimum or the collapsed icon rail. Drag the collapsed border to the right to reopen it; double-click the border to reset and expand it. You can also focus the border and use Left/Right arrows, Home, or End. Collapsing and expanding the sidebar preserves its current width, and follows your system’s reduced-motion preference.
 
 The first Markdown H1 is used as the document name in the sidebar and board header. Without an H1, the filename is shown. Titles are preserved when saving; files without an H1 remain untitled. Hover over a tab to see its full path.
 

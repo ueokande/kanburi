@@ -7,7 +7,10 @@ import { useWorkspace } from "./hooks/useWorkspace";
 
 function App() {
   const workspace = useWorkspace();
-  const sidebar = useSidebarResize();
+  const sidebar = useSidebarResize({
+    collapsed: workspace.sidebarCollapsed,
+    onCollapsedChange: workspace.setSidebarCollapsed,
+  });
   return (
     <div
       className={`${styles.app} ${sidebar.isResizing ? styles.resizing : ""}`}

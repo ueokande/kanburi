@@ -84,7 +84,7 @@ export function Sidebar({ workspace, resize }: Props) {
             {workspace.sidebarCollapsed ? "»" : "«"}
           </button>
         </footer>
-        {!workspace.sidebarCollapsed && <SidebarResizeHandle resize={resize} />}
+        <SidebarResizeHandle resize={resize} />
       </aside>
       {showSettings && (
         <SettingsDialog
