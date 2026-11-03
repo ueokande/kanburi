@@ -75,6 +75,12 @@ export function BoardSearch({
           <input
             ref={inputRef}
             type="text"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            // React 18 does not yet type this standard HTML attribute.
+            {...{ writingsuggestions: "false" }}
             role="combobox"
             aria-label="Search tasks"
             aria-invalid={invalid || undefined}

@@ -35,7 +35,9 @@ Workspace preferences and file paths are stored in `settings.toml` in the operat
 
 ## Searching tasks
 
-Click the search icon in the board header to reveal the search field. Combine
+Click the search icon in the board header to reveal the search field. Automatic
+spelling corrections, capitalization, and system writing suggestions are disabled
+for this field so search tokens stay as typed. Combine
 free text with `#Label` and `due:` tokens, for example:
 
 ```text
