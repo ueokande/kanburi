@@ -81,3 +81,63 @@
 .labelInput:focus {
   border-color: #0078d4;
 }
+
+.labelBadgeEditable .labelText {
+  font: inherit;
+  opacity: 1;
+}
+.labelText:hover {
+  text-decoration: underline;
+}
+.addBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.labelInput:focus-visible,
+.labelBadgeEditable button:focus-visible,
+.addBtn:focus-visible {
+  outline: 2px solid #0078d4;
+  outline-offset: 2px;
+}
+.hint,
+.error {
+  font-size: 0.72rem;
+}
+.hint {
+  color: #666;
+}
+.error {
+  color: #a12622;
+}
+.suggestions {
+  position: fixed;
+  z-index: 1000;
+  box-sizing: border-box;
+  overflow-y: auto;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+.suggestionItem {
+  display: block;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  text-align: left;
+  font: inherit;
+  font-size: 0.8rem;
+  color: #333;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.suggestionItem:hover,
+.suggestionItem[aria-selected="true"] {
+  background: #e8f4fd;
+  color: #0078d4;
+}

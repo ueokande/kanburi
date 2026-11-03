@@ -1,86 +1,102 @@
-import { useRef, useState } from "react";
-import { useComposing } from "../hooks/useComposing";
+import { createPortal } from "react-dom";
+import {
+  type LabelEditorOptions,
+  useLabelEditor,
+} from "../hooks/useLabelEditor";
 import { labelStyle } from "../utils";
 import styles from "./LabelEditor.module.css";
 
-interface Props {
-  labels: string[];
-  onAdd: (label: string) => void;
+interface Props extends LabelEditorOptions {
   onRemove: (label: string) => void;
 }
 
-export function LabelEditor({ labels, onAdd, onRemove }: Props) {
-  const [inputVisible, setInputVisible] = useState(false);
-  const [inputValue, setInputValue] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
-  const composing = useComposing();
-
-  function showInput() {
-    setInputVisible(true);
-    // Focus after render
-    setTimeout(() => inputRef.current?.focus(), 0);
-  }
-
-  function commit() {
-    const raw = inputValue.trim().replace(/^#/, "");
-    if (raw) onAdd(raw);
-    setInputValue("");
-    setInputVisible(false);
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter" && !composing.isComposing(e)) commit();
-    if (e.key === "Escape" && !composing.isComposing(e)) {
-      setInputValue("");
-      setInputVisible(false);
-    }
-  }
+export function LabelEditor({ labels, onAdd, onRemove, onRename }: Props) {
+  const editor = useLabelEditor({ labels, onAdd, onRename });
+  const input = <input {...editor.inputProps} className={styles.labelInput} />;
 
   return (
     <div className={styles.labelEditor}>
       <span className={styles.labelEditorTitle}>Labels</span>
+      {editor.field?.kind === "edit" && (
+        <span id={editor.hintId} className={styles.hint}>
+          Changes apply to this card only.
+        </span>
+      )}
       <div className={styles.labelList}>
-        {labels.map((label) => {
-          const { bg, text } = labelStyle(label);
+        {labels.map((text) => {
+          if (editor.field?.kind === "edit" && editor.field.original === text)
+            return <span key={text}>{input}</span>;
+          const color = labelStyle(text);
           return (
             <span
-              key={label}
+              key={text}
               className={styles.labelBadgeEditable}
-              style={{ background: bg, color: text }}
+              style={{ background: color.bg, color: color.text }}
             >
-              #{label}
               <button
                 type="button"
-                aria-label={`Remove label ${label}`}
-                onClick={() => onRemove(label)}
+                className={styles.labelText}
+                {...editor.getLabelButtonProps(text)}
+                aria-label={`Change label ${text} on this card`}
+                title="Change this card's label"
+              >
+                #{text}
+              </button>
+              <button
+                type="button"
+                aria-label={`Remove label ${text}`}
+                disabled={editor.saving}
+                onClick={() => onRemove(text)}
               >
                 ×
               </button>
             </span>
           );
         })}
-        {inputVisible ? (
-          <input
-            ref={inputRef}
-            className={styles.labelInput}
-            value={inputValue}
-            placeholder="#NewLabel"
-            onChange={(e) => setInputValue(e.target.value)}
-            {...composing.props}
-            onKeyDown={handleKeyDown}
-            onBlur={commit}
-          />
+        {editor.field?.kind === "add" ? (
+          input
         ) : (
           <button
+            {...editor.addButtonProps}
             type="button"
             className={styles.addBtn}
             aria-label="Add label"
-            onClick={showInput}
           >
             +
           </button>
         )}
       </div>
+      {editor.field && editor.error && (
+        <span id={editor.errorId} role="status" className={styles.error}>
+          {editor.error}
+        </span>
+      )}
+      {editor.field &&
+        editor.options.length > 0 &&
+        createPortal(
+          <div
+            {...editor.popup}
+            role="listbox"
+            aria-label="Label suggestions"
+            className={styles.suggestions}
+          >
+            {editor.options.map((option, index) => (
+              <div key={`${option.create}-${option.text}`} role="none">
+                <button
+                  type="button"
+                  role="option"
+                  {...editor.getOptionProps(index)}
+                  tabIndex={-1}
+                  className={styles.suggestionItem}
+                  onMouseDown={(event) => event.preventDefault()}
+                >
+                  {option.create ? `Add #${option.text}` : `#${option.text}`}
+                </button>
+              </div>
+            ))}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

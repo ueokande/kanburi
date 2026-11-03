@@ -1,6 +1,6 @@
 import { useKanbanDispatch, useKanbanState } from "../context/BoardContext";
 import type { Board, Task } from "../types";
-import { buildMovedTaskList } from "../utils";
+import { buildMovedTaskList, normalizeLabel } from "../utils";
 import { statusForColumn } from "./useBoard";
 import { useSaveBoard } from "./useSaveBoard";
 
@@ -67,8 +67,8 @@ export function useTaskMutations() {
   }
 
   async function addLabel(taskId: string, label: string) {
-    const raw = label.trim().replace(/^#/, "");
-    if (!raw) return;
+    const raw = normalizeLabel(label);
+    if (!raw || /\s/u.test(raw)) return;
     const task = board.tasks.find((t) => t.id === taskId);
     if (!task || task.labels.includes(raw)) return;
     await updateTask(taskId, { labels: [...task.labels, raw] });
@@ -79,6 +79,20 @@ export function useTaskMutations() {
     if (!task) return;
     await updateTask(taskId, {
       labels: task.labels.filter((l) => l !== label),
+    });
+  }
+
+  async function renameLabel(
+    taskId: string,
+    oldLabel: string,
+    newLabel: string,
+  ) {
+    const raw = normalizeLabel(newLabel);
+    if (!raw || /\s/u.test(raw) || raw === oldLabel) return;
+    const task = board.tasks.find((task) => task.id === taskId);
+    if (!task?.labels.includes(oldLabel) || task.labels.includes(raw)) return;
+    await updateTask(taskId, {
+      labels: task.labels.map((label) => (label === oldLabel ? raw : label)),
     });
   }
 
@@ -101,6 +115,7 @@ export function useTaskMutations() {
     deleteTask,
     addLabel,
     removeLabel,
+    renameLabel,
     sortColumnByDueDate,
   };
 }

@@ -70,3 +70,14 @@ export function isOverdue(due_date?: string): boolean {
   if (!due_date) return false;
   return new Date(`${due_date}T00:00:00`) < new Date(new Date().toDateString());
 }
+
+/** Labels are whitespace-delimited tokens in the Markdown format. */
+export function normalizeLabel(value: string): string {
+  return value.trim().replace(/^#/, "");
+}
+
+export function getAllLabels(tasks: import("./types").Task[]): string[] {
+  return [...new Set(tasks.flatMap((task) => task.labels))].sort((a, b) =>
+    a.localeCompare(b),
+  );
+}
