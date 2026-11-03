@@ -35,13 +35,19 @@ Workspace preferences and file paths are stored in `settings.toml` in the operat
 
 ## Searching tasks
 
-Use **Search tasks** above the board to filter cards as you type. Search is a
-case-insensitive substring match against each task's title, description, or label.
-Leading and trailing spaces are ignored. Columns remain visible, and their counts
-show matching tasks. **Clear search** or Escape in the search field shows all tasks
-again. Each open board keeps its own search until it is closed; searches are not
-saved to Markdown or restored after restarting. Editing and dragging filtered cards
-still saves the complete board, including hidden tasks.
+Use **Filter** in the board header to open a compact panel. Search matches task
+titles, descriptions, and labels using case-insensitive substrings, ignoring
+leading and trailing spaces. Choose a **Label** for an exact label match and a
+**Due date** condition: overdue, today, next 7 days (today through six days from
+now), or no due date. Dates use your local calendar; due-date conditions include
+completed tasks. All selected conditions must match.
+
+The button shows the number of active conditions even when the panel is closed.
+Escape, the close button, or clicking outside closes the panel without clearing
+conditions. **Clear filters** removes all conditions. Columns remain visible and
+show matching task counts. Each board keeps independent conditions until closed;
+filters are not saved to Markdown or restored after restarting. Editing and
+dragging filtered cards still saves the complete board, including hidden tasks.
 
 ## Markdown file format
 

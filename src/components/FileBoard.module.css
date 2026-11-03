@@ -2,7 +2,7 @@
   width: 100%;
   min-width: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
   align-items: center;
   gap: 20px;
   padding: 24px 24px 18px;
@@ -50,41 +50,9 @@
   flex: 1;
   align-items: flex-start;
 }
-.searchBar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  padding: 0 24px 8px;
-  flex-shrink: 0;
-}
-.searchBar input {
-  flex: 1;
-  min-width: 180px;
-  padding: 9px 12px;
-  border: 1px solid #d4d9e3;
-  border-radius: 8px;
-  background: #fff;
-  color: #252c38;
-  font: inherit;
-}
-.searchBar button {
-  padding: 8px 10px;
-  border: 1px solid #d4d9e3;
-  border-radius: 8px;
-  background: #fff;
-  color: #252c38;
-  cursor: pointer;
-}
-.searchBar input:focus-visible,
-.searchBar button:focus-visible {
-  outline: 2px solid #0961ef;
-  outline-offset: 2px;
-}
-.searchBar span,
 .noMatches {
-  font-size: 14px;
   color: #677083;
+  font-size: 14px;
 }
 .noMatches {
   padding: 8px 24px;
@@ -137,7 +105,7 @@
 }
 @media (max-width: 540px) {
   .appHeader {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
   }
   .fileHeading {
     grid-column: 1 / -1;
