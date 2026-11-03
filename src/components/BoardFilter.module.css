@@ -98,3 +98,14 @@
   outline: 2px solid #0961ef;
   outline-offset: 2px;
 }
+
+@media (max-width: 720px) {
+  .wrap {
+    position: static;
+  }
+  .panel {
+    right: 16px;
+    top: 100%;
+    width: min(300px, calc(100% - 32px));
+  }
+}
