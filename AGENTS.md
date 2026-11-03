@@ -15,7 +15,7 @@
 
 ## Behavior rules
 
-- Do not introduce databases or additional storage formats. The Markdown file is the only persistent store.
+- Do not introduce databases or additional storage formats. Markdown files are the only persistent store for board contents. Workspace preferences and open-file paths are stored separately in the OS application configuration directory (`settings.toml` only); never store board contents there.
 - Keep all implementation steps aligned with Tauri + React + TypeScript + pnpm.
 - Use CSS Modules (`.module.css`) for component styles. Global rules (`*`, `body`, `#root`) go in `src/global.css`, imported from `src/main.tsx`.
 - Update `README.md` when requirements or usage-facing behavior changes.
@@ -36,6 +36,7 @@ The board is serialized as:
 - [x] Completed task #label
 ```
 
+- First nonempty H1 → optional document title (`Board.title`), shown in file tabs and the board header; preserve it on saves and use the filename when absent.
 - `##` heading → column
 - `- [ ]` / `- [x]` → task (todo / done)
 - `#Word` inline → label
@@ -49,15 +50,22 @@ Parser: `src-tauri/src/markdown.rs`
 
 | Command | Description |
 |---|---|
-| `load_file(path)` | Read and parse a `.md` file; stores path in `CurrentFile` state |
-| `save_current_board(board)` | Serialize and write board to the currently open file |
+| `resolve_file_path(path)` | Validate and canonicalize a Markdown path for tab identity |
+| `load_file(path)` | Read and parse a `.md` file; record its independent modification baseline in `OpenFiles` |
+| `save_current_board(path, board, force)` | Save to an explicit open file, with per-file conflict detection |
+| `load_settings()` / `save_settings(settings)` | Read/write workspace preferences in the OS app configuration directory |
 
 ## Frontend structure
 
 ### Entry points
 
 - `src/main.tsx` — React root; imports `global.css`
-- `src/App.tsx` — top-level component; wires hooks to UI
+- `src/App.tsx` — workspace layout coordinator
+- `src/components/Sidebar.tsx` / `FileTabs.tsx` / `SidebarResizeHandle.tsx` — file navigation and resizing
+- `src/components/SettingsDialog.tsx` — workspace settings dialog
+- `src/components/WorkspaceContent.tsx` / `FileBoard.tsx` — independent board providers and board presentation
+- `src/components/AppIcon.tsx` — shared application logo from `resources/icon.svg`
+- `src/hooks/useWorkspace.ts` — open/close/select files, startup restoration, ordered settings writes
 - `src/global.css` — global reset, `body`, `#root`
 - `src/types.ts` — shared TypeScript types (`Task`, `Column`, `Board`, `Status`, `LABEL_PALETTE`)
 - `src/utils.ts` — pure helpers (e.g. `nextStatus`)

@@ -1,0 +1,40 @@
+.settings {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(440px, calc(100% - 32px));
+  border: 1px solid #d4d9e3;
+  border-radius: 14px;
+  padding: 28px;
+  color: #252c38;
+  box-shadow: 0 12px 50px #22334a33;
+}
+.settings::backdrop {
+  background: #23304455;
+}
+.settings h2 {
+  margin-bottom: 22px;
+  font-size: 23px;
+}
+.settings label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+}
+.settings p {
+  margin: 14px 0 24px;
+  color: #677083;
+  line-height: 1.6;
+  font-size: 14px;
+}
+.settings button {
+  display: block;
+  margin-left: auto;
+  border: 0;
+  border-radius: 6px;
+  padding: 9px 22px;
+  background: #0961ef;
+  color: white;
+  cursor: pointer;
+}

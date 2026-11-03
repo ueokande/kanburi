@@ -30,6 +30,7 @@ describe("useColumns", () => {
       board: expect.objectContaining({
         columns: [{ name: "Todo" }, { name: "Done" }, { name: "Column 3" }],
       }),
+      path: "/test.md",
       force: false,
     });
   });
@@ -104,6 +105,7 @@ describe("useColumns", () => {
           expect.objectContaining({ id: "t2", column: "Done" }),
         ],
       },
+      path: "/test.md",
       force: false,
     });
   });
@@ -142,6 +144,7 @@ describe("useColumns", () => {
         columns: [{ name: "Done" }],
         tasks: [expect.objectContaining({ id: "t2" })],
       },
+      path: "/test.md",
       force: false,
     });
   });

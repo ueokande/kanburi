@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use crate::models::{Board, Column, Task};
 
 pub fn parse_board(content: &str) -> Board {
+    let title = document_title(content);
     let mut columns: Vec<Column> = Vec::new();
     let mut tasks: Vec<Task> = Vec::new();
     let mut current_column: Option<String> = None;
@@ -77,13 +78,73 @@ pub fn parse_board(content: &str) -> Board {
     }
 
     if columns.is_empty() {
-        return Board::default();
+        return Board {
+            title,
+            ..Board::default()
+        };
     }
-    Board { columns, tasks }
+    Board {
+        title,
+        columns,
+        tasks,
+    }
+}
+
+/// Use the first nonempty H1 outside fenced code and task descriptions.
+fn document_title(content: &str) -> Option<String> {
+    let mut fence: Option<(char, usize)> = None;
+    let mut previous = "";
+    for line in content.lines() {
+        let trimmed = line.trim();
+        let marker = trimmed.chars().next().unwrap_or(' ');
+        let count = trimmed.chars().take_while(|ch| *ch == marker).count();
+        if matches!(marker, '`' | '~') && count >= 3 {
+            if let Some((open, length)) = fence {
+                if marker == open && count >= length && trimmed[count..].trim().is_empty() {
+                    fence = None;
+                }
+            } else {
+                fence = Some((marker, count));
+            }
+            previous = "";
+            continue;
+        }
+        if fence.is_some() || line.starts_with([' ', '\t']) {
+            previous = "";
+            continue;
+        }
+        if let Some(rest) = line.strip_prefix('#') {
+            if rest.starts_with([' ', '\t']) {
+                let title = rest.trim();
+                let without_hashes = title.trim_end_matches('#');
+                let title = if without_hashes.is_empty() || without_hashes.ends_with([' ', '\t']) {
+                    without_hashes.trim_end()
+                } else {
+                    title
+                };
+                if !title.is_empty() {
+                    return Some(title.to_owned());
+                }
+            }
+        }
+        if !previous.is_empty() && !trimmed.is_empty() && trimmed.chars().all(|ch| ch == '=') {
+            return Some(previous.to_owned());
+        }
+        previous = if trimmed.starts_with(['#', '-', '*', '>']) {
+            ""
+        } else {
+            trimmed
+        };
+    }
+    None
 }
 
 pub fn serialize_board(board: &Board) -> String {
-    let mut out = String::from("# Tasks\n");
+    let mut out = board
+        .title
+        .as_ref()
+        .map(|title| format!("# {title}\n"))
+        .unwrap_or_default();
 
     for col in &board.columns {
         out.push_str(&format!("\n## {}\n\n", col.name));
@@ -178,5 +239,55 @@ mod tests {
         assert_eq!(hash_str("Todo:fa:0"), hash_str("Todo:ad:1"));
         let board = parse_board("## Todo\n- [ ] fa\n- [ ] ad\n");
         assert_ne!(board.tasks[0].id, board.tasks[1].id);
+    }
+
+    #[test]
+    fn preserves_document_title_through_board_edits() {
+        let mut board = parse_board("# Product roadmap\n\n## Planned\n- [ ] Build it\n");
+        assert_eq!(board.title.as_deref(), Some("Product roadmap"));
+        board.columns[0].name = "Next".into();
+        let saved = serialize_board(&board);
+        assert!(saved.starts_with("# Product roadmap\n"));
+        assert_eq!(parse_board(&saved).title, board.title);
+    }
+
+    #[test]
+    fn title_only_documents_keep_their_title() {
+        let board = parse_board("# My board\n");
+        assert_eq!(board.title.as_deref(), Some("My board"));
+        assert!(!board.columns.is_empty());
+    }
+
+    #[test]
+    fn no_heading_stays_untitled_after_saving() {
+        let board = parse_board("## Todo\n- [ ] A task\n");
+        assert!(board.title.is_none());
+        assert!(parse_board(&serialize_board(&board)).title.is_none());
+    }
+
+    #[test]
+    fn first_heading_supports_closing_hashes_and_setext() {
+        assert_eq!(
+            parse_board("# Roadmap ###\n# Other\n").title.as_deref(),
+            Some("Roadmap")
+        );
+        assert_eq!(
+            parse_board("Roadmap\n=======\n").title.as_deref(),
+            Some("Roadmap")
+        );
+        assert_eq!(parse_board("# C#\n").title.as_deref(), Some("C#"));
+        assert!(parse_board("# ###\n").title.is_none());
+    }
+
+    #[test]
+    fn code_and_task_description_headings_are_not_document_titles() {
+        let content = "```markdown\n# Code example\n```\n## Todo\n- [ ] A task\n  # Description\n";
+        assert!(parse_board(content).title.is_none());
+        assert_eq!(
+            parse_board("~~~\n# Example\n~~~\n# Actual title\n")
+                .title
+                .as_deref(),
+            Some("Actual title")
+        );
     }
 }

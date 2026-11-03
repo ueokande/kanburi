@@ -32,6 +32,7 @@ describe("useTaskMutations", () => {
           expect.objectContaining({ id: "t1", text: "Updated text" }),
         ]),
       }),
+      path: "/test.md",
       force: false,
     });
   });
@@ -50,6 +51,7 @@ describe("useTaskMutations", () => {
       board: expect.objectContaining({
         tasks: [expect.objectContaining({ id: "t2" })],
       }),
+      path: "/test.md",
       force: false,
     });
   });
@@ -83,6 +85,7 @@ describe("useTaskMutations", () => {
           expect.objectContaining({ id: "t1", labels: ["Feature"] }),
         ]),
       }),
+      path: "/test.md",
       force: false,
     });
   });
@@ -117,6 +120,7 @@ describe("useTaskMutations", () => {
           expect.objectContaining({ id: "t2", labels: ["Bug", "Feature"] }),
         ]),
       }),
+      path: "/test.md",
       force: false,
     });
   });
@@ -137,6 +141,7 @@ describe("useTaskMutations", () => {
           expect.objectContaining({ id: "t2", labels: [] }),
         ]),
       }),
+      path: "/test.md",
       force: false,
     });
   });
@@ -157,6 +162,7 @@ describe("useTaskMutations", () => {
           expect.objectContaining({ id: "t1", column: "Done", status: "done" }),
         ]),
       }),
+      path: "/test.md",
       force: false,
     });
   });
@@ -197,6 +203,7 @@ describe("useTaskMutations", () => {
           expect.objectContaining({ id: "t1", status: "todo" }),
         ]),
       }),
+      path: "/test.md",
       force: false,
     });
   });

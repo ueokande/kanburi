@@ -1,74 +1,9 @@
 .app {
   display: flex;
-  flex-direction: column;
   height: 100%;
+  background: #f8f9fc;
 }
-
-.appHeader {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 12px 20px;
-  background: #fff;
-  border-bottom: 1px solid #ddd;
-  flex-shrink: 0;
-}
-
-.appHeader h1 {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #1a1a1a;
-}
-
-.fileName {
-  font-size: 0.85rem;
-  color: #555;
-  max-width: 260px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.openFileBtn {
-  padding: 6px 14px;
-  background: transparent;
-  color: #0078d4;
-  border: 1px solid #0078d4;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-
-.openFileBtn:hover:not(:disabled) {
-  background: #e8f4fd;
-}
-
-.openFileBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.addColBtn {
-  margin-left: auto;
-  padding: 6px 14px;
-  background: #0078d4;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-
-.addColBtn:hover {
-  background: #005fa3;
-}
-
-.board {
-  display: flex;
-  flex-direction: row;
-  gap: 14px;
-  padding: 16px 20px;
-  overflow-x: auto;
-  flex: 1;
-  align-items: flex-start;
+.resizing {
+  cursor: col-resize;
+  user-select: none;
 }

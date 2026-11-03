@@ -40,6 +40,7 @@ export function useColumns() {
     if (!trimmed || trimmed === oldName) return;
     if (board.columns.some((c) => c.name === trimmed)) return;
     const updated: Board = {
+      ...board,
       columns: board.columns.map((c) =>
         c.name === oldName ? { name: trimmed } : c,
       ),
@@ -56,6 +57,7 @@ export function useColumns() {
 
   async function deleteColumn(name: string) {
     const updated: Board = {
+      ...board,
       columns: board.columns.filter((c) => c.name !== name),
       tasks: board.tasks.filter((t) => t.column !== name),
     };

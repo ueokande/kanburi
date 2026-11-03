@@ -19,6 +19,8 @@ pub struct Task {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Board {
+    #[serde(default)]
+    pub title: Option<String>,
     pub columns: Vec<Column>,
     pub tasks: Vec<Task>,
 }
@@ -26,10 +28,17 @@ pub struct Board {
 impl Default for Board {
     fn default() -> Self {
         Board {
+            title: None,
             columns: vec![
-                Column { name: "To Do".into() },
-                Column { name: "In Progress".into() },
-                Column { name: "Done".into() },
+                Column {
+                    name: "To Do".into(),
+                },
+                Column {
+                    name: "In Progress".into(),
+                },
+                Column {
+                    name: "Done".into(),
+                },
             ],
             tasks: vec![],
         }
