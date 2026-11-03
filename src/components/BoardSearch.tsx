@@ -64,7 +64,7 @@ export function BoardSearch({
     pendingCaret.current = position;
     onChange(text);
     setCaret(position);
-    setDismissed(!option.continue);
+    setDismissed(false);
     setHighlight(0);
   }
   return (
@@ -84,7 +84,11 @@ export function BoardSearch({
             }
             placeholder="Search tasks"
             value={query}
-            onFocus={() => setFocused(true)}
+            onFocus={() => {
+              setFocused(true);
+              setDismissed(false);
+              setHighlight(0);
+            }}
             onBlur={() => setFocused(false)}
             onCompositionStart={() => {
               composing.props.onCompositionStart();

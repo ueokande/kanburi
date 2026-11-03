@@ -195,3 +195,37 @@ it("offers qualifiers after whitespace and dismisses them without changing free 
   expect((input as HTMLInputElement).value).toBe("login ");
   expect(screen.getByText("Fix login")).toBeTruthy();
 });
+
+it.each([
+  " ",
+  "login ",
+  "#Backend ",
+  "due:today ",
+  "login #Backend due:today ",
+])("offers the next qualifier after a manually typed space: %s", (value) => {
+  const input = setup();
+  fireEvent.change(input, {
+    target: { value, selectionStart: value.length, selectionEnd: value.length },
+  });
+  expect(screen.getByRole("option", { name: "# Label" })).toBeTruthy();
+  expect(screen.getByRole("option", { name: "due: Due date" })).toBeTruthy();
+});
+it("continues from completed label and due values to the next qualifier", () => {
+  const input = setup();
+  fireEvent.click(screen.getByRole("option", { name: "# Label" }));
+  fireEvent.click(screen.getByRole("option", { name: /#Backend/ }));
+  expect((input as HTMLInputElement).value).toBe("#Backend ");
+  fireEvent.click(screen.getByRole("option", { name: "due: Due date" }));
+  expect((input as HTMLInputElement).value).toBe("#Backend due:");
+  fireEvent.click(screen.getByRole("option", { name: /due:today/ }));
+  expect((input as HTMLInputElement).value).toBe("#Backend due:today ");
+  expect(screen.getByRole("option", { name: "# Label" })).toBeTruthy();
+  expect(screen.getByRole("option", { name: "due: Due date" })).toBeTruthy();
+});
+it("restores suggestions when reopening an empty search after dismissing them", () => {
+  setup();
+  fireEvent.keyDown(screen.getByRole("combobox"), { key: "Escape" });
+  fireEvent.keyDown(screen.getByRole("combobox"), { key: "Escape" });
+  fireEvent.click(screen.getByRole("button", { name: "Search" }));
+  expect(screen.getByRole("option", { name: "# Label" })).toBeTruthy();
+});
