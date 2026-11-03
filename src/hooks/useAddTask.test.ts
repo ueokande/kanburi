@@ -78,6 +78,7 @@ describe("useAddTask", () => {
           }),
         ]),
       }),
+      path: "/test.md",
       force: false,
     });
   });
@@ -130,6 +131,7 @@ describe("useAddTask", () => {
           }),
         ]),
       }),
+      path: "/test.md",
       force: false,
     });
   });
@@ -156,6 +158,7 @@ describe("useAddTask", () => {
           expect.objectContaining({ column: "Done", status: "done" }),
         ]),
       }),
+      path: "/test.md",
       force: false,
     });
   });

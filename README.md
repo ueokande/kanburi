@@ -8,6 +8,8 @@ A native desktop Kanban board that saves everything in a single, human-readable 
 
 ## Features
 
+- Open multiple Markdown files in vertical tabs and switch between boards
+- Restore open files and the selected tab when the app starts
 - Drag cards between columns
 - Labels, due dates, and descriptions per card
 - Label autocomplete from labels used on the current board
@@ -18,6 +20,11 @@ A native desktop Kanban board that saves everything in a single, human-readable 
 1. Launch **Kanburi**.
 2. Click **Open file** and choose (or create) a `.md` file.
 3. Your board loads from that file. Changes are saved automatically.
+4. Use **+** or **Open file** in the sidebar to open more files (multiple selection is supported). Select a file to switch boards; **×** closes its tab without deleting the file. Arrow Up/Down, Home, and End navigate the file tabs.
+
+**Settings → Restore open files on startup** is enabled by default. Kanburi remembers the open files, selected tab, and sidebar state. It reads the latest Markdown contents when restoring; missing or unreadable files are reported and skipped. Closing every tab saves an empty session. Disable restoration to start with an empty workspace.
+
+Workspace preferences and file paths are stored in `settings.json` in the operating system’s application configuration directory for `com.kanburi.app` (for example, `$XDG_CONFIG_HOME/com.kanburi.app/` or `~/.config/com.kanburi.app/` on Linux). Board contents remain exclusively in your Markdown files. If settings cannot be read, Kanburi reports the problem without overwriting them; choose **Retry** or explicitly reset with **Use default settings**.
 
 > **Tip:** Keep your board file in a cloud-synced folder (iCloud Drive, Dropbox, etc.) to access it from multiple machines.
 
