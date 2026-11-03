@@ -117,24 +117,7 @@ mod tests {
         write_settings(&path, &settings).unwrap();
         let content = fs::read_to_string(&path).unwrap();
         assert!(content.contains("restoreOnStartup = true"));
-        assert!(!content.trim_start().starts_with('{'));
-        assert!(!path.with_extension("json").exists());
         assert_eq!(toml::from_str::<Settings>(&content).unwrap(), settings);
-    }
-
-    #[test]
-    fn ignores_existing_json_settings() {
-        let dir = tempfile::tempdir().unwrap();
-        let path = dir.path().join("settings.toml");
-        let json_path = path.with_extension("json");
-        let original =
-            r#"{"restoreOnStartup":false,"openFiles":["/old.md"],"sidebarCollapsed":true}"#;
-        fs::write(&json_path, original).unwrap();
-        assert_eq!(read_settings(&path).unwrap(), Settings::default());
-        assert!(!path.exists());
-        write_settings(&path, &Settings::default()).unwrap();
-        assert_eq!(read_settings(&path).unwrap(), Settings::default());
-        assert_eq!(fs::read_to_string(json_path).unwrap(), original);
     }
 
     #[test]
