@@ -1,6 +1,6 @@
 # Kanburi
 
-![Screenshot](./screenshot.png)
+![Kanburi with multiple Markdown boards in the file sidebar](./screenshot.png)
 
 A native desktop Kanban board that saves everything in a single, human-readable Markdown file — no database, no account, no sync service required.
 
