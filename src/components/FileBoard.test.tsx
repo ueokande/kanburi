@@ -229,3 +229,27 @@ it("restores suggestions when reopening an empty search after dismissing them", 
   fireEvent.click(screen.getByRole("button", { name: "Search" }));
   expect(screen.getByRole("option", { name: "# Label" })).toBeTruthy();
 });
+
+it("shows all qualifiers after IME commits a keyword followed by whitespace", () => {
+  const input = setup() as HTMLInputElement;
+  fireEvent.compositionStart(input);
+  fireEvent.change(input, {
+    target: { value: "キーワード ", selectionStart: 0, selectionEnd: 5 },
+  });
+  fireEvent.select(input);
+  input.setSelectionRange(input.value.length, input.value.length);
+  fireEvent.compositionEnd(input);
+  expect(screen.getByRole("option", { name: "# Label" })).toBeTruthy();
+  expect(screen.getByRole("option", { name: "due: Due date" })).toBeTruthy();
+});
+it("uses the final DOM cursor position after a space key, even if selection events lag", () => {
+  const input = setup() as HTMLInputElement;
+  fireEvent.change(input, {
+    target: { value: "login ", selectionStart: 3, selectionEnd: 3 },
+  });
+  expect(screen.queryByRole("listbox")).toBeNull();
+  input.setSelectionRange(input.value.length, input.value.length);
+  fireEvent.keyUp(input, { key: " ", code: "Space" });
+  expect(screen.getByRole("option", { name: "# Label" })).toBeTruthy();
+  expect(screen.getByRole("option", { name: "due: Due date" })).toBeTruthy();
+});

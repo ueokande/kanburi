@@ -52,6 +52,11 @@ export function BoardSearch({
         .getElementById(`${id}-option-${selected}`)
         ?.scrollIntoView?.({ block: "nearest" });
   }, [id, selected, options.length]);
+  function refreshCompletion(input: HTMLInputElement) {
+    setCaret(input.selectionStart ?? input.value.length);
+    setHighlight(0);
+    setDismissed(input.selectionStart !== input.selectionEnd);
+  }
   function choose(index: number) {
     const option = options[index];
     if (!completion || !option) return;
@@ -84,19 +89,23 @@ export function BoardSearch({
             }
             placeholder="Search tasks"
             value={query}
-            onFocus={() => {
+            onFocus={(event) => {
               setFocused(true);
-              setDismissed(false);
-              setHighlight(0);
+              refreshCompletion(event.currentTarget);
             }}
             onBlur={() => setFocused(false)}
             onCompositionStart={() => {
               composing.props.onCompositionStart();
               setIsComposing(true);
             }}
-            onCompositionEnd={() => {
+            onCompositionEnd={(event) => {
               composing.props.onCompositionEnd();
               setIsComposing(false);
+              refreshCompletion(event.currentTarget);
+              // WebViews can finalize the caret after compositionend.
+              requestAnimationFrame(() => {
+                if (inputRef.current) refreshCompletion(inputRef.current);
+              });
             }}
             onChange={(event) => {
               onChange(event.target.value);
@@ -113,6 +122,16 @@ export function BoardSearch({
                 setDismissed(true);
             }}
             onClick={() => setDismissed(false)}
+            onKeyUp={(event) => {
+              if (
+                !composing.isComposing(event) &&
+                (event.code === "Space" ||
+                  event.key === " " ||
+                  event.key === "　")
+              ) {
+                refreshCompletion(event.currentTarget);
+              }
+            }}
             onKeyDown={(event) => {
               if (composing.isComposing(event)) return;
               if (
