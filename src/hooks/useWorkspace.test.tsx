@@ -26,7 +26,7 @@ beforeEach(() => {
   invoke.mockImplementation(
     async (command: string, args?: { path?: string }) => {
       if (command === "load_settings") {
-        if (failSettings) throw new Error("Invalid JSON");
+        if (failSettings) throw new Error("Invalid TOML");
         return settings;
       }
       if (command === "resolve_file_path") {

@@ -28,7 +28,7 @@ The first Markdown H1 is used as the document name in the sidebar and board head
 
 **Settings → Restore open files on startup** is enabled by default. Kanburi remembers the open files, selected tab, and sidebar state. It reads the latest Markdown contents when restoring; missing or unreadable files are reported and skipped. Closing every tab saves an empty session. Disable restoration to start with an empty workspace.
 
-Workspace preferences and file paths are stored in `settings.json` in the operating system’s application configuration directory for `com.kanburi.app` (for example, `$XDG_CONFIG_HOME/com.kanburi.app/` or `~/.config/com.kanburi.app/` on Linux). Board contents remain exclusively in your Markdown files. If settings cannot be read, Kanburi reports the problem without overwriting them; choose **Retry** or explicitly reset with **Use default settings**.
+Workspace preferences and file paths are stored in `settings.toml` in the operating system’s application configuration directory for `com.kanburi.app` (for example, `$XDG_CONFIG_HOME/com.kanburi.app/` or `~/.config/com.kanburi.app/` on Linux). Only TOML settings are read and written; existing JSON settings are ignored. Board contents remain exclusively in your Markdown files. If settings cannot be read, Kanburi reports the problem without overwriting them; choose **Retry** or explicitly reset with **Use default settings**.
 
 > **Tip:** Keep your board file in a cloud-synced folder (iCloud Drive, Dropbox, etc.) to access it from multiple machines.
 

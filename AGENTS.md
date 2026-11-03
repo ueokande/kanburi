@@ -15,7 +15,7 @@
 
 ## Behavior rules
 
-- Do not introduce databases or additional storage formats. Markdown files are the only persistent store for board contents. Workspace preferences and open-file paths are stored separately in the OS application configuration directory (`settings.json`); never store board contents there.
+- Do not introduce databases or additional storage formats. Markdown files are the only persistent store for board contents. Workspace preferences and open-file paths are stored separately in the OS application configuration directory (`settings.toml` only); never store board contents there.
 - Keep all implementation steps aligned with Tauri + React + TypeScript + pnpm.
 - Use CSS Modules (`.module.css`) for component styles. Global rules (`*`, `body`, `#root`) go in `src/global.css`, imported from `src/main.tsx`.
 - Update `README.md` when requirements or usage-facing behavior changes.
